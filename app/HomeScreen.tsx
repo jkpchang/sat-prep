@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { StreakDisplay } from '../components/StreakDisplay';
-import { ProgressCard } from '../components/ProgressCard';
-import { gamificationService } from '../services/gamification';
-import { UserProgress } from '../types';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { StreakDisplay } from "../components/StreakDisplay";
+import { ProgressCard } from "../components/ProgressCard";
+import { gamificationService } from "../services/gamification";
+import { UserProgress } from "../types";
 
-import { CompositeNavigationProp } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CompositeNavigationProp } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type TabParamList = {
   Home: undefined;
@@ -20,7 +27,7 @@ type RootStackParamList = {
 };
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
-  BottomTabNavigationProp<TabParamList, 'Home'>,
+  BottomTabNavigationProp<TabParamList, "Home">,
   NativeStackNavigationProp<RootStackParamList>
 >;
 
@@ -43,14 +50,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   // Reload when screen comes into focus (e.g., returning from Quiz screen)
   React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
+    const unsubscribe = navigation.addListener("focus", () => {
       loadProgress();
     });
     return unsubscribe;
   }, [navigation]);
 
   const handleStartPractice = () => {
-    navigation.navigate('Quiz');
+    navigation.navigate("Quiz");
   };
 
   if (!progress) {
@@ -61,14 +68,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     );
   }
 
-  const accuracy = progress.questionsAnswered > 0
-    ? Math.round((progress.correctAnswers / progress.questionsAnswered) * 100)
-    : 0;
+  const accuracy =
+    progress.questionsAnswered > 0
+      ? Math.round((progress.correctAnswers / progress.questionsAnswered) * 100)
+      : 0;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>SAT Prep</Text>
+        <Text style={styles.title}>Testez!</Text>
         <Text style={styles.subtitle}>Level up your skills!</Text>
       </View>
 
@@ -79,7 +87,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <Text style={styles.challengeDescription}>
           Complete 5 questions today to maintain your streak!
         </Text>
-        <TouchableOpacity style={styles.startButton} onPress={handleStartPractice}>
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={handleStartPractice}
+        >
           <Text style={styles.startButtonText}>Start Practice</Text>
         </TouchableOpacity>
       </View>
@@ -88,14 +99,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Your Progress</Text>
         <View style={styles.progressGrid}>
           <ProgressCard label="Total XP" value={progress.totalXP} icon="⭐" />
-          <ProgressCard label="Questions" value={progress.questionsAnswered} icon="❓" />
+          <ProgressCard
+            label="Questions"
+            value={progress.questionsAnswered}
+            icon="❓"
+          />
           <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
         </View>
       </View>
 
       <TouchableOpacity
         style={styles.secondaryButton}
-        onPress={() => navigation.navigate('Progress')}
+        onPress={() => navigation.navigate("Progress")}
       >
         <Text style={styles.secondaryButtonText}>View Full Progress →</Text>
       </TouchableOpacity>
@@ -106,7 +121,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: "#F5F7FA",
   },
   content: {
     padding: 16,
@@ -117,20 +132,20 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2C3E50',
+    fontWeight: "bold",
+    color: "#2C3E50",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
   },
   dailyChallenge: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 20,
     borderRadius: 16,
     marginVertical: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -138,49 +153,48 @@ const styles = StyleSheet.create({
   },
   challengeTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2C3E50',
+    fontWeight: "bold",
+    color: "#2C3E50",
     marginBottom: 8,
   },
   challengeDescription: {
     fontSize: 14,
-    color: '#7F8C8D',
+    color: "#7F8C8D",
     marginBottom: 16,
   },
   startButton: {
-    backgroundColor: '#4ECDC4',
+    backgroundColor: "#4ECDC4",
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   startButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   progressSection: {
     marginTop: 24,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2C3E50',
+    fontWeight: "bold",
+    color: "#2C3E50",
     marginBottom: 12,
   },
   progressGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   secondaryButton: {
     marginTop: 24,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   secondaryButtonText: {
-    color: '#4ECDC4',
+    color: "#4ECDC4",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-

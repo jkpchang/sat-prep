@@ -41,7 +41,9 @@ export class GamificationService {
     const today = getTodayString();
 
     if (!lastDate) {
-      // First time user
+      // First time user - streak should be 0
+      this.progress.streak = 0;
+      await this.saveProgress();
       return;
     }
 
@@ -50,32 +52,39 @@ export class GamificationService {
       return;
     }
 
-    if (isYesterday(lastDate)) {
-      // Continued streak
-      this.progress.streak += 1;
-    } else {
-      // Streak broken
-      this.progress.streak = 1;
+    // If last practice was more than 1 day ago, streak is broken
+    if (!isYesterday(lastDate)) {
+      // Streak broken - reset to 0 (will become 1 when they practice today)
+      this.progress.streak = 0;
+      await this.saveProgress();
     }
-
-    await this.saveProgress();
+    // If last practice was yesterday, keep current streak
+    // It will be incremented when user practices today in recordPractice()
   }
 
   async recordPractice(isCorrect: boolean): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
     const today = getTodayString();
     const lastDate = await storageService.getLastPracticeDate();
 
-    // Update streak if needed
-    if (!lastDate || !isToday(lastDate)) {
-      if (lastDate && isYesterday(lastDate)) {
-        this.progress.streak += 1;
-      } else if (lastDate && !isYesterday(lastDate)) {
+    // Update streak ONLY if this is the first practice of the day
+    // This ensures streak increments once per day, not once per practice session
+    const isFirstPracticeToday = !lastDate || !isToday(lastDate);
+    
+    if (isFirstPracticeToday) {
+      if (!lastDate) {
+        // First time ever practicing
         this.progress.streak = 1;
+      } else if (isYesterday(lastDate)) {
+        // Continued streak from yesterday - increment by 1
+        this.progress.streak += 1;
       } else {
+        // Gap in practice (more than 1 day) - start new streak
         this.progress.streak = 1;
       }
+      // Save today's date to prevent multiple increments today
       await storageService.saveLastPracticeDate(today);
     }
+    // If already practiced today, streak stays the same (no increment)
 
     // Update stats
     this.progress.questionsAnswered += 1;

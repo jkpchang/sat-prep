@@ -41,5 +41,14 @@ export const storageService = {
       console.error('Error saving last practice date:', error);
     }
   },
+
+  async clearAll(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.USER_PROGRESS);
+      await AsyncStorage.removeItem(STORAGE_KEYS.LAST_PRACTICE_DATE);
+    } catch (error) {
+      console.error('Error clearing storage:', error);
+    }
+  },
 };
 

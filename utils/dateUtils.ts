@@ -1,26 +1,29 @@
 export const isToday = (dateString: string): boolean => {
-  const date = new Date(dateString);
-  const today = new Date();
-  return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
-  );
+  if (!dateString) return false;
+  
+  // Compare date strings directly (YYYY-MM-DD format)
+  const today = getTodayString();
+  return dateString === today;
 };
 
 export const isYesterday = (dateString: string): boolean => {
-  const date = new Date(dateString);
+  if (!dateString) return false;
+  
+  // Get yesterday's date string
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  return (
-    date.getDate() === yesterday.getDate() &&
-    date.getMonth() === yesterday.getMonth() &&
-    date.getFullYear() === yesterday.getFullYear()
-  );
+  const yesterdayString = yesterday.toISOString().split('T')[0];
+  
+  return dateString === yesterdayString;
 };
 
 export const getTodayString = (): string => {
-  return new Date().toISOString().split('T')[0];
+  // Use local date, not UTC, to match user's timezone
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 export const formatDate = (dateString: string): string => {
