@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 interface StreakDisplayProps {
   streak: number;
@@ -11,7 +11,9 @@ export const StreakDisplay: React.FC<StreakDisplayProps> = ({ streak }) => {
       <Text style={styles.fireEmoji}>🔥</Text>
       <View style={styles.textContainer}>
         <Text style={styles.streakNumber}>{streak}</Text>
-        <Text style={styles.streakLabel}>Day Streak</Text>
+        <Text style={styles.streakLabel}>
+          {streak === 1 ? "Day Streak" : "Days Streak"}
+        </Text>
       </View>
     </View>
   );
@@ -19,9 +21,9 @@ export const StreakDisplay: React.FC<StreakDisplayProps> = ({ streak }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FF6B6B',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FF6B6B",
     padding: 16,
     borderRadius: 12,
     marginVertical: 8,
@@ -35,13 +37,12 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   streakLabel: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     opacity: 0.9,
   },
 });
-

@@ -1,18 +1,55 @@
-import { UserProgress, Achievement } from '../types';
-import { storageService } from './storage';
-import { isToday, isYesterday, getTodayString } from '../utils/dateUtils';
+import { UserProgress, Achievement } from "../types";
+import { storageService } from "./storage";
+import { isToday, isYesterday, getTodayString } from "../utils/dateUtils";
 
 const ACHIEVEMENTS: Achievement[] = [
-  { id: 'first_question', name: 'Getting Started', description: 'Answer your first question', icon: '🎯', unlocked: false },
-  { id: 'streak_3', name: 'On a Roll', description: 'Maintain a 3-day streak', icon: '🔥', unlocked: false },
-  { id: 'streak_7', name: 'Week Warrior', description: 'Maintain a 7-day streak', icon: '💪', unlocked: false },
-  { id: 'streak_30', name: 'Monthly Master', description: 'Maintain a 30-day streak', icon: '👑', unlocked: false },
-  { id: 'perfect_10', name: 'Perfect Score', description: 'Get 10 questions correct in a row', icon: '⭐', unlocked: false },
-  { id: 'xp_1000', name: 'Knowledge Seeker', description: 'Earn 1000 XP', icon: '📚', unlocked: false },
+  {
+    id: "first_question",
+    name: "Getting Started",
+    description: "Answer your first question",
+    icon: "🎯",
+    unlocked: false,
+  },
+  {
+    id: "streak_3",
+    name: "On a Roll",
+    description: "Maintain a 3-day streak",
+    icon: "🔥",
+    unlocked: false,
+  },
+  {
+    id: "streak_7",
+    name: "Week Warrior",
+    description: "Maintain a 7-day streak",
+    icon: "💪",
+    unlocked: false,
+  },
+  {
+    id: "streak_30",
+    name: "Monthly Master",
+    description: "Maintain a 30-day streak",
+    icon: "👑",
+    unlocked: false,
+  },
+  {
+    id: "perfect_10",
+    name: "Perfect Score",
+    description: "Get 10 questions correct in a row",
+    icon: "⭐",
+    unlocked: false,
+  },
+  {
+    id: "xp_1000",
+    name: "Knowledge Seeker",
+    description: "Earn 1000 XP",
+    icon: "📚",
+    unlocked: false,
+  },
 ];
 
 const XP_PER_CORRECT = 10;
 const XP_PER_QUESTION = 5; // Even for wrong answers
+const MIN_QUESTIONS_FOR_STREAK = 5; // Minimum questions per day to count toward streak
 
 export class GamificationService {
   private progress: UserProgress;
@@ -27,6 +64,9 @@ export class GamificationService {
       questionsAnswered: 0,
       correctAnswers: 0,
       lastPracticeDate: null,
+      lastQuestionDate: null,
+      questionsAnsweredToday: 0,
+      lastValidStreakDate: null,
       achievements: [],
       answeredQuestionIds: [],
     };
@@ -39,14 +79,34 @@ export class GamificationService {
       this.progress = {
         ...saved,
         answeredQuestionIds: saved.answeredQuestionIds || [],
+        // Backward compatibility: migrate lastPracticeDate to lastQuestionDate
+        lastQuestionDate:
+          saved.lastQuestionDate || saved.lastPracticeDate || null,
+        questionsAnsweredToday: saved.questionsAnsweredToday || 0,
+        lastValidStreakDate: saved.lastValidStreakDate || null,
       };
       this.answeredQuestionIdsSet = new Set(this.progress.answeredQuestionIds);
       this.trimAnsweredQuestionsIfNeeded();
-      await this.updateStreak();
+      await this.validateStreakOnStart();
     } else {
-      this.progress.answeredQuestionIds = [];
-      this.answeredQuestionIdsSet = new Set<string>();
+      this.reset();
     }
+  }
+
+  reset(): void {
+    this.progress = {
+      streak: 0,
+      totalXP: 0,
+      questionsAnswered: 0,
+      correctAnswers: 0,
+      lastPracticeDate: null,
+      lastQuestionDate: null,
+      questionsAnsweredToday: 0,
+      lastValidStreakDate: null,
+      achievements: [],
+      answeredQuestionIds: [],
+    };
+    this.answeredQuestionIdsSet = new Set<string>();
   }
 
   private trimAnsweredQuestionsIfNeeded(): void {
@@ -58,44 +118,92 @@ export class GamificationService {
     }
   }
 
-  async updateStreak(): Promise<void> {
-    const lastDate = await storageService.getLastPracticeDate();
+  async validateStreakOnStart(): Promise<void> {
     const today = getTodayString();
+    const lastQuestionDate = this.progress.lastQuestionDate;
+    const lastValidDate = this.progress.lastValidStreakDate;
 
-    if (!lastDate) {
-      this.progress.streak = 0;
-      await this.saveProgress();
-      return;
+    // Reset daily counter if not today
+    if (!lastQuestionDate || !isToday(lastQuestionDate)) {
+      this.progress.questionsAnsweredToday = 0;
     }
 
-    if (isToday(lastDate)) {
-      return;
-    }
-
-    if (!isYesterday(lastDate)) {
+    // Check if streak is broken
+    if (lastValidDate) {
+      if (isToday(lastValidDate)) {
+        // Streak is still valid (completed today)
+        return;
+      } else if (isYesterday(lastValidDate)) {
+        // Last valid day was yesterday - streak still active
+        // But need to complete today to continue
+        return;
+      } else {
+        // More than 1 day gap - streak broken
+        this.progress.streak = 0;
+        this.progress.lastValidStreakDate = null;
+        await this.saveProgress();
+      }
+    } else if (
+      lastQuestionDate &&
+      !isToday(lastQuestionDate) &&
+      !isYesterday(lastQuestionDate)
+    ) {
+      // No valid streak date but last question was more than 1 day ago
       this.progress.streak = 0;
       await this.saveProgress();
     }
   }
 
-  async recordPractice(isCorrect: boolean, questionId?: string): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
-    const today = getTodayString();
-    const lastDate = await storageService.getLastPracticeDate();
+  async updateStreakForDay(date: string): Promise<void> {
+    const lastValidDate = this.progress.lastValidStreakDate;
 
-    const isFirstPracticeToday = !lastDate || !isToday(lastDate);
-    
-    if (isFirstPracticeToday) {
-      if (!lastDate) {
-        this.progress.streak = 1;
-      } else if (isYesterday(lastDate)) {
-        this.progress.streak += 1;
-      } else {
-        this.progress.streak = 1;
-      }
-      await storageService.saveLastPracticeDate(today);
+    if (!lastValidDate) {
+      // First time hitting 5 questions - start streak
+      this.progress.streak = 1;
+      this.progress.lastValidStreakDate = date;
+    } else if (isYesterday(lastValidDate)) {
+      // Consecutive day - increment streak
+      this.progress.streak += 1;
+      this.progress.lastValidStreakDate = date;
+    } else if (isToday(lastValidDate)) {
+      // Same day - don't increment (already counted)
+      // Do nothing
+    } else {
+      // Gap in streak - reset
+      this.progress.streak = 1;
+      this.progress.lastValidStreakDate = date;
     }
 
-    if (questionId && isCorrect && !this.answeredQuestionIdsSet.has(questionId)) {
+    await this.saveProgress();
+  }
+
+  async recordPractice(
+    isCorrect: boolean,
+    questionId?: string
+  ): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
+    const today = getTodayString();
+    const lastQuestionDate = this.progress.lastQuestionDate;
+
+    // Reset daily counter if new day
+    if (!lastQuestionDate || !isToday(lastQuestionDate)) {
+      this.progress.questionsAnsweredToday = 0;
+    }
+
+    // Increment today's count
+    this.progress.questionsAnsweredToday += 1;
+    this.progress.lastQuestionDate = today;
+
+    // Check if we've hit the 5-question threshold
+    if (this.progress.questionsAnsweredToday === MIN_QUESTIONS_FOR_STREAK) {
+      // This day now counts toward streak
+      await this.updateStreakForDay(today);
+    }
+
+    if (
+      questionId &&
+      isCorrect &&
+      !this.answeredQuestionIdsSet.has(questionId)
+    ) {
       this.answeredQuestionIdsSet.add(questionId);
       this.progress.answeredQuestionIds.push(questionId);
       this.trimAnsweredQuestionsIfNeeded();
@@ -111,6 +219,7 @@ export class GamificationService {
 
     const newAchievements = await this.checkAchievements();
 
+    // Keep lastPracticeDate for backward compatibility
     this.progress.lastPracticeDate = today;
     await this.saveProgress();
 
@@ -129,19 +238,19 @@ export class GamificationService {
       let shouldUnlock = false;
 
       switch (achievement.id) {
-        case 'first_question':
+        case "first_question":
           shouldUnlock = this.progress.questionsAnswered >= 1;
           break;
-        case 'streak_3':
+        case "streak_3":
           shouldUnlock = this.progress.streak >= 3;
           break;
-        case 'streak_7':
+        case "streak_7":
           shouldUnlock = this.progress.streak >= 7;
           break;
-        case 'streak_30':
+        case "streak_30":
           shouldUnlock = this.progress.streak >= 30;
           break;
-        case 'xp_1000':
+        case "xp_1000":
           shouldUnlock = this.progress.totalXP >= 1000;
           break;
         // perfect_10 would need additional tracking
@@ -149,7 +258,11 @@ export class GamificationService {
 
       if (shouldUnlock) {
         this.progress.achievements.push(achievement.id);
-        newAchievements.push({ ...achievement, unlocked: true, unlockedDate: new Date().toISOString() });
+        newAchievements.push({
+          ...achievement,
+          unlocked: true,
+          unlockedDate: new Date().toISOString(),
+        });
       }
     }
 
@@ -169,7 +282,7 @@ export class GamificationService {
   }
 
   getAchievements(): Achievement[] {
-    return ACHIEVEMENTS.map(ach => ({
+    return ACHIEVEMENTS.map((ach) => ({
       ...ach,
       unlocked: this.progress.achievements.includes(ach.id),
     }));
@@ -182,4 +295,3 @@ export class GamificationService {
 }
 
 export const gamificationService = new GamificationService();
-

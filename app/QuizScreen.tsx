@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Animated,
   Dimensions,
 } from "react-native";
@@ -56,6 +55,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const xpScaleAnim = useRef(new Animated.Value(1)).current;
   const xpGainAnim = useRef(new Animated.Value(0)).current;
   const xpGainOpacity = useRef(new Animated.Value(0)).current;
+  const isAnimatingRef = useRef(false);
 
   const starAnimations = useRef(
     Array.from({ length: 5 }, () => ({
@@ -75,8 +75,10 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    xpGainAnim.setValue(totalXP);
-  }, [totalXP]);
+    if (totalXP > 0) {
+      xpGainAnim.setValue(totalXP);
+    }
+  }, []);
 
   const loadXP = async () => {
     await gamificationService.initialize();
@@ -196,7 +198,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   };
 
   const animateXPGain = (newXP: number, isCorrect: boolean) => {
-    xpGainAnim.setValue(totalXP);
+    const currentXP = totalXP;
+    xpGainAnim.setValue(currentXP);
+    isAnimatingRef.current = true;
 
     if (isCorrect) {
       setShowStars(true);
@@ -225,7 +229,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
         tension: 40,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]).start(() => {
+      isAnimatingRef.current = false;
+    });
 
     xpGainOpacity.setValue(0);
     Animated.sequence([
@@ -283,17 +289,21 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     const [displayXP, setDisplayXP] = useState(totalXP);
 
     useEffect(() => {
-      setDisplayXP(totalXP);
-    }, [totalXP]);
-
-    useEffect(() => {
       const listenerId = xpGainAnim.addListener(({ value }) => {
         setDisplayXP(Math.round(value));
       });
+
       return () => {
         xpGainAnim.removeListener(listenerId);
       };
     }, []);
+
+    useEffect(() => {
+      if (!isAnimatingRef.current) {
+        xpGainAnim.setValue(totalXP);
+        setDisplayXP(totalXP);
+      }
+    }, [totalXP]);
 
     return <Text style={styles.xpText}>{displayXP}</Text>;
   };
@@ -422,13 +432,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
           { paddingTop: insets.top + 82 },
         ]}
       >
-
-        {xpGained > 0 && (
-          <View style={styles.xpBanner}>
-            <Text style={styles.xpBannerText}>+{xpGained} XP earned!</Text>
-          </View>
-        )}
-
         <QuestionCard
           question={question}
           selectedAnswer={selectedAnswer}
@@ -610,18 +613,6 @@ const styles = StyleSheet.create({
   xpGainText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: "bold",
-  },
-  xpBanner: {
-    backgroundColor: "#4ECDC4",
-    padding: 12,
-    margin: 16,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  xpBannerText: {
-    color: "#FFFFFF",
-    fontSize: 16,
     fontWeight: "bold",
   },
   button: {

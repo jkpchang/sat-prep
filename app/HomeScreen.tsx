@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StreakDisplay } from "../components/StreakDisplay";
 import { ProgressCard } from "../components/ProgressCard";
 import { gamificationService } from "../services/gamification";
@@ -36,6 +37,7 @@ interface HomeScreenProps {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [progress, setProgress] = useState<UserProgress | null>(null);
 
   const loadProgress = async () => {
@@ -75,7 +77,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
+      <View style={[styles.header, { marginTop: insets.top + 24 }]}>
         <Text style={styles.title}>Testez!</Text>
         <Text style={styles.subtitle}>Level up your skills!</Text>
       </View>
@@ -128,7 +130,6 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 24,
-    marginTop: 16,
   },
   title: {
     fontSize: 32,
