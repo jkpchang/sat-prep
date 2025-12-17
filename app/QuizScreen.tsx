@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { QuestionCard } from "../components/QuestionCard";
-import { getRandomQuestion } from "../services/questions";
+import { getRandomQuestion, SAMPLE_QUESTIONS } from "../services/questions";
 import { gamificationService } from "../services/gamification";
 import { Question, Achievement } from "../types";
 
@@ -48,18 +48,15 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const [totalXP, setTotalXP] = useState(0);
   const [showStars, setShowStars] = useState(false);
 
-  // Position refs for star animation
   const buttonRef = useRef<View>(null);
   const xpBadgeRef = useRef<View>(null);
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
   const [xpBadgePosition, setXpBadgePosition] = useState({ x: 0, y: 0 });
 
-  // Animation values
   const xpScaleAnim = useRef(new Animated.Value(1)).current;
   const xpGainAnim = useRef(new Animated.Value(0)).current;
   const xpGainOpacity = useRef(new Animated.Value(0)).current;
 
-  // Star animations (create 5 stars)
   const starAnimations = useRef(
     Array.from({ length: 5 }, () => ({
       translateX: new Animated.Value(0),
@@ -71,11 +68,12 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   ).current;
 
   useEffect(() => {
-    loadNewQuestion();
-    loadXP();
+    gamificationService.initialize().then(() => {
+      loadNewQuestion();
+      loadXP();
+    });
   }, []);
 
-  // Initialize animation value
   useEffect(() => {
     xpGainAnim.setValue(totalXP);
   }, [totalXP]);
@@ -87,13 +85,29 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   };
 
   const loadNewQuestion = async () => {
-    const newQuestion = getRandomQuestion();
+    const correctlyAnsweredIds = gamificationService.getAnsweredQuestionIds();
+    const unansweredQuestions = SAMPLE_QUESTIONS.filter(
+      (q) => !gamificationService.hasAnsweredQuestion(q.id)
+    );
+
+    if (unansweredQuestions.length === 0) {
+      setQuestion(null);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setXpGained(0);
+      setShowStars(false);
+      await loadXP();
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * unansweredQuestions.length);
+    const newQuestion = unansweredQuestions[randomIndex];
     setQuestion(newQuestion);
+
     setSelectedAnswer(null);
     setShowResult(false);
     setXpGained(0);
     setShowStars(false);
-    // Reset star animations
     starAnimations.forEach((star) => {
       star.translateX.setValue(0);
       star.translateY.setValue(0);
@@ -101,7 +115,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       star.opacity.setValue(0);
       star.rotation.setValue(0);
     });
-    // Reload XP to ensure it's up to date
     await loadXP();
   };
 
@@ -112,23 +125,20 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const animateStars = () => {
     if (buttonPosition.x === 0 || xpBadgePosition.x === 0) return;
 
-    const startX = buttonPosition.x + SCREEN_WIDTH / 2 - 16; // Button center
+    const startX = buttonPosition.x + SCREEN_WIDTH / 2 - 16;
     const startY = buttonPosition.y;
     const endX = xpBadgePosition.x;
-    const endY = xpBadgePosition.y + 15; // XP badge center
+    const endY = xpBadgePosition.y + 15;
 
     const deltaX = endX - startX;
     const deltaY = endY - startY;
 
-    // Animate each star with slight variations
     const animations = starAnimations.map((star, index) => {
-      // Add some randomness to the path
-      const randomOffset = (index - 2) * 30; // Spread stars horizontally
+      const randomOffset = (index - 2) * 30;
       const curveOffset =
         Math.sin((index / starAnimations.length) * Math.PI) * 50;
 
       return Animated.parallel([
-        // Movement animation
         Animated.sequence([
           Animated.timing(star.opacity, {
             toValue: 1,
@@ -173,9 +183,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       ]);
     });
 
-    // Start all star animations
     Animated.parallel(animations).start(() => {
-      // Reset after animation completes
       starAnimations.forEach((star) => {
         star.translateX.setValue(0);
         star.translateY.setValue(0);
@@ -188,10 +196,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   };
 
   const animateXPGain = (newXP: number, isCorrect: boolean) => {
-    // Set starting value for animation
     xpGainAnim.setValue(totalXP);
 
-    // Animate stars if correct
     if (isCorrect) {
       setShowStars(true);
       setTimeout(() => {
@@ -199,7 +205,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       }, 100);
     }
 
-    // Bounce animation for XP display
     Animated.sequence([
       Animated.parallel([
         Animated.spring(xpScaleAnim, {
@@ -222,7 +227,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       }),
     ]).start();
 
-    // Show "+XP" popup animation
     xpGainOpacity.setValue(0);
     Animated.sequence([
       Animated.timing(xpGainOpacity, {
@@ -245,11 +249,13 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     const isCorrect = selectedAnswer === question.correctAnswer;
     setShowResult(true);
 
-    const result = await gamificationService.recordPractice(isCorrect);
+    const result = await gamificationService.recordPractice(
+      isCorrect,
+      question.id
+    );
     setXpGained(result.xpGained);
     setNewAchievements(result.newAchievements);
 
-    // Update total XP and animate
     const newTotalXP = totalXP + result.xpGained;
     setTotalXP(newTotalXP);
     animateXPGain(newTotalXP, isCorrect);
@@ -265,15 +271,14 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     }
   };
 
-  const handleNext = () => {
-    loadNewQuestion();
+  const handleNext = async () => {
+    await loadNewQuestion();
   };
 
   const handleFinish = () => {
     navigation.goBack();
   };
 
-  // Animated XP text component
   const AnimatedXPText = () => {
     const [displayXP, setDisplayXP] = useState(totalXP);
 
@@ -294,6 +299,57 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   };
 
   if (!question) {
+    const unansweredQuestions = SAMPLE_QUESTIONS.filter(
+      (q) => !gamificationService.hasAnsweredQuestion(q.id)
+    );
+
+    if (unansweredQuestions.length === 0) {
+      return (
+        <View style={styles.container}>
+          <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+            <View style={styles.headerLeft}>
+              <TouchableOpacity onPress={handleFinish}>
+                <Text style={styles.backButton}>← Back</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.headerCenter}>
+              <Text style={styles.headerTitle}>Practice</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <Animated.View
+                style={[
+                  styles.xpBadge,
+                  {
+                    transform: [{ scale: xpScaleAnim }],
+                  },
+                ]}
+              >
+                <Text style={styles.xpIcon}>⭐</Text>
+                <AnimatedXPText />
+              </Animated.View>
+            </View>
+          </View>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={[
+              styles.completionContainer,
+              { paddingTop: insets.top + 82 },
+            ]}
+          >
+            <View style={styles.completionCard}>
+              <Text style={styles.completionEmoji}>🎉</Text>
+              <Text style={styles.completionTitle}>
+                You are a genius! You've answered all our questions correctly!
+              </Text>
+              <Text style={styles.completionMessage}>
+                Upgrade to get our new question pack.
+              </Text>
+            </View>
+          </ScrollView>
+        </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <Text>Loading question...</Text>
@@ -303,62 +359,69 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-      >
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <View style={styles.headerLeft}>
           <TouchableOpacity onPress={handleFinish}>
             <Text style={styles.backButton}>← Back</Text>
           </TouchableOpacity>
+        </View>
+        <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Practice</Text>
-          <View
-            style={styles.xpContainer}
-            ref={xpBadgeRef}
-            onLayout={() => {
-              xpBadgeRef.current?.measureInWindow(
-                (winX, winY, winWidth, winHeight) => {
-                  setXpBadgePosition({
-                    x: winX + winWidth - 20, // Right edge of badge
-                    y: winY + winHeight / 2, // Center of badge
-                  });
-                }
-              );
-            }}
+        </View>
+        <View
+          style={styles.headerRight}
+          ref={xpBadgeRef}
+          onLayout={() => {
+            xpBadgeRef.current?.measureInWindow(
+              (winX, winY, winWidth, winHeight) => {
+                setXpBadgePosition({
+                  x: winX + winWidth - 20,
+                  y: winY + winHeight / 2,
+                });
+              }
+            );
+          }}
+        >
+          <Animated.View
+            style={[
+              styles.xpBadge,
+              {
+                transform: [{ scale: xpScaleAnim }],
+              },
+            ]}
           >
+            <Text style={styles.xpIcon}>⭐</Text>
+            <AnimatedXPText />
+          </Animated.View>
+          {xpGained > 0 && (
             <Animated.View
               style={[
-                styles.xpBadge,
+                styles.xpGainPopup,
                 {
-                  transform: [{ scale: xpScaleAnim }],
+                  opacity: xpGainOpacity,
+                  transform: [
+                    {
+                      translateY: xpGainOpacity.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -20],
+                      }),
+                    },
+                  ],
                 },
               ]}
             >
-              <Text style={styles.xpIcon}>⭐</Text>
-              <AnimatedXPText />
+              <Text style={styles.xpGainText}>+{xpGained} XP</Text>
             </Animated.View>
-            {xpGained > 0 && (
-              <Animated.View
-                style={[
-                  styles.xpGainPopup,
-                  {
-                    opacity: xpGainOpacity,
-                    transform: [
-                      {
-                        translateY: xpGainOpacity.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, -20],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <Text style={styles.xpGainText}>+{xpGained} XP</Text>
-              </Animated.View>
-            )}
-          </View>
+          )}
         </View>
+      </View>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + 82 },
+        ]}
+      >
 
         {xpGained > 0 && (
           <View style={styles.xpBanner}>
@@ -413,7 +476,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
         )}
       </ScrollView>
 
-      {/* Animated Stars */}
       {showStars &&
         starAnimations.map((star, index) => {
           const spin = star.rotation.interpolate({
@@ -455,9 +517,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    marginTop: 0,
   },
   content: {
     paddingBottom: 32,
+    paddingTop: 0,
   },
   star: {
     position: "absolute",
@@ -472,26 +536,43 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
+    width: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
-  backButton: {
-    fontSize: 16,
-    color: "#4ECDC4",
-    fontWeight: "600",
+  headerLeft: {
+    width: 100,
+    flexShrink: 0,
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: "center",
+    paddingHorizontal: 8,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#2C3E50",
   },
-  xpContainer: {
-    position: "relative",
+  headerRight: {
+    width: 100,
+    flexShrink: 0,
     alignItems: "flex-end",
+  },
+  backButton: {
+    fontSize: 16,
+    color: "#4ECDC4",
+    fontWeight: "600",
   },
   xpBadge: {
     flexDirection: "row",
@@ -589,5 +670,34 @@ const styles = StyleSheet.create({
     color: "#4ECDC4",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  completionContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  completionCard: {
+    backgroundColor: "#FFFFFF",
+    padding: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    margin: 16,
+  },
+  completionEmoji: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  completionTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#2C3E50",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  completionMessage: {
+    fontSize: 16,
+    color: "#7F8C8D",
+    textAlign: "center",
   },
 });

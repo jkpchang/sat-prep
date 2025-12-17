@@ -16,6 +16,9 @@ const XP_PER_QUESTION = 5; // Even for wrong answers
 
 export class GamificationService {
   private progress: UserProgress;
+  // Use Set for O(1) lookups instead of array.includes() which is O(n)
+  private answeredQuestionIdsSet: Set<string>;
+  private readonly MAX_ANSWERED_QUESTIONS = 10000; // Limit to prevent unbounded growth
 
   constructor() {
     this.progress = {
@@ -25,14 +28,33 @@ export class GamificationService {
       correctAnswers: 0,
       lastPracticeDate: null,
       achievements: [],
+      answeredQuestionIds: [],
     };
+    this.answeredQuestionIdsSet = new Set<string>();
   }
 
   async initialize(): Promise<void> {
     const saved = await storageService.getUserProgress();
     if (saved) {
-      this.progress = saved;
+      this.progress = {
+        ...saved,
+        answeredQuestionIds: saved.answeredQuestionIds || [],
+      };
+      this.answeredQuestionIdsSet = new Set(this.progress.answeredQuestionIds);
+      this.trimAnsweredQuestionsIfNeeded();
       await this.updateStreak();
+    } else {
+      this.progress.answeredQuestionIds = [];
+      this.answeredQuestionIdsSet = new Set<string>();
+    }
+  }
+
+  private trimAnsweredQuestionsIfNeeded(): void {
+    if (this.answeredQuestionIdsSet.size > this.MAX_ANSWERED_QUESTIONS) {
+      const idsArray = Array.from(this.answeredQuestionIdsSet);
+      const trimmed = idsArray.slice(-this.MAX_ANSWERED_QUESTIONS);
+      this.answeredQuestionIdsSet = new Set(trimmed);
+      this.progress.answeredQuestionIds = trimmed;
     }
   }
 
@@ -41,62 +63,52 @@ export class GamificationService {
     const today = getTodayString();
 
     if (!lastDate) {
-      // First time user - streak should be 0
       this.progress.streak = 0;
       await this.saveProgress();
       return;
     }
 
     if (isToday(lastDate)) {
-      // Already practiced today, streak is maintained
       return;
     }
 
-    // If last practice was more than 1 day ago, streak is broken
     if (!isYesterday(lastDate)) {
-      // Streak broken - reset to 0 (will become 1 when they practice today)
       this.progress.streak = 0;
       await this.saveProgress();
     }
-    // If last practice was yesterday, keep current streak
-    // It will be incremented when user practices today in recordPractice()
   }
 
-  async recordPractice(isCorrect: boolean): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
+  async recordPractice(isCorrect: boolean, questionId?: string): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
     const today = getTodayString();
     const lastDate = await storageService.getLastPracticeDate();
 
-    // Update streak ONLY if this is the first practice of the day
-    // This ensures streak increments once per day, not once per practice session
     const isFirstPracticeToday = !lastDate || !isToday(lastDate);
     
     if (isFirstPracticeToday) {
       if (!lastDate) {
-        // First time ever practicing
         this.progress.streak = 1;
       } else if (isYesterday(lastDate)) {
-        // Continued streak from yesterday - increment by 1
         this.progress.streak += 1;
       } else {
-        // Gap in practice (more than 1 day) - start new streak
         this.progress.streak = 1;
       }
-      // Save today's date to prevent multiple increments today
       await storageService.saveLastPracticeDate(today);
     }
-    // If already practiced today, streak stays the same (no increment)
 
-    // Update stats
+    if (questionId && isCorrect && !this.answeredQuestionIdsSet.has(questionId)) {
+      this.answeredQuestionIdsSet.add(questionId);
+      this.progress.answeredQuestionIds.push(questionId);
+      this.trimAnsweredQuestionsIfNeeded();
+    }
+
     this.progress.questionsAnswered += 1;
     if (isCorrect) {
       this.progress.correctAnswers += 1;
     }
 
-    // Calculate XP
     const xpGained = isCorrect ? XP_PER_CORRECT : XP_PER_QUESTION;
     this.progress.totalXP += xpGained;
 
-    // Check for achievements
     const newAchievements = await this.checkAchievements();
 
     this.progress.lastPracticeDate = today;
@@ -148,6 +160,14 @@ export class GamificationService {
     return { ...this.progress };
   }
 
+  getAnsweredQuestionIds(): string[] {
+    return Array.from(this.answeredQuestionIdsSet);
+  }
+
+  hasAnsweredQuestion(questionId: string): boolean {
+    return this.answeredQuestionIdsSet.has(questionId);
+  }
+
   getAchievements(): Achievement[] {
     return ACHIEVEMENTS.map(ach => ({
       ...ach,
@@ -156,6 +176,7 @@ export class GamificationService {
   }
 
   private async saveProgress(): Promise<void> {
+    this.progress.answeredQuestionIds = Array.from(this.answeredQuestionIdsSet);
     await storageService.saveUserProgress(this.progress);
   }
 }

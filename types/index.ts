@@ -15,6 +15,7 @@ export interface UserProgress {
   correctAnswers: number;
   lastPracticeDate: string | null;
   achievements: string[];
+  answeredQuestionIds: string[]; // Track which questions have been answered CORRECTLY (users can retry incorrect ones)
 }
 
 export interface Achievement {

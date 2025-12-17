@@ -74,9 +74,23 @@ export const SAMPLE_QUESTIONS: Question[] = [
   },
 ];
 
-export const getRandomQuestion = (): Question => {
-  const randomIndex = Math.floor(Math.random() * SAMPLE_QUESTIONS.length);
-  return SAMPLE_QUESTIONS[randomIndex];
+export const getRandomQuestion = (
+  answeredQuestionIds: string[] | Set<string> = []
+): Question => {
+  const answeredSet = answeredQuestionIds instanceof Set
+    ? answeredQuestionIds
+    : new Set(answeredQuestionIds);
+
+  const unansweredQuestions = SAMPLE_QUESTIONS.filter(
+    (q) => !answeredSet.has(q.id)
+  );
+
+  const availableQuestions = unansweredQuestions.length > 0 
+    ? unansweredQuestions 
+    : SAMPLE_QUESTIONS;
+
+  const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+  return availableQuestions[randomIndex];
 };
 
 export const getQuestionsByCategory = (
