@@ -6,6 +6,11 @@ export interface Question {
   explanation: string;
   category: "math" | "reading" | "writing";
   difficultyLevel: number; // 1-10 scale for adaptive difficulty
+  imageSvg?: string; // SVG markup as string (for simple diagrams)
+  imageDataUri?: string; // Base64/data-uri image (e.g. data:image/svg+xml;base64,...)
+  formula?: string; // LaTeX string (for AI generation)
+  renderOptionsAsSvg?: boolean; // If true, render options as SVG instead of text
+  optionsSvg?: string[]; // Pre-generated SVG strings for each option (when renderOptionsAsSvg is true)
 }
 
 export interface UserProgress {
@@ -13,7 +18,6 @@ export interface UserProgress {
   totalXP: number;
   questionsAnswered: number;
   correctAnswers: number;
-  lastPracticeDate: string | null; // Deprecated: use lastQuestionDate instead
   lastQuestionDate: string | null; // Date (YYYY-MM-DD) of last question answered
   questionsAnsweredToday: number; // Count of questions answered today
   lastValidStreakDate: string | null; // Last date that counted toward streak (had 5+ questions)

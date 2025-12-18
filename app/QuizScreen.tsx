@@ -5,12 +5,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
   Animated,
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { QuestionCard } from "../components/QuestionCard";
-import { getRandomQuestion, SAMPLE_QUESTIONS } from "../services/questions";
+import {
+  getRandomQuestion,
+  getFilteredSampleQuestions,
+} from "../services/questions";
 import { gamificationService } from "../services/gamification";
 import { Question, Achievement } from "../types";
 
@@ -88,7 +92,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
 
   const loadNewQuestion = async () => {
     const correctlyAnsweredIds = gamificationService.getAnsweredQuestionIds();
-    const unansweredQuestions = SAMPLE_QUESTIONS.filter(
+    const filteredQuestions = getFilteredSampleQuestions();
+    const unansweredQuestions = filteredQuestions.filter(
       (q) => !gamificationService.hasAnsweredQuestion(q.id)
     );
 
@@ -309,7 +314,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   };
 
   if (!question) {
-    const unansweredQuestions = SAMPLE_QUESTIONS.filter(
+    const filteredQuestions = getFilteredSampleQuestions();
+    const unansweredQuestions = filteredQuestions.filter(
       (q) => !gamificationService.hasAnsweredQuestion(q.id)
     );
 

@@ -19,13 +19,11 @@ The day streak system tracks consecutive days where the user answers a minimum o
   lastQuestionDate: string | null;   // Date (YYYY-MM-DD) of last question answered
   questionsAnsweredToday: number;    // Count of questions answered today
   lastValidStreakDate: string | null; // Last date that counted toward streak (had 5+ questions)
-  lastPracticeDate: string | null;   // Deprecated: kept for backward compatibility
 }
 ```
 
 #### Storage Keys
 - `@sat_prep:user_progress` - Full user progress object
-- `@sat_prep:last_practice_date` - Last practice date (for backward compatibility)
 
 ## Core Logic Flow
 
@@ -195,11 +193,6 @@ async validateStreakOnStart() {
 
 ### Constants
 - `MIN_QUESTIONS_FOR_STREAK = 5` - Minimum questions required per day
-
-### Backward Compatibility
-- `lastPracticeDate` is kept for backward compatibility but deprecated
-- New code uses `lastQuestionDate`
-- Migration happens automatically in `initialize()`
 
 ### Date Utilities
 All date operations use local timezone via `getTodayString()`:

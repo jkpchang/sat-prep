@@ -63,7 +63,6 @@ export class GamificationService {
       totalXP: 0,
       questionsAnswered: 0,
       correctAnswers: 0,
-      lastPracticeDate: null,
       lastQuestionDate: null,
       questionsAnsweredToday: 0,
       lastValidStreakDate: null,
@@ -79,9 +78,7 @@ export class GamificationService {
       this.progress = {
         ...saved,
         answeredQuestionIds: saved.answeredQuestionIds || [],
-        // Backward compatibility: migrate lastPracticeDate to lastQuestionDate
-        lastQuestionDate:
-          saved.lastQuestionDate || saved.lastPracticeDate || null,
+        lastQuestionDate: saved.lastQuestionDate || null,
         questionsAnsweredToday: saved.questionsAnsweredToday || 0,
         lastValidStreakDate: saved.lastValidStreakDate || null,
       };
@@ -99,7 +96,6 @@ export class GamificationService {
       totalXP: 0,
       questionsAnswered: 0,
       correctAnswers: 0,
-      lastPracticeDate: null,
       lastQuestionDate: null,
       questionsAnsweredToday: 0,
       lastValidStreakDate: null,
@@ -219,8 +215,6 @@ export class GamificationService {
 
     const newAchievements = await this.checkAchievements();
 
-    // Keep lastPracticeDate for backward compatibility
-    this.progress.lastPracticeDate = today;
     await this.saveProgress();
 
     return { xpGained, newAchievements };
