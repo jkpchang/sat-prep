@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StreakDisplay } from "../components/StreakDisplay";
+import { DayStreakDisplay } from "../components/DayStreakDisplay";
 import { ProgressCard } from "../components/ProgressCard";
 import { gamificationService } from "../services/gamification";
 import { UserProgress } from "../types";
@@ -82,7 +82,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <Text style={styles.subtitle}>Level up your skills!</Text>
       </View>
 
-      <StreakDisplay streak={progress.streak} />
+      <DayStreakDisplay dayStreak={progress.dayStreak} />
 
       <View style={styles.dailyChallenge}>
         <Text style={styles.challengeTitle}>📚 Daily Challenge</Text>

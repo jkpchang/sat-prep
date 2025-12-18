@@ -72,7 +72,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   const handleClearHistory = () => {
     showAlert(
       "Clear History",
-      "Are you sure you want to clear all your progress? This will reset your XP, streak, answered questions, and achievements. This action cannot be undone.",
+      "Are you sure you want to clear all your progress? This will reset your XP, streaks, answered questions, and achievements. This action cannot be undone.",
       [
         {
           text: "Cancel",
@@ -170,9 +170,14 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           />
           <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
           <ProgressCard
-            label={progress.streak === 1 ? "Day Streak" : "Days Streak"}
-            value={progress.streak}
+            label="Day Streak"
+            value={progress.dayStreak}
             icon="🔥"
+          />
+          <ProgressCard
+            label="Answer Streak"
+            value={progress.answerStreak}
+            icon="⚡"
           />
           <ProgressCard
             label="Achievements"

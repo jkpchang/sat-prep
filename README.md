@@ -63,7 +63,7 @@ sat-prep/
 │   ├── AchievementBadge.tsx
 │   ├── ProgressCard.tsx
 │   ├── QuestionCard.tsx
-│   └── StreakDisplay.tsx
+│   └── DayStreakDisplay.tsx
 ├── services/         # Business logic
 │   ├── gamification.ts
 │   ├── questions.ts

@@ -1,19 +1,19 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-interface StreakDisplayProps {
-  streak: number;
+interface DayStreakDisplayProps {
+  dayStreak: number;
 }
 
-export const StreakDisplay: React.FC<StreakDisplayProps> = ({ streak }) => {
+export const DayStreakDisplay: React.FC<DayStreakDisplayProps> = ({
+  dayStreak,
+}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.fireEmoji}>🔥</Text>
       <View style={styles.textContainer}>
-        <Text style={styles.streakNumber}>{streak}</Text>
-        <Text style={styles.streakLabel}>
-          {streak === 1 ? "Day Streak" : "Days Streak"}
-        </Text>
+        <Text style={styles.streakNumber}>{dayStreak}</Text>
+        <Text style={styles.streakLabel}>Day Streak</Text>
       </View>
     </View>
   );

@@ -32,10 +32,24 @@ const ACHIEVEMENTS: Achievement[] = [
     unlocked: false,
   },
   {
-    id: "perfect_10",
-    name: "Perfect Score",
+    id: "answer_streak_5",
+    name: "On a Roll",
+    description: "Get 5 questions correct in a row",
+    icon: "⚡",
+    unlocked: false,
+  },
+  {
+    id: "answer_streak_10",
+    name: "On Fire",
     description: "Get 10 questions correct in a row",
-    icon: "⭐",
+    icon: "🔥",
+    unlocked: false,
+  },
+  {
+    id: "answer_streak_20",
+    name: "Unstoppable",
+    description: "Get 20 questions correct in a row",
+    icon: "🏅",
     unlocked: false,
   },
   {
@@ -59,10 +73,11 @@ export class GamificationService {
 
   constructor() {
     this.progress = {
-      streak: 0,
+      dayStreak: 0,
       totalXP: 0,
       questionsAnswered: 0,
       correctAnswers: 0,
+      answerStreak: 0,
       lastQuestionDate: null,
       questionsAnsweredToday: 0,
       lastValidStreakDate: null,
@@ -77,6 +92,8 @@ export class GamificationService {
     if (saved) {
       this.progress = {
         ...saved,
+        dayStreak: saved.dayStreak ?? (saved as any).streak ?? 0,
+        answerStreak: saved.answerStreak ?? 0,
         answeredQuestionIds: saved.answeredQuestionIds || [],
         lastQuestionDate: saved.lastQuestionDate || null,
         questionsAnsweredToday: saved.questionsAnsweredToday || 0,
@@ -92,10 +109,11 @@ export class GamificationService {
 
   reset(): void {
     this.progress = {
-      streak: 0,
+      dayStreak: 0,
       totalXP: 0,
       questionsAnswered: 0,
       correctAnswers: 0,
+      answerStreak: 0,
       lastQuestionDate: null,
       questionsAnsweredToday: 0,
       lastValidStreakDate: null,
@@ -135,7 +153,7 @@ export class GamificationService {
         return;
       } else {
         // More than 1 day gap - streak broken
-        this.progress.streak = 0;
+        this.progress.dayStreak = 0;
         this.progress.lastValidStreakDate = null;
         await this.saveProgress();
       }
@@ -145,7 +163,7 @@ export class GamificationService {
       !isYesterday(lastQuestionDate)
     ) {
       // No valid streak date but last question was more than 1 day ago
-      this.progress.streak = 0;
+      this.progress.dayStreak = 0;
       await this.saveProgress();
     }
   }
@@ -155,18 +173,18 @@ export class GamificationService {
 
     if (!lastValidDate) {
       // First time hitting 5 questions - start streak
-      this.progress.streak = 1;
+      this.progress.dayStreak = 1;
       this.progress.lastValidStreakDate = date;
     } else if (isYesterday(lastValidDate)) {
       // Consecutive day - increment streak
-      this.progress.streak += 1;
+      this.progress.dayStreak += 1;
       this.progress.lastValidStreakDate = date;
     } else if (isToday(lastValidDate)) {
       // Same day - don't increment (already counted)
       // Do nothing
     } else {
       // Gap in streak - reset
-      this.progress.streak = 1;
+      this.progress.dayStreak = 1;
       this.progress.lastValidStreakDate = date;
     }
 
@@ -208,6 +226,11 @@ export class GamificationService {
     this.progress.questionsAnswered += 1;
     if (isCorrect) {
       this.progress.correctAnswers += 1;
+      // Update per-question answer streak
+      this.progress.answerStreak = (this.progress.answerStreak || 0) + 1;
+    } else {
+      // Reset streak on incorrect answer
+      this.progress.answerStreak = 0;
     }
 
     const xpGained = isCorrect ? XP_PER_CORRECT : XP_PER_QUESTION;
@@ -236,18 +259,26 @@ export class GamificationService {
           shouldUnlock = this.progress.questionsAnswered >= 1;
           break;
         case "streak_3":
-          shouldUnlock = this.progress.streak >= 3;
+          shouldUnlock = this.progress.dayStreak >= 3;
           break;
         case "streak_7":
-          shouldUnlock = this.progress.streak >= 7;
+          shouldUnlock = this.progress.dayStreak >= 7;
           break;
         case "streak_30":
-          shouldUnlock = this.progress.streak >= 30;
+          shouldUnlock = this.progress.dayStreak >= 30;
           break;
         case "xp_1000":
           shouldUnlock = this.progress.totalXP >= 1000;
           break;
-        // perfect_10 would need additional tracking
+        case "answer_streak_5":
+          shouldUnlock = (this.progress.answerStreak || 0) >= 5;
+          break;
+        case "answer_streak_10":
+          shouldUnlock = (this.progress.answerStreak || 0) >= 10;
+          break;
+        case "answer_streak_20":
+          shouldUnlock = (this.progress.answerStreak || 0) >= 20;
+          break;
       }
 
       if (shouldUnlock) {

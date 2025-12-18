@@ -3,7 +3,7 @@ import { Question } from "../types";
 // Test filter: Set to an array of question IDs to test specific questions only
 // Set to empty array [] to disable filtering
 // Example: export const TEST_QUESTION_IDS = ["27", "28", "29"]; // Test only SVG questions
-export const TEST_QUESTION_IDS: string[] = ["1", "27", "28"];
+export const TEST_QUESTION_IDS: string[] = [];
 
 // Sample SAT questions - In production, these would come from a database/API
 export const SAMPLE_QUESTIONS: Question[] = [
