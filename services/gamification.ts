@@ -1,5 +1,6 @@
 import { UserProgress, Achievement } from "../types";
 import { storageService } from "./storage";
+import { scheduleSaveProfileStats } from "./profileSync";
 import { isToday, isYesterday, getTodayString } from "../utils/dateUtils";
 
 const ACHIEVEMENTS: Achievement[] = [
@@ -316,6 +317,19 @@ export class GamificationService {
   private async saveProgress(): Promise<void> {
     this.progress.answeredQuestionIds = Array.from(this.answeredQuestionIdsSet);
     await storageService.saveUserProgress(this.progress);
+    // Schedule a debounced save to Supabase so we don't write on every tiny change
+    scheduleSaveProfileStats({
+      dayStreak: this.progress.dayStreak,
+      totalXP: this.progress.totalXP,
+      questionsAnswered: this.progress.questionsAnswered,
+      correctAnswers: this.progress.correctAnswers,
+      answerStreak: this.progress.answerStreak,
+      lastQuestionDate: this.progress.lastQuestionDate,
+      questionsAnsweredToday: this.progress.questionsAnsweredToday,
+      lastValidStreakDate: this.progress.lastValidStreakDate,
+      achievements: this.progress.achievements,
+      answeredQuestionIds: this.progress.answeredQuestionIds,
+    });
   }
 }
 

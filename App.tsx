@@ -8,6 +8,7 @@ import { Text } from "react-native";
 import { HomeScreen } from "./app/HomeScreen";
 import { QuizScreen } from "./app/QuizScreen";
 import { ProgressScreen } from "./app/ProgressScreen";
+import { ProfileScreen } from "./app/ProfileScreen";
 import { gamificationService } from "./services/gamification";
 
 const Tab = createBottomTabNavigator();
@@ -56,6 +57,22 @@ function HomeTabs() {
               }}
             >
               📊
+            </Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Text
+              style={{
+                fontSize: 32,
+                color: focused ? "#4ECDC4" : "#7F8C8D",
+              }}
+            >
+              👤
             </Text>
           ),
         }}
