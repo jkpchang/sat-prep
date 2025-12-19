@@ -1,11 +1,11 @@
 import { supabase } from "./supabaseClient";
-import { getOrCreateDeviceId } from "./deviceId";
 import { storageService } from "./storage";
 import { UserProgress } from "../types";
 
 export interface AuthProfile {
   userId: string;
-  email: string | null;
+  email: string | null; // From auth.users (confirmed/active email)
+  profileEmail: string | null; // From profiles table (may be pending confirmation)
   username: string | null;
 }
 
@@ -15,117 +15,74 @@ async function getLocalStats(): Promise<UserProgress | null> {
   return storageService.getUserProgress();
 }
 
+/**
+ * Ensures the user has an anonymous auth session.
+ * If already authenticated, returns the existing user ID.
+ * Otherwise, signs in anonymously and returns the new user ID.
+ */
+export async function ensureAnonymousAuth(): Promise<{ userId: string | null; error: string | null }> {
+  // Check if already authenticated
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.user) {
+    return { userId: session.user.id, error: null };
+  }
+  
+  // Sign in anonymously
+  // Note: Anonymous authentication must be enabled in Supabase Dashboard:
+  // Authentication > Providers > Anonymous > Enable
+  const { data, error } = await supabase.auth.signInAnonymously();
+  
+  if (error || !data.user) {
+    console.error("Failed to create anonymous auth:", error);
+    return { userId: null, error: error?.message ?? "Failed to create anonymous session" };
+  }
+  
+  console.log("Anonymous user created:", data.user.id);
+  return { userId: data.user.id, error: null };
+}
+
 async function attachProfileToUser(
   userId: string,
   email: string | null,
   username: string
 ): Promise<string | null> {
-  const deviceId = await getOrCreateDeviceId();
   const localStats = await getLocalStats();
 
-  // Find existing profile for this device or user
+  // Find existing profile for this user
   const { data: existingProfile } = await supabase
     .from("profiles")
     .select("*")
-    .or(`device_id.eq.${deviceId},user_id.eq.${userId}`)
-    .limit(1)
+    .eq("user_id", userId)
     .maybeSingle();
 
   const stats = localStats ?? (existingProfile?.stats as UserProgress | null) ?? null;
 
-  // Two-step approach: first ensure profile exists (without user_id if needed), then update with user_id
-  // This avoids foreign key constraint violations if the user transaction hasn't committed yet
-  
-  // Step 1: Upsert profile without user_id first (using device_id as conflict target)
-  const { data: profileData, error: upsertError } = await supabase
-    .from("profiles")
-    .upsert(
-      {
-        id: existingProfile?.id,
-        device_id: deviceId,
-        email: existingProfile?.email ?? email,
-        username: existingProfile?.username ?? username,
-        stats: stats ?? existingProfile?.stats,
-        last_seen_at: new Date().toISOString(),
-      },
-      { onConflict: "device_id" }
-    )
-    .select()
-    .single();
+  // Upsert profile with user_id (RLS will ensure user can only access their own profile)
+  // Note: email is stored in profiles ONLY for username->email lookup during login
+  // For display, always read from auth.users.email to avoid sync issues
+  const { error } = await supabase.from("profiles").upsert(
+    {
+      id: existingProfile?.id,
+      user_id: userId,
+      email, // Stored for username lookup only
+      username,
+      stats,
+      last_seen_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
 
-  if (upsertError) {
+  if (error) {
     // Check for unique violation on username
     if (
-      upsertError.code === "23505" ||
-      (typeof upsertError.message === "string" &&
-        upsertError.message.toLowerCase().includes("username"))
-    ) {
-      return "That username is already taken. Please choose another one.";
-    }
-    return upsertError.message ?? "Failed to create profile.";
-  }
-
-  const profileId = profileData?.id || existingProfile?.id;
-  if (!profileId) {
-    return "Failed to create or find profile.";
-  }
-
-  // Step 2: Now update the profile with user_id
-  // Add a delay to ensure user transaction has committed, and retry if FK constraint fails
-  let retries = 3;
-  let lastError: any = null;
-  
-  while (retries > 0) {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        user_id: userId,
-        email,
-        username,
-        stats,
-        last_seen_at: new Date().toISOString(),
-      })
-      .eq("id", profileId);
-    
-    if (!error) {
-      // Success!
-      break;
-    }
-    
-    // Check if it's a foreign key constraint error
-    if (
-      error.code === "23503" ||
+      error.code === "23505" ||
       (typeof error.message === "string" &&
-        error.message.toLowerCase().includes("foreign key"))
-    ) {
-      lastError = error;
-      retries--;
-      if (retries === 0) {
-        // Last retry failed - the user might not exist yet or there's a real issue
-        return "Account is still being created. Please wait a moment and refresh.";
-      }
-      // Wait longer before retrying
-      await new Promise(resolve => setTimeout(resolve, 500));
-      continue;
-    }
-    
-    // Some other error - return it
-    lastError = error;
-    break;
-  }
-  
-  if (lastError) {
-    // Check for unique violation on username
-    if (
-      lastError.code === "23505" ||
-      (typeof lastError.message === "string" &&
-        lastError.message.toLowerCase().includes("username"))
+        error.message.toLowerCase().includes("username"))
     ) {
       return "That username is already taken. Please choose another one.";
     }
-    return lastError.message ?? "Failed to attach profile to user.";
+    return error.message ?? "Failed to attach profile to user.";
   }
 
   // If we have stats from Supabase, sync them down to local storage so this device matches the account
@@ -141,43 +98,110 @@ export async function signUpWithEmailUsernamePassword(
   username: string,
   password: string
 ): Promise<{ profile: AuthProfile | null; error: string | null }> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-
-  if (error || !data.user) {
-    // Parse Supabase auth errors to be more user-friendly
-    let errorMessage = error?.message ?? "Sign up failed";
+  // Get current session (might be anonymous)
+  const { data: { session } } = await supabase.auth.getSession();
+  const currentUser = session?.user;
+  
+  if (currentUser && !currentUser.email) {
+    // Upgrade anonymous user by adding email and password
+    const { data, error } = await supabase.auth.updateUser({
+      email,
+      password,
+    });
     
-    // Check for common Supabase error patterns
-    if (error?.message) {
-      const msg = error.message.toLowerCase();
-      if (msg.includes("user already registered") || msg.includes("email already registered") || msg.includes("already registered")) {
-        errorMessage = "This email is already registered";
-      } else if (msg.includes("password") && (msg.includes("8") || msg.includes("length"))) {
-        errorMessage = "Password must be at least 8 characters";
-      } else if (msg.includes("invalid email")) {
-        errorMessage = "Please enter a valid email address";
+    if (error || !data.user) {
+      // Parse Supabase auth errors to be more user-friendly
+      let errorMessage = error?.message ?? "Sign up failed";
+      
+      if (error?.message) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+          errorMessage = "This email is already registered";
+        } else if (msg.includes("password") && (msg.includes("8") || msg.includes("length"))) {
+          errorMessage = "Password must be at least 8 characters";
+        } else if (msg.includes("invalid email")) {
+          errorMessage = "Please enter a valid email address";
+        }
       }
+      
+      return { profile: null, error: errorMessage };
     }
     
-    return { profile: null, error: errorMessage };
-  }
+    // Wait a moment for session to be established, then verify
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const { data: { session: newSession } } = await supabase.auth.getSession();
+    if (!newSession) {
+      return { profile: null, error: "Failed to establish session after signup" };
+    }
+    
+    // Get the updated user to verify email was set
+    const { data: { user: updatedUser } } = await supabase.auth.getUser();
+    if (!updatedUser || !updatedUser.email) {
+      console.warn("User email was not set after updateUser");
+    }
+    
+    // Attach profile to the upgraded user
+    const attachError = await attachProfileToUser(data.user.id, email, username);
+    if (attachError) {
+      return { profile: null, error: attachError };
+    }
+    
+        return {
+          profile: {
+            userId: data.user.id,
+            email: updatedUser?.email ?? data.user.email ?? email, // Confirmed email from auth.users
+            profileEmail: email, // Email in profiles (same as confirmed for new signups)
+            username,
+          },
+          error: null,
+        };
+  } else {
+    // No anonymous user, create new one
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  const attachError = await attachProfileToUser(data.user.id, email, username);
-  if (attachError) {
-    return { profile: null, error: attachError };
-  }
+    if (error || !data.user) {
+      // Parse Supabase auth errors to be more user-friendly
+      let errorMessage = error?.message ?? "Sign up failed";
+      
+      if (error?.message) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes("user already registered") || msg.includes("email already registered") || msg.includes("already registered")) {
+          errorMessage = "This email is already registered";
+        } else if (msg.includes("password") && (msg.includes("8") || msg.includes("length"))) {
+          errorMessage = "Password must be at least 8 characters";
+        } else if (msg.includes("invalid email")) {
+          errorMessage = "Please enter a valid email address";
+        }
+      }
+      
+      return { profile: null, error: errorMessage };
+    }
 
-  return {
-    profile: {
-      userId: data.user.id,
-      email: data.user.email,
-      username,
-    },
-    error: null,
-  };
+    // Wait a moment for session to be established, then verify
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const { data: { session: newSession } } = await supabase.auth.getSession();
+    if (!newSession) {
+      return { profile: null, error: "Failed to establish session after signup" };
+    }
+    
+    const attachError = await attachProfileToUser(data.user.id, email, username);
+    if (attachError) {
+      return { profile: null, error: attachError };
+    }
+
+        return {
+          profile: {
+            userId: data.user.id,
+            email: data.user.email, // Confirmed email from auth.users
+            profileEmail: email, // Email in profiles (same as confirmed for new signups)
+            username,
+          },
+          error: null,
+        };
+  }
 }
 
 async function signInWithEmail(
@@ -205,21 +229,24 @@ async function signInWithEmail(
   }
 
   const username = (profileRow?.username as string | null) ?? null;
-  const emailFromProfile = (profileRow?.email as string | null) ?? data.user.email;
 
   // Ensure this device's profile is attached to the user
   if (username) {
-    await attachProfileToUser(data.user.id, emailFromProfile, username);
+    await attachProfileToUser(data.user.id, data.user.email, username);
   }
 
-  return {
-    profile: {
-      userId: data.user.id,
-      email: emailFromProfile,
-      username,
-    },
-    error: null,
-  };
+      // Get profileEmail from profiles table
+      const profileEmail = (profileRow?.email as string | null) ?? null;
+      
+      return {
+        profile: {
+          userId: data.user.id,
+          email: data.user.email, // Confirmed email from auth.users
+          profileEmail: profileEmail, // Email from profiles (may differ if pending confirmation)
+          username,
+        },
+        error: null,
+      };
 }
 
 export async function loginWithEmailOrUsername(
@@ -234,17 +261,17 @@ export async function loginWithEmailOrUsername(
   }
 
   // Otherwise, treat as username: look up the profile to get email
-  const { data: profileRow, error: lookupError } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("username", identifier)
-    .maybeSingle();
+  // Use secure database function that only returns user_id and email (not stats or other sensitive data)
+  const { data: profileRow, error: lookupError } = await supabase.rpc(
+    "get_email_by_username",
+    { username_to_lookup: identifier }
+  );
 
-  if (lookupError || !profileRow?.email) {
+  if (lookupError || !profileRow || profileRow.length === 0 || !profileRow[0]?.email) {
     return { profile: null, error: "Username not found" };
   }
 
-  return signInWithEmail(profileRow.email as string, password);
+  return signInWithEmail(profileRow[0].email as string, password);
 }
 
 export async function logout(): Promise<void> {
@@ -315,7 +342,7 @@ export async function updateEmail(
     };
   }
 
-  // Update email in Supabase Auth (this may trigger email confirmation)
+  // Update email in Supabase Auth
   const { data, error } = await supabase.auth.updateUser({
     email: newEmail.trim(),
   });
@@ -338,7 +365,9 @@ export async function updateEmail(
     };
   }
 
-  // Also update email in profiles table
+  // Update profiles.email for username lookup
+  // Note: profiles.email is stored for username->email lookup during login
+  // auth.users.email is the source of truth for display
   if (data.user) {
     const { error: profileError } = await supabase
       .from("profiles")

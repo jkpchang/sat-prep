@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,9 +14,11 @@ import {
   logout,
   updateUsername,
   updateEmail,
+  ensureAnonymousAuth,
   AuthProfile,
   USERNAME_REGEX,
 } from "../services/auth";
+import { supabase } from "../services/supabaseClient";
 import { gamificationService } from "../services/gamification";
 
 export const ProfileScreen: React.FC = () => {
@@ -40,8 +42,56 @@ export const ProfileScreen: React.FC = () => {
   const [editingEmail, setEditingEmail] = useState("");
   const [editingUsername, setEditingUsername] = useState("");
 
-  // Note: Auth state persistence on app startup will be added in a future update
-  // For now, auth state is managed locally and persists only during the session
+  // Helper function to load auth state
+  const loadAuthState = async () => {
+    // Ensure anonymous auth is set up
+    await ensureAnonymousAuth();
+    
+    // Get current session
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.user) {
+      // Fetch profile to get username and profileEmail
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("username, email")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      
+      const authEmail = session.user.email; // From auth.users (confirmed/active)
+      const profileEmail = (profileRow?.email as string | null) ?? null; // From profiles (may differ if email change is pending confirmation)
+      
+      // If profiles.email differs from auth.users.email, there's a pending email confirmation
+      
+      setAuthProfile({
+        userId: session.user.id,
+        email: authEmail, // Confirmed/active email from auth.users
+        profileEmail: profileEmail, // Email from profiles (may be pending confirmation)
+        username: (profileRow?.username as string | null) ?? null,
+      });
+    } else {
+      setAuthProfile(null);
+    }
+  };
+
+  useEffect(() => {
+    // Load auth state on mount
+    loadAuthState().catch(console.error);
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        // Reload profile when auth state changes
+        loadAuthState().catch(console.error);
+      } else {
+        setAuthProfile(null);
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const validateEmail = (emailValue: string): string | null => {
     if (!emailValue.trim()) {
@@ -182,10 +232,14 @@ export const ProfileScreen: React.FC = () => {
     setEmailError(null);
     setUsernameError(null);
     setPasswordError(null);
-    setAuthProfile(profile);
-    Alert.alert("Account created", "Your progress is now linked to this account.");
-    // Reload gamification progress from local storage that may have been updated
-    await gamificationService.initialize();
+    
+        // Reload auth state from database to get fresh profile data
+        // This ensures we have the latest data and triggers re-render showing logged-in view
+        await loadAuthState();
+        
+        Alert.alert("Account created", "Your progress is now linked to this account.");
+        // Reload gamification progress from local storage that may have been updated
+        await gamificationService.initialize();
   };
 
   const handleLogin = async () => {
@@ -229,25 +283,34 @@ export const ProfileScreen: React.FC = () => {
     setPassword("");
     setIdentifierError(null);
     setPasswordError(null);
-    setAuthProfile(profile);
+    
+    // Reload auth state from database to get fresh profile data
+    await loadAuthState();
+    
     Alert.alert("Logged in", "Your account progress has been loaded on this device.");
     await gamificationService.initialize();
   };
 
   const handleLogout = async () => {
     await logout();
-    setAuthProfile(null);
     setIsEditing(false);
+    
+    // After logout, ensure anonymous auth is set up and reload state
+    // This will show the signup/login forms again
+    await loadAuthState();
+    
     Alert.alert("Logged out", "You are now playing as a guest on this device.");
   };
 
-  const handleStartEdit = () => {
-    setEditingEmail(authProfile?.email ?? "");
-    setEditingUsername(authProfile?.username ?? "");
-    setEmailError(null);
-    setUsernameError(null);
-    setIsEditing(true);
-  };
+      const handleStartEdit = () => {
+        // When editing, show the profileEmail (pending) if it exists, otherwise show the confirmed email
+        const emailToEdit = authProfile?.profileEmail ?? authProfile?.email ?? "";
+        setEditingEmail(emailToEdit);
+        setEditingUsername(authProfile?.username ?? "");
+        setEmailError(null);
+        setUsernameError(null);
+        setIsEditing(true);
+      };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -264,10 +327,13 @@ export const ProfileScreen: React.FC = () => {
     setEmailError(null);
     setUsernameError(null);
 
+    // Get current email (profileEmail if pending, otherwise confirmed email)
+    const currentEmail = authProfile.profileEmail ?? authProfile.email ?? "";
+    
     let hasErrors = false;
 
     // Validate email if changed
-    if (editingEmail.trim() !== (authProfile.email ?? "")) {
+    if (editingEmail.trim() !== currentEmail) {
       const emailErr = validateEmail(editingEmail);
       if (emailErr) {
         setEmailError(emailErr);
@@ -292,7 +358,7 @@ export const ProfileScreen: React.FC = () => {
     let updateError: string | null = null;
 
     // Update email if changed
-    if (editingEmail.trim() !== (authProfile.email ?? "")) {
+    if (editingEmail.trim() !== currentEmail) {
       const { success, error } = await updateEmail(editingEmail.trim());
       if (!success) {
         updateError = error ?? "Failed to update email";
@@ -318,27 +384,45 @@ export const ProfileScreen: React.FC = () => {
 
     setLoading(false);
 
-    // Update local state
-    setAuthProfile({
-      ...authProfile,
-      email: editingEmail.trim() || authProfile.email,
-      username: editingUsername.trim() || authProfile.username,
-    });
+    // Reload auth state from database to get fresh values
+    await loadAuthState();
 
     setIsEditing(false);
     Alert.alert("Success", "Your profile has been updated.");
   };
 
-  const renderLoggedIn = () => (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>Profile</Text>
-      
-      {!isEditing ? (
-        <>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{authProfile?.email ?? "—"}</Text>
-          <Text style={styles.label}>Username</Text>
-          <Text style={styles.value}>{authProfile?.username ?? "—"}</Text>
+      const renderLoggedIn = () => {
+        // Check if there's a pending email confirmation
+        const hasPendingEmail = authProfile?.profileEmail && 
+                                authProfile?.email && 
+                                authProfile.profileEmail !== authProfile.email;
+        
+        return (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Profile</Text>
+            
+            {!isEditing ? (
+              <>
+                {hasPendingEmail ? (
+                  <>
+                    <Text style={styles.label}>Current Email (Active)</Text>
+                    <Text style={styles.value}>{authProfile?.email ?? "—"}</Text>
+                    <Text style={styles.label}>New Email (Pending Confirmation)</Text>
+                    <View style={styles.pendingEmailContainer}>
+                      <Text style={styles.pendingEmailValue}>{authProfile?.profileEmail ?? "—"}</Text>
+                      <Text style={styles.pendingEmailNote}>
+                        Please check your email to confirm this address
+                      </Text>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.label}>Email</Text>
+                    <Text style={styles.value}>{authProfile?.email ?? authProfile?.profileEmail ?? "—"}</Text>
+                  </>
+                )}
+                <Text style={styles.label}>Username</Text>
+                <Text style={styles.value}>{authProfile?.username ?? "—"}</Text>
 
           <TouchableOpacity
             style={styles.button}
@@ -408,7 +492,8 @@ export const ProfileScreen: React.FC = () => {
         </>
       )}
     </View>
-  );
+    );
+  };
 
   const renderAuthForms = () => (
     <View style={styles.card}>
@@ -551,14 +636,19 @@ export const ProfileScreen: React.FC = () => {
     </View>
   );
 
+  // Determine if user is authenticated (has email or username) vs anonymous
+  const isAuthenticated = authProfile && (authProfile.email || authProfile.username);
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + 24 }]}>
       <Text style={styles.title}>Profile</Text>
       <Text style={styles.subtitle}>
-        Upgrade your guest profile to save progress across devices.
+        {isAuthenticated 
+          ? "Manage your account and sync progress across devices."
+          : "Upgrade your guest profile to save progress across devices."}
       </Text>
 
-      {authProfile ? renderLoggedIn() : renderAuthForms()}
+      {isAuthenticated ? renderLoggedIn() : renderAuthForms()}
     </View>
   );
 };
@@ -686,6 +776,20 @@ const styles = StyleSheet.create({
   saveButton: {
     flex: 1,
     marginLeft: 8,
+  },
+  pendingEmailContainer: {
+    marginTop: 4,
+  },
+  pendingEmailValue: {
+    fontSize: 16,
+    color: "#E67E22",
+    fontWeight: "500",
+    marginBottom: 4,
+  },
+  pendingEmailNote: {
+    fontSize: 12,
+    color: "#E67E22",
+    fontStyle: "italic",
   },
 });
 

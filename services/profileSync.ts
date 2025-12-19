@@ -1,6 +1,6 @@
 import { UserProgress } from "../types";
 import { supabase } from "./supabaseClient";
-import { getOrCreateDeviceId } from "./deviceId";
+import { ensureAnonymousAuth } from "./auth";
 
 type StatsPayload = Pick<
   UserProgress,
@@ -19,17 +19,30 @@ type StatsPayload = Pick<
 let saveTimeout: NodeJS.Timeout | null = null;
 
 export async function saveProfileStats(stats: StatsPayload): Promise<void> {
-  const deviceId = await getOrCreateDeviceId();
+  // Get current user (should be anonymous if not logged in)
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let userId = user?.id;
+  
+  if (!userId) {
+    // Try to ensure anonymous auth
+    const { userId: anonymousUserId, error } = await ensureAnonymousAuth();
+    if (error || !anonymousUserId) {
+      console.warn("Failed to get anonymous auth for profile sync", error);
+      return;
+    }
+    userId = anonymousUserId;
+  }
 
   // Store the raw progress as JSON for now; we can normalize later if needed
   const { error } = await supabase.from("profiles").upsert(
     {
-      device_id: deviceId,
+      user_id: userId,
       stats,
       last_seen_at: new Date().toISOString(),
     },
     {
-      onConflict: "device_id",
+      onConflict: "user_id",
     }
   );
 

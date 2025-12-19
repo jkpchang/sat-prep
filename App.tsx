@@ -10,6 +10,7 @@ import { QuizScreen } from "./app/QuizScreen";
 import { ProgressScreen } from "./app/ProgressScreen";
 import { ProfileScreen } from "./app/ProfileScreen";
 import { gamificationService } from "./services/gamification";
+import { ensureAnonymousAuth } from "./services/auth";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -83,8 +84,14 @@ function HomeTabs() {
 
 export default function App() {
   useEffect(() => {
-    // Initialize gamification service on app start
-    gamificationService.initialize().catch(console.error);
+    // Initialize anonymous auth and gamification service on app start
+    const initialize = async () => {
+      // Ensure anonymous auth first (creates anonymous user if needed)
+      await ensureAnonymousAuth();
+      // Then initialize gamification
+      await gamificationService.initialize();
+    };
+    initialize().catch(console.error);
   }, []);
 
   return (
