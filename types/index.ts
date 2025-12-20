@@ -34,3 +34,38 @@ export interface Achievement {
   unlocked: boolean;
   unlockedDate?: string;
 }
+
+export interface LeaderboardEntry {
+  userId: string;
+  username: string | null;
+  totalXP: number;
+  dayStreak: number;
+  rank: number;
+}
+
+export interface PrivateLeaderboard {
+  id: string;
+  ownerId: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  maxMembers: number;
+  memberCount: number;
+}
+
+export interface LeaderboardMember {
+  userId: string;
+  username: string | null;
+  totalXP: number;
+  dayStreak: number;
+  rank: number;
+  joinedAt: string;
+}
+
+export interface UserPreferences {
+  userId: string;
+  blockLeaderboardInvites: boolean;
+  hideFromGlobalLeaderboard: boolean;
+  updatedAt: string;
+}

@@ -1,0 +1,273 @@
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  getGlobalLeaderboardByXP,
+  getGlobalLeaderboardByStreak,
+} from "../services/leaderboard";
+import { LeaderboardEntry } from "../types";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+type RootStackParamList = {
+  Main: undefined;
+  Quiz: undefined;
+  Leaderboard: undefined;
+  GlobalLeaderboard: { type: "xp" | "streak" };
+  PrivateLeaderboard: { leaderboardId: string };
+  UserProfile: { userId: string };
+};
+
+type GlobalLeaderboardScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "GlobalLeaderboard"
+>;
+
+interface GlobalLeaderboardScreenProps {
+  navigation: GlobalLeaderboardScreenNavigationProp;
+  route: { params: { type: "xp" | "streak" } };
+}
+
+export const GlobalLeaderboardScreen: React.FC<GlobalLeaderboardScreenProps> = ({
+  navigation,
+  route,
+}) => {
+  const insets = useSafeAreaInsets();
+  const { authProfile } = useAuth();
+  const { type } = route.params;
+  const [loading, setLoading] = useState(true);
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const pageSize = 50;
+
+  useEffect(() => {
+    loadEntries();
+  }, [type]);
+
+  const loadEntries = async (loadMore: boolean = false) => {
+    try {
+      setLoading(true);
+      const currentOffset = loadMore ? offset : 0;
+      const newEntries = await (type === "xp"
+        ? getGlobalLeaderboardByXP(pageSize, currentOffset)
+        : getGlobalLeaderboardByStreak(pageSize, currentOffset));
+
+      if (loadMore) {
+        setEntries([...entries, ...newEntries]);
+      } else {
+        setEntries(newEntries);
+      }
+
+      setHasMore(newEntries.length === pageSize);
+      setOffset(currentOffset + newEntries.length);
+    } catch (error) {
+      console.error("Error loading leaderboard:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      loadEntries(true);
+    }
+  };
+
+  const handleRowClick = (userId: string) => {
+    navigation.navigate("UserProfile", { userId });
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.backButton}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
+          Global - {type === "xp" ? "XP" : "Days Streak"}
+        </Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      {loading && entries.length === 0 ? (
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color="#4ECDC4" />
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          onScrollEndDrag={handleLoadMore}
+        >
+          {entries.map((entry) => {
+            const isCurrentUser = entry.userId === authProfile?.userId;
+            return (
+              <TouchableOpacity
+                key={entry.userId}
+                style={[
+                  styles.entry,
+                  isCurrentUser && styles.currentUserEntry,
+                ]}
+                onPress={() => handleRowClick(entry.userId)}
+              >
+                <Text
+                  style={[styles.rank, isCurrentUser && styles.currentUserText]}
+                >
+                  {entry.rank}
+                </Text>
+                <Text
+                  style={[
+                    styles.username,
+                    isCurrentUser && styles.currentUserText,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {entry.username || "Unknown"}
+                </Text>
+                <Text
+                  style={[styles.value, isCurrentUser && styles.currentUserText]}
+                >
+                  {type === "xp" ? entry.totalXP : entry.dayStreak}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+
+          {hasMore && (
+            <TouchableOpacity
+              style={styles.loadMoreButton}
+              onPress={handleLoadMore}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#4ECDC4" />
+              ) : (
+                <Text style={styles.loadMoreText}>Load More</Text>
+              )}
+            </TouchableOpacity>
+          )}
+
+          {entries.length === 0 && !loading && (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No entries available</Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#E8ECF0",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  backButton: {
+    fontSize: 16,
+    color: "#4ECDC4",
+    fontWeight: "600",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#2C3E50",
+  },
+  placeholder: {
+    width: 60,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  entry: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  currentUserEntry: {
+    backgroundColor: "#F0FDFC",
+    borderWidth: 2,
+    borderColor: "#4ECDC4",
+  },
+  rank: {
+    width: 50,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2C3E50",
+  },
+  username: {
+    flex: 1,
+    fontSize: 16,
+    color: "#2C3E50",
+    marginLeft: 12,
+  },
+  value: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2C3E50",
+    minWidth: 80,
+    textAlign: "right",
+  },
+  currentUserText: {
+    color: "#2C3E50",
+    fontWeight: "700",
+  },
+  loadMoreButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: "#4ECDC4",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  loadMoreText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  emptyContainer: {
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#7F8C8D",
+    textAlign: "center",
+  },
+});
+

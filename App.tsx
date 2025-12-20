@@ -9,6 +9,10 @@ import { HomeScreen } from "./app/HomeScreen";
 import { QuizScreen } from "./app/QuizScreen";
 import { ProgressScreen } from "./app/ProgressScreen";
 import { ProfileScreen } from "./app/ProfileScreen";
+import { LeaderboardScreen } from "./app/LeaderboardScreen";
+import { GlobalLeaderboardScreen } from "./app/GlobalLeaderboardScreen";
+import { PrivateLeaderboardScreen } from "./app/PrivateLeaderboardScreen";
+import { UserProfileScreen } from "./app/UserProfileScreen";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const Tab = createBottomTabNavigator();
@@ -41,6 +45,22 @@ function HomeTabs() {
               }}
             >
               🏠
+            </Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Leaderboard"
+        component={LeaderboardScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Text
+              style={{
+                fontSize: 32,
+                color: focused ? "#4ECDC4" : "#7F8C8D",
+              }}
+            >
+              🏆
             </Text>
           ),
         }}
@@ -100,6 +120,21 @@ export default function App() {
             <Stack.Screen
               name="Quiz"
               component={QuizScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="GlobalLeaderboard"
+              component={GlobalLeaderboardScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="PrivateLeaderboard"
+              component={PrivateLeaderboardScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="UserProfile"
+              component={UserProfileScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

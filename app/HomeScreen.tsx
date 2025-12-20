@@ -25,6 +25,9 @@ type TabParamList = {
 type RootStackParamList = {
   Main: TabParamList;
   Quiz: undefined;
+  GlobalLeaderboard: { type: "xp" | "streak" };
+  PrivateLeaderboard: { leaderboardId: string };
+  UserProfile: { userId: string };
 };
 
 type HomeScreenNavigationProp = CompositeNavigationProp<

@@ -1,0 +1,384 @@
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "../contexts/AuthContext";
+import { GlobalLeaderboardPanel } from "../components/GlobalLeaderboardPanel";
+import { PrivateLeaderboardPanel } from "../components/PrivateLeaderboardPanel";
+import { CreateLeaderboardModal } from "../components/CreateLeaderboardModal";
+import {
+  getGlobalLeaderboardByXP,
+  getGlobalLeaderboardByStreak,
+  getUserGlobalRankByXP,
+  getUserGlobalRankByStreak,
+  getPrivateLeaderboardsForUser,
+  getPrivateLeaderboardMembers,
+  getUserRankInPrivateLeaderboard,
+} from "../services/leaderboard";
+import { LeaderboardEntry, PrivateLeaderboard, LeaderboardMember } from "../types";
+import { CompositeNavigationProp } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+type TabParamList = {
+  Home: undefined;
+  Leaderboard: undefined;
+  Progress: undefined;
+  Profile: undefined;
+};
+
+type RootStackParamList = {
+  Main: TabParamList;
+  Quiz: undefined;
+  GlobalLeaderboard: { type: "xp" | "streak" };
+  PrivateLeaderboard: { leaderboardId: string };
+  UserProfile: { userId: string };
+};
+
+type LeaderboardScreenNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<TabParamList, "Leaderboard">,
+  NativeStackNavigationProp<RootStackParamList>
+>;
+
+interface LeaderboardScreenProps {
+  navigation: LeaderboardScreenNavigationProp;
+}
+
+export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
+  navigation,
+}) => {
+  const insets = useSafeAreaInsets();
+  const { authProfile } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [globalXPEntries, setGlobalXPEntries] = useState<LeaderboardEntry[]>([]);
+  const [globalStreakEntries, setGlobalStreakEntries] = useState<LeaderboardEntry[]>([]);
+  const [globalXPRank, setGlobalXPRank] = useState<number | null>(null);
+  const [globalStreakRank, setGlobalStreakRank] = useState<number | null>(null);
+  const [privateLeaderboards, setPrivateLeaderboards] = useState<
+    Array<{
+      leaderboard: PrivateLeaderboard;
+      entries: LeaderboardMember[];
+      userRank: number | null;
+    }>
+  >([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  useEffect(() => {
+    loadLeaderboards();
+  }, [authProfile?.userId, authProfile?.username]);
+
+  const loadLeaderboards = async () => {
+    // Require authenticated user with username (not anonymous)
+    if (!authProfile?.userId || !authProfile?.username) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Load global XP leaderboard
+      const xpRankData = await getUserGlobalRankByXP(authProfile.userId);
+      if (xpRankData) {
+        setGlobalXPEntries(xpRankData.entries);
+        setGlobalXPRank(xpRankData.rank);
+      } else {
+        // User not in leaderboard, get top 5
+        const topXP = await getGlobalLeaderboardByXP(5, 0);
+        setGlobalXPEntries(topXP);
+        setGlobalXPRank(null);
+      }
+
+      // Load global Streak leaderboard
+      const streakRankData = await getUserGlobalRankByStreak(authProfile.userId);
+      if (streakRankData) {
+        setGlobalStreakEntries(streakRankData.entries);
+        setGlobalStreakRank(streakRankData.rank);
+      } else {
+        // User not in leaderboard, get top 5
+        const topStreak = await getGlobalLeaderboardByStreak(5, 0);
+        setGlobalStreakEntries(topStreak);
+        setGlobalStreakRank(null);
+      }
+
+      // Load private leaderboards
+      const privateLbs = await getPrivateLeaderboardsForUser(authProfile.userId);
+      const privateLbData = await Promise.all(
+        privateLbs.map(async (lb) => {
+          const rankData = await getUserRankInPrivateLeaderboard(
+            lb.id,
+            authProfile.userId,
+            "xp"
+          );
+          if (rankData && rankData.entries.length > 0) {
+            // User is in leaderboard - show user in middle (up to 5 entries)
+            return {
+              leaderboard: lb,
+              entries: rankData.entries,
+              userRank: rankData.rank,
+            };
+          } else {
+            // User not in leaderboard or no entries - show top 5
+            const members = await getPrivateLeaderboardMembers(lb.id, "xp");
+            return {
+              leaderboard: lb,
+              entries: members.slice(0, 5),
+              userRank: null,
+            };
+          }
+        })
+      );
+      setPrivateLeaderboards(privateLbData);
+    } catch (error) {
+      console.error("Error loading leaderboards:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleShowGlobalXP = () => {
+    // Navigate to stack screen
+    const stackNav = navigation.getParent();
+    if (stackNav) {
+      (stackNav as any).navigate("GlobalLeaderboard", { type: "xp" });
+    }
+  };
+
+  const handleShowGlobalStreak = () => {
+    // Navigate to stack screen
+    const stackNav = navigation.getParent();
+    if (stackNav) {
+      (stackNav as any).navigate("GlobalLeaderboard", { type: "streak" });
+    }
+  };
+
+  const handleShowPrivate = (leaderboardId: string) => {
+    // Navigate to stack screen
+    const stackNav = navigation.getParent();
+    if (stackNav) {
+      (stackNav as any).navigate("PrivateLeaderboard", { leaderboardId });
+    }
+  };
+
+  const handleManagePrivate = (leaderboardId: string) => {
+    // Navigate to stack screen
+    const stackNav = navigation.getParent();
+    if (stackNav) {
+      (stackNav as any).navigate("PrivateLeaderboard", { leaderboardId });
+    }
+  };
+
+  const handleRowClick = (userId: string) => {
+    // Navigate to stack screen
+    const stackNav = navigation.getParent();
+    if (stackNav) {
+      (stackNav as any).navigate("UserProfile", { userId });
+    }
+  };
+
+  // Require authenticated user with username (not anonymous)
+  if (!authProfile?.userId || !authProfile?.username) {
+    return (
+      <View style={styles.container}>
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <Text style={styles.headerTitle}>Leaderboards</Text>
+          <View style={styles.placeholder} />
+        </View>
+        <View style={styles.centerContent}>
+          <Text style={styles.messageTitle}>Sign In Required</Text>
+          <Text style={styles.messageText}>
+            Please sign in or create an account to view and create leaderboards.
+          </Text>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => {
+              // Navigate to Profile tab (both are in the same Tab navigator)
+              // Cast to any to access tab navigation methods
+              const tabNav = navigation as any;
+              if (tabNav.jumpTo) {
+                tabNav.jumpTo("Profile");
+              } else {
+                tabNav.navigate("Profile");
+              }
+            }}
+          >
+            <Text style={styles.loginButtonText}>Go to Profile →</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <Text style={styles.headerTitle}>Leaderboards</Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      {loading ? (
+        <View style={styles.centerContent}>
+          <ActivityIndicator size="large" color="#4ECDC4" />
+        </View>
+      ) : (
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+          {/* Global XP Leaderboard */}
+          <GlobalLeaderboardPanel
+            type="xp"
+            entries={globalXPEntries}
+            userRank={globalXPRank}
+            currentUserId={authProfile.userId}
+            onShowMore={handleShowGlobalXP}
+          />
+
+          {/* Global Streak Leaderboard */}
+          <GlobalLeaderboardPanel
+            type="streak"
+            entries={globalStreakEntries}
+            userRank={globalStreakRank}
+            currentUserId={authProfile.userId}
+            onShowMore={handleShowGlobalStreak}
+          />
+
+          {/* Private Leaderboards */}
+          {privateLeaderboards.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>
+                You're not in any private leaderboards yet
+              </Text>
+            </View>
+          ) : (
+            privateLeaderboards.map(({ leaderboard, entries, userRank }) => (
+              <PrivateLeaderboardPanel
+                key={leaderboard.id}
+                leaderboard={leaderboard}
+                entries={entries}
+                userRank={userRank}
+                currentUserId={authProfile.userId}
+                onShowMore={() => handleShowPrivate(leaderboard.id)}
+                onManage={
+                  leaderboard.ownerId === authProfile.userId
+                    ? () => handleManagePrivate(leaderboard.id)
+                    : undefined
+                }
+                isOwner={leaderboard.ownerId === authProfile.userId}
+              />
+            ))
+          )}
+
+          {/* Create Leaderboard Button - Always visible for logged-in users */}
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => setShowCreateModal(true)}
+          >
+            <Text style={styles.createButtonText}>+ Create Leaderboard</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
+
+      <CreateLeaderboardModal
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={loadLeaderboards}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#E8ECF0",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  backButton: {
+    fontSize: 16,
+    color: "#4ECDC4",
+    fontWeight: "600",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#2C3E50",
+  },
+  placeholder: {
+    width: 60,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    paddingBottom: 32,
+  },
+  centerContent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  messageTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#2C3E50",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  messageText: {
+    fontSize: 16,
+    color: "#7F8C8D",
+    textAlign: "center",
+    marginBottom: 24,
+    paddingHorizontal: 32,
+  },
+  loginButton: {
+    backgroundColor: "#4ECDC4",
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    minWidth: 200,
+    alignItems: "center",
+  },
+  loginButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  emptyContainer: {
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#7F8C8D",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  createButton: {
+    marginTop: 16,
+    marginHorizontal: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    backgroundColor: "#4ECDC4",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  createButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});
+
