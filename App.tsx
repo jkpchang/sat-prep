@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -9,8 +9,7 @@ import { HomeScreen } from "./app/HomeScreen";
 import { QuizScreen } from "./app/QuizScreen";
 import { ProgressScreen } from "./app/ProgressScreen";
 import { ProfileScreen } from "./app/ProfileScreen";
-import { gamificationService } from "./services/gamification";
-import { ensureAnonymousAuth } from "./services/auth";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -83,38 +82,29 @@ function HomeTabs() {
 }
 
 export default function App() {
-  useEffect(() => {
-    // Initialize anonymous auth and gamification service on app start
-    const initialize = async () => {
-      // Ensure anonymous auth first (creates anonymous user if needed)
-      await ensureAnonymousAuth();
-      // Then initialize gamification
-      await gamificationService.initialize();
-    };
-    initialize().catch(console.error);
-  }, []);
-
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <Stack.Navigator
-          screenOptions={{
-            animation: "none",
-          }}
-        >
-          <Stack.Screen
-            name="Main"
-            component={HomeTabs}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Quiz"
-            component={QuizScreen}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" />
+          <Stack.Navigator
+            screenOptions={{
+              animation: "none",
+            }}
+          >
+            <Stack.Screen
+              name="Main"
+              component={HomeTabs}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Quiz"
+              component={QuizScreen}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }

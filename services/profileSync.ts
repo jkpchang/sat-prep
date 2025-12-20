@@ -20,10 +20,12 @@ let saveTimeout: NodeJS.Timeout | null = null;
 
 export async function saveProfileStats(stats: StatsPayload): Promise<void> {
   // Get current user (should be anonymous if not logged in)
-  const { data: { user } } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   let userId = user?.id;
-  
+
   if (!userId) {
     // Try to ensure anonymous auth
     const { userId: anonymousUserId, error } = await ensureAnonymousAuth();
@@ -64,15 +66,3 @@ export function scheduleSaveProfileStats(
     saveTimeout = null;
   }, delayMs);
 }
-
-export async function flushProfileStats(
-  stats: StatsPayload
-): Promise<void> {
-  if (saveTimeout) {
-    clearTimeout(saveTimeout);
-    saveTimeout = null;
-  }
-  await saveProfileStats(stats);
-}
-
-

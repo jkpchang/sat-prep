@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,90 +8,45 @@ import {
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  signUpWithEmailUsernamePassword,
-  loginWithEmailOrUsername,
-  logout,
-  updateUsername,
-  updateEmail,
-  ensureAnonymousAuth,
-  AuthProfile,
-  USERNAME_REGEX,
-} from "../services/auth";
-import { supabase } from "../services/supabaseClient";
-import { gamificationService } from "../services/gamification";
+import { USERNAME_REGEX } from "../services/auth";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+
+type TabParamList = {
+  Home: undefined;
+  Progress: undefined;
+  Profile: undefined;
+};
 
 export const ProfileScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const [authProfile, setAuthProfile] = useState<AuthProfile | null>(null);
+  const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
+  const {
+    authProfile,
+    signUp,
+    login,
+    logout,
+    updateUserUsername,
+    updateUserEmail,
+  } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("signup");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   // Inline validation errors
   const [emailError, setEmailError] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [identifierError, setIdentifierError] = useState<string | null>(null);
-  
+
   // Edit mode state
   const [isEditing, setIsEditing] = useState(false);
   const [editingEmail, setEditingEmail] = useState("");
   const [editingUsername, setEditingUsername] = useState("");
-
-  // Helper function to load auth state
-  const loadAuthState = async () => {
-    // Ensure anonymous auth is set up
-    await ensureAnonymousAuth();
-    
-    // Get current session
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      // Fetch profile to get username and profileEmail
-      const { data: profileRow } = await supabase
-        .from("profiles")
-        .select("username, email")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-      
-      const authEmail = session.user.email; // From auth.users (confirmed/active)
-      const profileEmail = (profileRow?.email as string | null) ?? null; // From profiles (may differ if email change is pending confirmation)
-      
-      // If profiles.email differs from auth.users.email, there's a pending email confirmation
-      
-      setAuthProfile({
-        userId: session.user.id,
-        email: authEmail, // Confirmed/active email from auth.users
-        profileEmail: profileEmail, // Email from profiles (may be pending confirmation)
-        username: (profileRow?.username as string | null) ?? null,
-      });
-    } else {
-      setAuthProfile(null);
-    }
-  };
-
-  useEffect(() => {
-    // Load auth state on mount
-    loadAuthState().catch(console.error);
-    
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        // Reload profile when auth state changes
-        loadAuthState().catch(console.error);
-      } else {
-        setAuthProfile(null);
-      }
-    });
-    
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
 
   const validateEmail = (emailValue: string): string | null => {
     if (!emailValue.trim()) {
@@ -130,56 +85,69 @@ export const ProfileScreen: React.FC = () => {
     return null;
   };
 
-  const parseServerError = (error: string | null): {
+  const parseServerError = (
+    error: string | null
+  ): {
     emailError?: string;
     usernameError?: string;
     passwordError?: string;
     generalError?: string;
   } => {
     if (!error) return {};
-    
+
     const errorLower = error.toLowerCase();
-    
+
     // Email already exists - check multiple patterns
     if (
       errorLower.includes("email") &&
-      (errorLower.includes("already") || errorLower.includes("exists") || errorLower.includes("registered") || errorLower.includes("taken"))
+      (errorLower.includes("already") ||
+        errorLower.includes("exists") ||
+        errorLower.includes("registered") ||
+        errorLower.includes("taken"))
     ) {
       return { emailError: "This email is already registered" };
     }
-    
+
     // Check for "user already registered" without email keyword
-    if (errorLower.includes("already registered") || errorLower.includes("user already")) {
+    if (
+      errorLower.includes("already registered") ||
+      errorLower.includes("user already")
+    ) {
       return { emailError: "This email is already registered" };
     }
-    
+
     // Username already taken
     if (
       errorLower.includes("username") &&
-      (errorLower.includes("already") || errorLower.includes("taken") || errorLower.includes("unique"))
+      (errorLower.includes("already") ||
+        errorLower.includes("taken") ||
+        errorLower.includes("unique"))
     ) {
       return { usernameError: "This username is already taken" };
     }
-    
+
     // Password too short or invalid
     if (errorLower.includes("password")) {
-      if (errorLower.includes("8") || errorLower.includes("length") || errorLower.includes("short")) {
+      if (
+        errorLower.includes("8") ||
+        errorLower.includes("length") ||
+        errorLower.includes("short")
+      ) {
         return { passwordError: "Password must be at least 8 characters" };
       }
       return { passwordError: "Invalid password" };
     }
-    
+
     // General error - return as-is
     return { generalError: error };
   };
 
   const handleSignup = async () => {
-    // Clear previous errors
     setEmailError(null);
     setUsernameError(null);
     setPasswordError(null);
 
-    // Client-side validation
+    // Validate inputs
     const emailErr = validateEmail(email);
     const usernameErr = validateUsername(username);
     const passwordErr = validatePassword(password);
@@ -199,16 +167,12 @@ export const ProfileScreen: React.FC = () => {
     }
 
     setLoading(true);
-    const { profile, error } = await signUpWithEmailUsernamePassword(
-      email.trim(),
-      username.trim(),
-      password
-    );
+    const { error } = await signUp(email.trim(), username.trim(), password);
     setLoading(false);
 
-    if (error || !profile) {
+    if (error) {
       const parsedErrors = parseServerError(error);
-      
+
       if (parsedErrors.emailError) {
         setEmailError(parsedErrors.emailError);
       }
@@ -218,32 +182,32 @@ export const ProfileScreen: React.FC = () => {
       if (parsedErrors.passwordError) {
         setPasswordError(parsedErrors.passwordError);
       }
-      // If we have a general error but no specific field error, show it on the email field as a fallback
-      if (parsedErrors.generalError && !parsedErrors.emailError && !parsedErrors.usernameError && !parsedErrors.passwordError) {
+      // Show general error on email field if no specific field error
+      if (
+        parsedErrors.generalError &&
+        !parsedErrors.emailError &&
+        !parsedErrors.usernameError &&
+        !parsedErrors.passwordError
+      ) {
         setEmailError(parsedErrors.generalError);
       }
       return;
     }
 
-    // Success - clear form and errors
     setEmail("");
     setUsername("");
     setPassword("");
     setEmailError(null);
     setUsernameError(null);
     setPasswordError(null);
-    
-        // Reload auth state from database to get fresh profile data
-        // This ensures we have the latest data and triggers re-render showing logged-in view
-        await loadAuthState();
-        
-        Alert.alert("Account created", "Your progress is now linked to this account.");
-        // Reload gamification progress from local storage that may have been updated
-        await gamificationService.initialize();
+
+    Alert.alert(
+      "Account created",
+      "Your progress is now linked to this account."
+    );
   };
 
   const handleLogin = async () => {
-    // Clear previous errors
     setIdentifierError(null);
     setPasswordError(null);
 
@@ -257,19 +221,22 @@ export const ProfileScreen: React.FC = () => {
     }
 
     setLoading(true);
-    const { profile, error } = await loginWithEmailOrUsername(
-      identifier.trim(),
-      password
-    );
+    const { error } = await login(identifier.trim(), password);
     setLoading(false);
 
-    if (error || !profile) {
+    if (error) {
       const parsedErrors = parseServerError(error);
-      
+
       if (parsedErrors.generalError) {
-        if (error?.toLowerCase().includes("username") || error?.toLowerCase().includes("not found")) {
+        if (
+          error?.toLowerCase().includes("username") ||
+          error?.toLowerCase().includes("not found")
+        ) {
           setIdentifierError(error);
-        } else if (error?.toLowerCase().includes("password") || error?.toLowerCase().includes("invalid")) {
+        } else if (
+          error?.toLowerCase().includes("password") ||
+          error?.toLowerCase().includes("invalid")
+        ) {
           setPasswordError("Invalid password");
         } else {
           setIdentifierError(error ?? "Login failed");
@@ -278,39 +245,35 @@ export const ProfileScreen: React.FC = () => {
       return;
     }
 
-    // Success - clear form and errors
     setIdentifier("");
     setPassword("");
     setIdentifierError(null);
     setPasswordError(null);
-    
-    // Reload auth state from database to get fresh profile data
-    await loadAuthState();
-    
-    Alert.alert("Logged in", "Your account progress has been loaded on this device.");
-    await gamificationService.initialize();
+
+    navigation.navigate("Home");
+
+    Alert.alert(
+      "Logged in",
+      "Your account progress has been loaded on this device."
+    );
   };
 
   const handleLogout = async () => {
-    await logout();
     setIsEditing(false);
-    
-    // After logout, ensure anonymous auth is set up and reload state
-    // This will show the signup/login forms again
-    await loadAuthState();
-    
+    await logout();
+    setMode("login");
     Alert.alert("Logged out", "You are now playing as a guest on this device.");
   };
 
-      const handleStartEdit = () => {
-        // When editing, show the profileEmail (pending) if it exists, otherwise show the confirmed email
-        const emailToEdit = authProfile?.profileEmail ?? authProfile?.email ?? "";
-        setEditingEmail(emailToEdit);
-        setEditingUsername(authProfile?.username ?? "");
-        setEmailError(null);
-        setUsernameError(null);
-        setIsEditing(true);
-      };
+  const handleStartEdit = () => {
+    // Prefer pending email over confirmed email for editing
+    const emailToEdit = authProfile?.profileEmail ?? authProfile?.email ?? "";
+    setEditingEmail(emailToEdit);
+    setEditingUsername(authProfile?.username ?? "");
+    setEmailError(null);
+    setUsernameError(null);
+    setIsEditing(true);
+  };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -323,16 +286,12 @@ export const ProfileScreen: React.FC = () => {
   const handleSaveChanges = async () => {
     if (!authProfile) return;
 
-    // Clear previous errors
     setEmailError(null);
     setUsernameError(null);
 
-    // Get current email (profileEmail if pending, otherwise confirmed email)
     const currentEmail = authProfile.profileEmail ?? authProfile.email ?? "";
-    
     let hasErrors = false;
 
-    // Validate email if changed
     if (editingEmail.trim() !== currentEmail) {
       const emailErr = validateEmail(editingEmail);
       if (emailErr) {
@@ -341,7 +300,6 @@ export const ProfileScreen: React.FC = () => {
       }
     }
 
-    // Validate username if changed
     if (editingUsername.trim() !== (authProfile.username ?? "")) {
       const usernameErr = validateUsername(editingUsername);
       if (usernameErr) {
@@ -357,9 +315,8 @@ export const ProfileScreen: React.FC = () => {
     setLoading(true);
     let updateError: string | null = null;
 
-    // Update email if changed
     if (editingEmail.trim() !== currentEmail) {
-      const { success, error } = await updateEmail(editingEmail.trim());
+      const { success, error } = await updateUserEmail(editingEmail.trim());
       if (!success) {
         updateError = error ?? "Failed to update email";
         setEmailError(updateError);
@@ -368,10 +325,8 @@ export const ProfileScreen: React.FC = () => {
       }
     }
 
-    // Update username if changed
     if (editingUsername.trim() !== (authProfile.username ?? "")) {
-      const { success, error } = await updateUsername(
-        authProfile.userId,
+      const { success, error } = await updateUserUsername(
         editingUsername.trim()
       );
       if (!success) {
@@ -383,115 +338,121 @@ export const ProfileScreen: React.FC = () => {
     }
 
     setLoading(false);
-
-    // Reload auth state from database to get fresh values
-    await loadAuthState();
-
     setIsEditing(false);
     Alert.alert("Success", "Your profile has been updated.");
   };
 
-      const renderLoggedIn = () => {
-        // Check if there's a pending email confirmation
-        const hasPendingEmail = authProfile?.profileEmail && 
-                                authProfile?.email && 
-                                authProfile.profileEmail !== authProfile.email;
-        
-        return (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Profile</Text>
-            
-            {!isEditing ? (
+  const renderLoggedIn = () => {
+    const hasPendingEmail =
+      authProfile?.profileEmail &&
+      authProfile?.email &&
+      authProfile.profileEmail !== authProfile.email;
+
+    return (
+      <View style={styles.card}>
+        {!isEditing ? (
+          <>
+            {hasPendingEmail ? (
               <>
-                {hasPendingEmail ? (
-                  <>
-                    <Text style={styles.label}>Current Email (Active)</Text>
-                    <Text style={styles.value}>{authProfile?.email ?? "—"}</Text>
-                    <Text style={styles.label}>New Email (Pending Confirmation)</Text>
-                    <View style={styles.pendingEmailContainer}>
-                      <Text style={styles.pendingEmailValue}>{authProfile?.profileEmail ?? "—"}</Text>
-                      <Text style={styles.pendingEmailNote}>
-                        Please check your email to confirm this address
-                      </Text>
-                    </View>
-                  </>
-                ) : (
-                  <>
-                    <Text style={styles.label}>Email</Text>
-                    <Text style={styles.value}>{authProfile?.email ?? authProfile?.profileEmail ?? "—"}</Text>
-                  </>
-                )}
-                <Text style={styles.label}>Username</Text>
-                <Text style={styles.value}>{authProfile?.username ?? "—"}</Text>
+                <Text style={styles.label}>Current Email (Active)</Text>
+                <Text style={styles.value}>{authProfile?.email ?? "—"}</Text>
+                <Text style={styles.label}>
+                  New Email (Pending Confirmation)
+                </Text>
+                <View style={styles.pendingEmailContainer}>
+                  <Text style={styles.pendingEmailValue}>
+                    {authProfile?.profileEmail ?? "—"}
+                  </Text>
+                  <Text style={styles.pendingEmailNote}>
+                    Please check your email to confirm this address
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.label}>Email</Text>
+                <Text style={styles.value}>
+                  {authProfile?.email ?? authProfile?.profileEmail ?? "—"}
+                </Text>
+              </>
+            )}
+            <Text style={styles.label}>Username</Text>
+            <Text style={styles.value}>{authProfile?.username ?? "—"}</Text>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleStartEdit}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>Edit Profile</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.logoutButton]}
-            onPress={handleLogout}
-            disabled={loading}
-          >
-            <Text style={styles.buttonText}>Log out</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={[styles.input, emailError && styles.inputError]}
-            value={editingEmail}
-            onChangeText={(text) => {
-              setEditingEmail(text);
-              if (emailError) setEmailError(null);
-            }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="Enter email"
-            placeholderTextColor="#95A5A6"
-          />
-          {emailError && <Text style={styles.errorText}>{emailError}</Text>}
-
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            style={[styles.input, usernameError && styles.inputError]}
-            value={editingUsername}
-            onChangeText={(text) => {
-              setEditingUsername(text);
-              if (usernameError) setUsernameError(null);
-            }}
-            autoCapitalize="none"
-            placeholder="Enter username"
-            placeholderTextColor="#95A5A6"
-          />
-          {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
-
-          <View style={styles.editButtonRow}>
             <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleCancelEdit}
+              style={styles.button}
+              onPress={handleStartEdit}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
-              style={[styles.button, styles.saveButton, loading && styles.buttonDisabled]}
-              onPress={handleSaveChanges}
+              style={[styles.button, styles.logoutButton]}
+              onPress={handleLogout}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>
-                {loading ? "Saving..." : "Save Changes"}
-              </Text>
+              <Text style={styles.buttonText}>Log out</Text>
             </TouchableOpacity>
-          </View>
-        </>
-      )}
-    </View>
+          </>
+        ) : (
+          <>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={[styles.input, emailError && styles.inputError]}
+              value={editingEmail}
+              onChangeText={(text) => {
+                setEditingEmail(text);
+                if (emailError) setEmailError(null);
+              }}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="Enter email"
+              placeholderTextColor="#95A5A6"
+            />
+            {emailError && <Text style={styles.errorText}>{emailError}</Text>}
+
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              style={[styles.input, usernameError && styles.inputError]}
+              value={editingUsername}
+              onChangeText={(text) => {
+                setEditingUsername(text);
+                if (usernameError) setUsernameError(null);
+              }}
+              autoCapitalize="none"
+              placeholder="Enter username"
+              placeholderTextColor="#95A5A6"
+            />
+            {usernameError && (
+              <Text style={styles.errorText}>{usernameError}</Text>
+            )}
+
+            <View style={styles.editButtonRow}>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={handleCancelEdit}
+                disabled={loading}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.saveButton,
+                  loading && styles.buttonDisabled,
+                ]}
+                onPress={handleSaveChanges}
+                disabled={loading}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? "Saving..." : "Save Changes"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+      </View>
     );
   };
 
@@ -548,7 +509,7 @@ export const ProfileScreen: React.FC = () => {
             placeholderTextColor="#95A5A6"
           />
           {emailError && <Text style={styles.errorText}>{emailError}</Text>}
-          
+
           <Text style={styles.label}>Username</Text>
           <TextInput
             style={[styles.input, usernameError && styles.inputError]}
@@ -561,8 +522,10 @@ export const ProfileScreen: React.FC = () => {
             placeholder="cool_username"
             placeholderTextColor="#95A5A6"
           />
-          {usernameError && <Text style={styles.errorText}>{usernameError}</Text>}
-          
+          {usernameError && (
+            <Text style={styles.errorText}>{usernameError}</Text>
+          )}
+
           <Text style={styles.label}>Password</Text>
           <TextInput
             style={[styles.input, passwordError && styles.inputError]}
@@ -575,8 +538,10 @@ export const ProfileScreen: React.FC = () => {
             placeholder="••••••••"
             placeholderTextColor="#95A5A6"
           />
-          {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
-          
+          {passwordError && (
+            <Text style={styles.errorText}>{passwordError}</Text>
+          )}
+
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleSignup}
@@ -601,8 +566,10 @@ export const ProfileScreen: React.FC = () => {
             placeholder="you@example.com or cool_username"
             placeholderTextColor="#95A5A6"
           />
-          {identifierError && <Text style={styles.errorText}>{identifierError}</Text>}
-          
+          {identifierError && (
+            <Text style={styles.errorText}>{identifierError}</Text>
+          )}
+
           <Text style={styles.label}>Password</Text>
           <TextInput
             style={[styles.input, passwordError && styles.inputError]}
@@ -615,8 +582,10 @@ export const ProfileScreen: React.FC = () => {
             placeholder="••••••••"
             placeholderTextColor="#95A5A6"
           />
-          {passwordError && <Text style={styles.errorText}>{passwordError}</Text>}
-          
+          {passwordError && (
+            <Text style={styles.errorText}>{passwordError}</Text>
+          )}
+
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
@@ -636,14 +605,14 @@ export const ProfileScreen: React.FC = () => {
     </View>
   );
 
-  // Determine if user is authenticated (has email or username) vs anonymous
-  const isAuthenticated = authProfile && (authProfile.email || authProfile.username);
+  const isAuthenticated =
+    authProfile && (authProfile.email || authProfile.username);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 24 }]}>
       <Text style={styles.title}>Profile</Text>
       <Text style={styles.subtitle}>
-        {isAuthenticated 
+        {isAuthenticated
           ? "Manage your account and sync progress across devices."
           : "Upgrade your guest profile to save progress across devices."}
       </Text>
@@ -679,12 +648,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#2C3E50",
-    marginBottom: 12,
   },
   label: {
     fontSize: 14,
@@ -792,5 +755,3 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
 });
-
-
