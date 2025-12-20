@@ -53,10 +53,10 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     try {
       setLoading(true);
 
-      // Fetch profile
+      // Fetch profile with all columns (stats JSONB column has been removed)
       const { data: profile, error } = await supabase
         .from("profiles")
-        .select("username, stats")
+        .select("username, total_xp, day_streak, questions_answered, correct_answers, answer_streak, last_question_date, questions_answered_today, last_valid_streak_date, achievements, answered_question_ids")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -70,11 +70,25 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
       }
 
       setUsername(profile.username);
-      setStats(profile.stats as UserProgress);
+      
+      // Reconstruct UserProgress from columns
+      const reconstructedStats: UserProgress = {
+        totalXP: profile.total_xp || 0,
+        dayStreak: profile.day_streak || 0,
+        questionsAnswered: profile.questions_answered || 0,
+        correctAnswers: profile.correct_answers || 0,
+        answerStreak: profile.answer_streak || 0,
+        lastQuestionDate: profile.last_question_date || null,
+        questionsAnsweredToday: profile.questions_answered_today || 0,
+        lastValidStreakDate: profile.last_valid_streak_date || null,
+        achievements: profile.achievements || [],
+        answeredQuestionIds: profile.answered_question_ids || [],
+      };
+      setStats(reconstructedStats);
 
       // Load achievements
       const allAchievements = gamificationService.getAchievements();
-      const userAchievementIds = (profile.stats as any)?.achievements || [];
+      const userAchievementIds = profile.achievements || [];
       const userAchievements = allAchievements.map((ach) => ({
         ...ach,
         unlocked: userAchievementIds.includes(ach.id),

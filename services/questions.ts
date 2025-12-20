@@ -2,13 +2,13 @@ import { Question } from "../types";
 
 // Test filter: Set to an array of question IDs to test specific questions only
 // Set to empty array [] to disable filtering
-// Example: export const TEST_QUESTION_IDS = ["27", "28", "29"]; // Test only SVG questions
-export const TEST_QUESTION_IDS: string[] = [];
+// Example: export const TEST_QUESTION_IDS = [27, 28, 29]; // Test only SVG questions
+export const TEST_QUESTION_IDS: number[] = [];
 
 // Sample SAT questions - In production, these would come from a database/API
 export const SAMPLE_QUESTIONS: Question[] = [
   {
-    id: "1",
+    id: 1,
     question: "If 3x + 5 = 20, what is the value of x?",
     options: ["3", "5", "7", "15"],
     correctAnswer: 1,
@@ -18,7 +18,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 2,
   },
   {
-    id: "2",
+    id: 2,
     question: "Which of the following is equivalent to (x + 3)(x - 3)?",
     options: ["x² - 9", "x² + 9", "x² - 6x + 9", "x² + 6x - 9"],
     correctAnswer: 0,
@@ -28,7 +28,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 4,
   },
   {
-    id: "3",
+    id: 3,
     question: 'The word "ubiquitous" most nearly means:',
     options: ["rare", "everywhere", "ancient", "complex"],
     correctAnswer: 1,
@@ -37,7 +37,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 5,
   },
   {
-    id: "4",
+    id: 4,
     question: "Choose the correct sentence:",
     options: [
       "The team were excited about their victory.",
@@ -52,7 +52,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 1,
   },
   {
-    id: "5",
+    id: 5,
     question:
       "If a triangle has sides of length 3, 4, and 5, what type of triangle is it?",
     options: ["Equilateral", "Isosceles", "Right", "Obtuse"],
@@ -63,7 +63,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 4,
   },
   {
-    id: "7",
+    id: 7,
     question: "If 2x - 5 = 9, what is the value of x?",
     options: ["4", "5", "7", "14"],
     correctAnswer: 2,
@@ -72,7 +72,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 2,
   },
   {
-    id: "8",
+    id: 8,
     question: "If f(x) = 3x² - 2x + 5, what is f(4)?",
     options: ["41", "45", "49", "53"],
     correctAnswer: 1,
@@ -81,7 +81,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 5,
   },
   {
-    id: "9",
+    id: 9,
     question:
       "A car travels 150 miles in 3 hours. What is its average speed in miles per hour?",
     options: ["40 mph", "45 mph", "50 mph", "55 mph"],
@@ -92,7 +92,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 2,
   },
   {
-    id: "10",
+    id: 10,
     question: "If x² - 4x - 5 = 0, what are the values of x?",
     options: [
       "x = 1 or x = 5",
@@ -106,7 +106,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 6,
   },
   {
-    id: "11",
+    id: 11,
     question:
       "A right triangle has legs of lengths 6 and 8. What is the length of the hypotenuse?",
     options: ["9", "10", "12", "14"],
@@ -117,7 +117,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 4,
   },
   {
-    id: "12",
+    id: 12,
     question: "What is the area of a circle with a radius of 5 units?",
     options: ["10π", "15π", "20π", "25π"],
     correctAnswer: 3,
@@ -126,7 +126,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 5,
   },
   {
-    id: "13",
+    id: 13,
     question: "If 3x - 7 = 2x + 5, what is the value of x?",
     options: ["10", "12", "14", "16"],
     correctAnswer: 1,
@@ -136,7 +136,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 3,
   },
   {
-    id: "14",
+    id: 14,
     question:
       "What is the sum of the solutions to the equation 2x² - 3x - 5 = 0?",
     options: ["1/2", "3/2", "5/2", "3"],
@@ -147,7 +147,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 8,
   },
   {
-    id: "15",
+    id: 15,
     question:
       "A survey shows that 60% of students prefer online classes. If 300 students were surveyed, how many prefer online classes?",
     options: ["150", "180", "200", "240"],
@@ -157,7 +157,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 3,
   },
   {
-    id: "16",
+    id: 16,
     question: 'The word "tenuous" most nearly means:',
     options: ["strong", "weak", "ancient", "complex"],
     correctAnswer: 1,
@@ -166,7 +166,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 6,
   },
   {
-    id: "17",
+    id: 17,
     question: 'The word "altruism" most nearly means:',
     options: ["selfishness", "selflessness", "isolation", "ambition"],
     correctAnswer: 1,
@@ -176,7 +176,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 7,
   },
   {
-    id: "18",
+    id: 18,
     question: 'The word "pragmatic" most nearly means:',
     options: ["idealistic", "practical", "theoretical", "emotional"],
     correctAnswer: 1,
@@ -186,7 +186,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 5,
   },
   {
-    id: "19",
+    id: 19,
     question: 'The word "eclectic" most nearly means:',
     options: ["uniform", "diverse", "simple", "traditional"],
     correctAnswer: 1,
@@ -196,7 +196,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 8,
   },
   {
-    id: "20",
+    id: 20,
     question: 'The word "platitudes" most nearly means:',
     options: [
       "original ideas",
@@ -211,7 +211,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 9,
   },
   {
-    id: "21",
+    id: 21,
     question: 'The word "paradigm" most nearly means:',
     options: ["mistake", "model", "confusion", "rejection"],
     correctAnswer: 1,
@@ -221,7 +221,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 8,
   },
   {
-    id: "22",
+    id: 22,
     question: 'The word "cursory" most nearly means:',
     options: ["thorough", "hasty", "careful", "detailed"],
     correctAnswer: 1,
@@ -230,7 +230,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 7,
   },
   {
-    id: "23",
+    id: 23,
     question: 'The word "clandestine" most nearly means:',
     options: ["public", "secret", "obvious", "transparent"],
     correctAnswer: 1,
@@ -240,7 +240,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 9,
   },
   {
-    id: "24",
+    id: 24,
     question: 'The word "dogmatic" most nearly means:',
     options: ["flexible", "opinionated", "uncertain", "open-minded"],
     correctAnswer: 1,
@@ -250,7 +250,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 9,
   },
   {
-    id: "25",
+    id: 25,
     question: 'The word "idiosyncratic" most nearly means:',
     options: ["common", "peculiar", "standard", "typical"],
     correctAnswer: 1,
@@ -260,7 +260,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 10,
   },
   {
-    id: "26",
+    id: 26,
     question: "What is the median of the data set: {3, 7, 9, 15, 21}?",
     options: ["7", "9", "15", "11"],
     correctAnswer: 1,
@@ -270,7 +270,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 3,
   },
   {
-    id: "27",
+    id: 27,
     formula: "\\frac{x}{x+1} = 4",
     imageSvg:
       "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' width='55.808629pt' height='25.403754pt' viewBox='-.885064 -.283231 55.808629 25.403754'><defs><path id='g1-43' d='M4.770112-2.761644H8.069738C8.237111-2.761644 8.452304-2.761644 8.452304-2.976837C8.452304-3.203985 8.249066-3.203985 8.069738-3.203985H4.770112V-6.503611C4.770112-6.670984 4.770112-6.886177 4.554919-6.886177C4.327771-6.886177 4.327771-6.682939 4.327771-6.503611V-3.203985H1.028144C.860772-3.203985 .645579-3.203985 .645579-2.988792C.645579-2.761644 .848817-2.761644 1.028144-2.761644H4.327771V.537983C4.327771 .705355 4.327771 .920548 4.542964 .920548C4.770112 .920548 4.770112 .71731 4.770112 .537983V-2.761644Z'/><path id='g1-49' d='M3.443088-7.663263C3.443088-7.938232 3.443088-7.950187 3.203985-7.950187C2.917061-7.627397 2.319303-7.185056 1.08792-7.185056V-6.838356C1.362889-6.838356 1.960648-6.838356 2.618182-7.149191V-.920548C2.618182-.490162 2.582316-.3467 1.530262-.3467H1.159651V0C1.482441-.02391 2.642092-.02391 3.036613-.02391S4.578829-.02391 4.901619 0V-.3467H4.531009C3.478954-.3467 3.443088-.490162 3.443088-.920548V-7.663263Z'/><path id='g1-52' d='M4.315816-7.782814C4.315816-8.009963 4.315816-8.069738 4.148443-8.069738C4.052802-8.069738 4.016936-8.069738 3.921295-7.926276L.32279-2.343213V-1.996513H3.466999V-.908593C3.466999-.466252 3.443088-.3467 2.570361-.3467H2.331258V0C2.606227-.02391 3.550685-.02391 3.88543-.02391S5.176588-.02391 5.451557 0V-.3467H5.212453C4.351681-.3467 4.315816-.466252 4.315816-.908593V-1.996513H5.523288V-2.343213H4.315816V-7.782814ZM3.526775-6.850311V-2.343213H.621669L3.526775-6.850311Z'/><path id='g1-61' d='M8.069738-3.873474C8.237111-3.873474 8.452304-3.873474 8.452304-4.088667C8.452304-4.315816 8.249066-4.315816 8.069738-4.315816H1.028144C.860772-4.315816 .645579-4.315816 .645579-4.100623C.645579-3.873474 .848817-3.873474 1.028144-3.873474H8.069738ZM8.069738-1.649813C8.237111-1.649813 8.452304-1.649813 8.452304-1.865006C8.452304-2.092154 8.249066-2.092154 8.069738-2.092154H1.028144C.860772-2.092154 .645579-2.092154 .645579-1.876961C.645579-1.649813 .848817-1.649813 1.028144-1.649813H8.069738Z'/><path id='g0-120' d='M5.66675-4.877709C5.284184-4.805978 5.140722-4.519054 5.140722-4.291905C5.140722-4.004981 5.36787-3.90934 5.535243-3.90934C5.893898-3.90934 6.144956-4.220174 6.144956-4.542964C6.144956-5.045081 5.571108-5.272229 5.068991-5.272229C4.339726-5.272229 3.93325-4.554919 3.825654-4.327771C3.550685-5.224408 2.809465-5.272229 2.594271-5.272229C1.374844-5.272229 .729265-3.706102 .729265-3.443088C.729265-3.395268 .777086-3.335492 .860772-3.335492C.956413-3.335492 .980324-3.407223 1.004234-3.455044C1.41071-4.782067 2.211706-5.033126 2.558406-5.033126C3.096389-5.033126 3.203985-4.531009 3.203985-4.244085C3.203985-3.981071 3.132254-3.706102 2.988792-3.132254L2.582316-1.494396C2.402989-.777086 2.056289-.119552 1.422665-.119552C1.362889-.119552 1.06401-.119552 .812951-.274969C1.243337-.358655 1.338979-.71731 1.338979-.860772C1.338979-1.099875 1.159651-1.243337 .932503-1.243337C.645579-1.243337 .334745-.992279 .334745-.609714C.334745-.107597 .896638 .119552 1.41071 .119552C1.984558 .119552 2.391034-.334745 2.642092-.824907C2.833375-.119552 3.431133 .119552 3.873474 .119552C5.092902 .119552 5.738481-1.446575 5.738481-1.709589C5.738481-1.769365 5.69066-1.817186 5.618929-1.817186C5.511333-1.817186 5.499377-1.75741 5.463512-1.661768C5.140722-.609714 4.447323-.119552 3.90934-.119552C3.490909-.119552 3.263761-.430386 3.263761-.920548C3.263761-1.183562 3.311582-1.374844 3.502864-2.163885L3.921295-3.789788C4.100623-4.507098 4.507098-5.033126 5.057036-5.033126C5.080946-5.033126 5.415691-5.033126 5.66675-4.877709Z'/></defs><g id='page1' transform='matrix(1.13 0 0 1.13 -236.902062 -75.811601)'><use x='219.000085' y='72.111494' href='#g0-120'/><rect x='208.8646' y='76.971367' height='.478187' width='26.923056'/><use x='208.8646' y='88.399915' href='#g0-120'/><use x='218.173351' y='88.399915' href='#g1-43'/><use x='229.934666' y='88.399915' href='#g1-49'/><use x='240.303999' y='80.199253' href='#g1-61'/><use x='252.72948' y='80.199253' href='#g1-52'/></g></svg>",
@@ -290,7 +290,7 @@ export const SAMPLE_QUESTIONS: Question[] = [
     difficultyLevel: 5,
   },
   {
-    id: "28",
+    id: 28,
     formula: "\\frac{2^{x}}{4^{x}} = \\frac{1}{8}",
     imageSvg:
       "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' width='39.672435pt' height='27.673323pt' viewBox='-.913485 -.282088 39.672435 27.673323'> <defs> <path id='g0-120' d='M3.993026-3.180075C3.642341-3.092403 3.626401-2.781569 3.626401-2.749689C3.626401-2.574346 3.761893-2.454795 3.937235-2.454795S4.383562-2.590286 4.383562-2.933001C4.383562-3.387298 3.881445-3.514819 3.58655-3.514819C3.211955-3.514819 2.909091-3.251806 2.725778-2.940971C2.550436-3.363387 2.13599-3.514819 1.809215-3.514819C.940473-3.514819 .454296-2.518555 .454296-2.295392C.454296-2.223661 .510087-2.191781 .573848-2.191781C.669489-2.191781 .68543-2.231631 .70934-2.327273C.892653-2.909091 1.370859-3.291656 1.785305-3.291656C2.096139-3.291656 2.247572-3.068493 2.247572-2.781569C2.247572-2.622167 2.15193-2.255542 2.088169-2.000498C2.032379-1.769365 1.857036-1.060025 1.817186-.908593C1.705604-.478207 1.41868-.143462 1.060025-.143462C1.028144-.143462 .820922-.143462 .653549-.255044C1.020174-.342715 1.020174-.67746 1.020174-.68543C1.020174-.868742 .876712-.980324 .70137-.980324C.486177-.980324 .255044-.797011 .255044-.494147C.255044-.127522 .645579 .079701 1.052055 .079701C1.474471 .079701 1.769365-.239103 1.912827-.494147C2.088169-.103611 2.454795 .079701 2.83736 .079701C3.706102 .079701 4.184309-.916563 4.184309-1.139726C4.184309-1.219427 4.120548-1.243337 4.064757-1.243337C3.969116-1.243337 3.953176-1.187547 3.929265-1.107846C3.769863-.573848 3.315567-.143462 2.8533-.143462C2.590286-.143462 2.399004-.318804 2.399004-.653549C2.399004-.812951 2.446824-.996264 2.558406-1.44259C2.614197-1.681694 2.789539-2.383064 2.82939-2.534496C2.940971-2.948941 3.219925-3.291656 3.57858-3.291656C3.618431-3.291656 3.825654-3.291656 3.993026-3.180075Z'/> <path id='g1-49' d='M3.443088-7.663263C3.443088-7.938232 3.443088-7.950187 3.203985-7.950187C2.917061-7.627397 2.319303-7.185056 1.08792-7.185056V-6.838356C1.362889-6.838356 1.960648-6.838356 2.618182-7.149191V-.920548C2.618182-.490162 2.582316-.3467 1.530262-.3467H1.159651V0C1.482441-.02391 2.642092-.02391 3.036613-.02391S4.578829-.02391 4.901619 0V-.3467H4.531009C3.478954-.3467 3.443088-.490162 3.443088-.920548V-7.663263Z'/> <path id='g1-50' d='M5.260274-2.008468H4.99726C4.961395-1.80523 4.865753-1.147696 4.746202-.956413C4.662516-.848817 3.981071-.848817 3.622416-.848817H1.41071C1.733499-1.123786 2.462765-1.888917 2.773599-2.175841C4.590785-3.849564 5.260274-4.471233 5.260274-5.654795C5.260274-7.029639 4.172354-7.950187 2.785554-7.950187S.585803-6.766625 .585803-5.738481C.585803-5.128767 1.111831-5.128767 1.147696-5.128767C1.398755-5.128767 1.709589-5.308095 1.709589-5.69066C1.709589-6.025405 1.482441-6.252553 1.147696-6.252553C1.0401-6.252553 1.016189-6.252553 .980324-6.240598C1.207472-7.053549 1.853051-7.603487 2.630137-7.603487C3.646326-7.603487 4.267995-6.75467 4.267995-5.654795C4.267995-4.638605 3.682192-3.753923 3.000747-2.988792L.585803-.286924V0H4.94944L5.260274-2.008468Z'/> <path id='g1-52' d='M4.315816-7.782814C4.315816-8.009963 4.315816-8.069738 4.148443-8.069738C4.052802-8.069738 4.016936-8.069738 3.921295-7.926276L.32279-2.343213V-1.996513H3.466999V-.908593C3.466999-.466252 3.443088-.3467 2.570361-.3467H2.331258V0C2.606227-.02391 3.550685-.02391 3.88543-.02391S5.176588-.02391 5.451557 0V-.3467H5.212453C4.351681-.3467 4.315816-.466252 4.315816-.908593V-1.996513H5.523288V-2.343213H4.315816V-7.782814ZM3.526775-6.850311V-2.343213H.621669L3.526775-6.850311Z'/> <path id='g1-56' d='M3.56264-4.315816C4.160399-4.638605 5.033126-5.188543 5.033126-6.192777C5.033126-7.232877 4.028892-7.950187 2.929016-7.950187C1.745455-7.950187 .812951-7.07746 .812951-5.989539C.812951-5.583064 .932503-5.176588 1.267248-4.770112C1.398755-4.614695 1.41071-4.60274 2.247572-4.016936C1.08792-3.478954 .490162-2.677958 .490162-1.80523C.490162-.537983 1.697634 .251059 2.917061 .251059C4.244085 .251059 5.355915-.729265 5.355915-1.984558C5.355915-3.203985 4.495143-3.741968 3.56264-4.315816ZM1.936737-5.391781C1.78132-5.499377 1.303113-5.810212 1.303113-6.396015C1.303113-7.173101 2.116065-7.663263 2.917061-7.663263C3.777833-7.663263 4.542964-7.041594 4.542964-6.180822C4.542964-5.451557 4.016936-4.865753 3.323537-4.483188L1.936737-5.391781ZM2.49863-3.849564L3.945205-2.905106C4.25604-2.701868 4.805978-2.331258 4.805978-1.601993C4.805978-.6934 3.88543-.071731 2.929016-.071731C1.912827-.071731 1.0401-.812951 1.0401-1.80523C1.0401-2.737733 1.721544-3.490909 2.49863-3.849564Z'/> <path id='g1-61' d='M8.069738-3.873474C8.237111-3.873474 8.452304-3.873474 8.452304-4.088667C8.452304-4.315816 8.249066-4.315816 8.069738-4.315816H1.028144C.860772-4.315816 .645579-4.315816 .645579-4.100623C.645579-3.873474 .848817-3.873474 1.028144-3.873474H8.069738ZM8.069738-1.649813C8.237111-1.649813 8.452304-1.649813 8.452304-1.865006C8.452304-2.092154 8.249066-2.092154 8.069738-2.092154H1.028144C.860772-2.092154 .645579-2.092154 .645579-1.876961C.645579-1.649813 .848817-1.649813 1.028144-1.649813H8.069738Z'/> </defs> <g id='page1' transform='matrix(1.13 0 0 1.13 -244.509406 -75.505638)'> <use x='215.571611' y='74.5197' href='#g1-50'/> <use x='221.424602' y='70.181263' href='#g0-120'/> <rect x='215.571611' y='79.379573' height='.478187' width='11.118021'/> <use x='215.571611' y='90.808121' href='#g1-52'/> <use x='221.424602' y='87.354413' href='#g0-120'/> <use x='231.205976' y='82.607458' href='#g1-61'/> <use x='244.82697' y='74.5197' href='#g1-49'/> <rect x='244.82697' y='79.379573' height='.478187' width='5.85299'/> <use x='244.82697' y='90.808121' href='#g1-56'/> </g> </svg>",
@@ -319,7 +319,7 @@ export const getFilteredSampleQuestions = (): Question[] => {
 };
 
 export const getRandomQuestion = (
-  answeredQuestionIds: string[] | Set<string> = []
+  answeredQuestionIds: number[] | Set<number> = []
 ): Question => {
   const answeredSet =
     answeredQuestionIds instanceof Set

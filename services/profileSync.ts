@@ -36,11 +36,22 @@ export async function saveProfileStats(stats: StatsPayload): Promise<void> {
     userId = anonymousUserId;
   }
 
-  // Store the raw progress as JSON for now; we can normalize later if needed
+  // Write directly to all columns (stats JSONB column has been removed)
   const { error } = await supabase.from("profiles").upsert(
     {
       user_id: userId,
-      stats,
+      // Write to normalized columns (source of truth)
+      total_xp: stats.totalXP,
+      day_streak: stats.dayStreak,
+      questions_answered: stats.questionsAnswered,
+      correct_answers: stats.correctAnswers,
+      answer_streak: stats.answerStreak,
+      // Write to new columns for remaining fields
+      last_question_date: stats.lastQuestionDate,
+      questions_answered_today: stats.questionsAnsweredToday,
+      last_valid_streak_date: stats.lastValidStreakDate,
+      achievements: stats.achievements,
+      answered_question_ids: stats.answeredQuestionIds,
       last_seen_at: new Date().toISOString(),
     },
     {

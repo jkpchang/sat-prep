@@ -1,5 +1,5 @@
 export interface Question {
-  id: string;
+  id: number;
   question: string;
   options: string[];
   correctAnswer: number;
@@ -23,7 +23,7 @@ export interface UserProgress {
   questionsAnsweredToday: number; // Count of questions answered today
   lastValidStreakDate: string | null; // Last date that counted toward streak (had 5+ questions)
   achievements: string[];
-  answeredQuestionIds: string[]; // Track which questions have been answered CORRECTLY (users can retry incorrect ones)
+  answeredQuestionIds: number[]; // Track which questions have been answered CORRECTLY (users can retry incorrect ones)
 }
 
 export interface Achievement {

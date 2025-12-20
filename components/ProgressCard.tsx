@@ -23,8 +23,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 4,
     minWidth: 100,
-    margin: 4,
   },
   icon: {
     fontSize: 24,

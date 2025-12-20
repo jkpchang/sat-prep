@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Fetch profile to get username and profileEmail
         const { data: profileRow } = await supabase
           .from("profiles")
-          .select("username, email, stats")
+          .select("username, email, total_xp, day_streak, questions_answered, correct_answers, answer_streak, last_question_date, questions_answered_today, last_valid_streak_date, achievements, answered_question_ids")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
@@ -73,10 +73,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setAuthProfile(profile);
 
-        // Sync progress stats from Supabase to local storage if available
-        if (profileRow?.stats) {
-          const stats = profileRow.stats as UserProgress;
-          await storageService.saveUserProgress(stats);
+        // Sync progress stats from Supabase to local storage
+        // Database is the source of truth for authenticated users
+        if (profileRow) {
+          const reconstructedStats: UserProgress = {
+            totalXP: profileRow.total_xp ?? 0,
+            dayStreak: profileRow.day_streak ?? 0,
+            questionsAnswered: profileRow.questions_answered ?? 0,
+            correctAnswers: profileRow.correct_answers ?? 0,
+            answerStreak: profileRow.answer_streak ?? 0,
+            lastQuestionDate: profileRow.last_question_date ?? null,
+            questionsAnsweredToday: profileRow.questions_answered_today ?? 0,
+            lastValidStreakDate: profileRow.last_valid_streak_date ?? null,
+            achievements: profileRow.achievements ?? [],
+            answeredQuestionIds: profileRow.answered_question_ids ?? [],
+          };
+          await storageService.saveUserProgress(reconstructedStats);
         }
         // Always initialize gamification service (will load from local storage, which may have been synced above)
         await gamificationService.initialize();

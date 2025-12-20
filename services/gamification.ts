@@ -69,7 +69,7 @@ const MIN_QUESTIONS_FOR_STREAK = 5; // Minimum questions per day to count toward
 export class GamificationService {
   private progress: UserProgress;
   // Use Set for O(1) lookups instead of array.includes() which is O(n)
-  private answeredQuestionIdsSet: Set<string>;
+  private answeredQuestionIdsSet: Set<number>;
   private readonly MAX_ANSWERED_QUESTIONS = 10000; // Limit to prevent unbounded growth
 
   constructor() {
@@ -85,7 +85,7 @@ export class GamificationService {
       achievements: [],
       answeredQuestionIds: [],
     };
-    this.answeredQuestionIdsSet = new Set<string>();
+    this.answeredQuestionIdsSet = new Set<number>();
   }
 
   async initialize(): Promise<void> {
@@ -121,7 +121,7 @@ export class GamificationService {
       achievements: [],
       answeredQuestionIds: [],
     };
-    this.answeredQuestionIdsSet = new Set<string>();
+    this.answeredQuestionIdsSet = new Set<number>();
   }
 
   private trimAnsweredQuestionsIfNeeded(): void {
@@ -194,7 +194,7 @@ export class GamificationService {
 
   async recordPractice(
     isCorrect: boolean,
-    questionId?: string
+    questionId?: number
   ): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
     const today = getTodayString();
     const lastQuestionDate = this.progress.lastQuestionDate;
@@ -299,11 +299,11 @@ export class GamificationService {
     return { ...this.progress };
   }
 
-  getAnsweredQuestionIds(): string[] {
+  getAnsweredQuestionIds(): number[] {
     return Array.from(this.answeredQuestionIdsSet);
   }
 
-  hasAnsweredQuestion(questionId: string): boolean {
+  hasAnsweredQuestion(questionId: number): boolean {
     return this.answeredQuestionIdsSet.has(questionId);
   }
 

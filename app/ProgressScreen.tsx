@@ -142,8 +142,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
       ? Math.round((progress.correctAnswers / progress.questionsAnswered) * 100)
       : 0;
 
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -157,33 +155,32 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
       <View style={styles.statsSection}>
         <Text style={styles.sectionTitle}>Statistics</Text>
         <View style={styles.progressGrid}>
-          <ProgressCard label="Total XP" value={progress.totalXP} icon="⭐" />
-          <ProgressCard
-            label="Questions"
-            value={progress.questionsAnswered}
-            icon="❓"
-          />
-          <ProgressCard
-            label="Correct"
-            value={progress.correctAnswers}
-            icon="✅"
-          />
-          <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
-          <ProgressCard
-            label="Day Streak"
-            value={progress.dayStreak}
-            icon="🔥"
-          />
-          <ProgressCard
-            label="Answer Streak"
-            value={progress.answerStreak}
-            icon="⚡"
-          />
-          <ProgressCard
-            label="Achievements"
-            value={`${unlockedCount}/${achievements.length}`}
-            icon="🏆"
-          />
+          <View style={styles.gridRow}>
+            <ProgressCard label="Total XP" value={progress.totalXP} icon="⭐" />
+            <ProgressCard
+              label="Questions"
+              value={progress.questionsAnswered}
+              icon="❓"
+            />
+            <ProgressCard
+              label="Correct"
+              value={progress.correctAnswers}
+              icon="✅"
+            />
+          </View>
+          <View style={styles.gridRow}>
+            <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
+            <ProgressCard
+              label="Day Streak"
+              value={progress.dayStreak}
+              icon="🔥"
+            />
+            <ProgressCard
+              label="Answer Streak"
+              value={progress.answerStreak}
+              icon="⚡"
+            />
+          </View>
         </View>
       </View>
 
@@ -258,9 +255,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   progressGrid: {
+    marginHorizontal: -4,
+  },
+  gridRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    marginBottom: 8,
   },
   achievementsSection: {
     marginTop: 24,

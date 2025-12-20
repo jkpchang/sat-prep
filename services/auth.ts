@@ -38,7 +38,6 @@ export async function ensureAnonymousAuth(): Promise<{ userId: string | null; er
     return { userId: null, error: error?.message ?? "Failed to create anonymous session" };
   }
   
-  console.log("Anonymous user created:", data.user.id);
   return { userId: data.user.id, error: null };
 }
 
@@ -52,37 +51,93 @@ async function attachProfileToUser(
   // Find existing profile for this user
   const { data: existingProfile } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, user_id, username, email, total_xp, day_streak, questions_answered, correct_answers, answer_streak, last_question_date, questions_answered_today, last_valid_streak_date, achievements, answered_question_ids")
     .eq("user_id", userId)
     .maybeSingle();
 
-  const stats = localStats ?? (existingProfile?.stats as UserProgress | null) ?? null;
+  // Reconstruct stats from existing profile if available
+  // Database is the source of truth for authenticated users
+  let stats: UserProgress | null = null;
+  if (existingProfile) {
+    stats = {
+      totalXP: existingProfile.total_xp ?? 0,
+      dayStreak: existingProfile.day_streak ?? 0,
+      questionsAnswered: existingProfile.questions_answered ?? 0,
+      correctAnswers: existingProfile.correct_answers ?? 0,
+      answerStreak: existingProfile.answer_streak ?? 0,
+      lastQuestionDate: existingProfile.last_question_date ?? null,
+      questionsAnsweredToday: existingProfile.questions_answered_today ?? 0,
+      lastValidStreakDate: existingProfile.last_valid_streak_date ?? null,
+      achievements: existingProfile.achievements ?? [],
+      answeredQuestionIds: existingProfile.answered_question_ids ?? [],
+    };
+  }
+  
+  // For authenticated users, prefer database stats (source of truth)
+  // For anonymous users, use local stats
+  const finalStats = stats ?? localStats;
 
   // Upsert profile with user_id (RLS will ensure user can only access their own profile)
   // Note: email is stored in profiles ONLY for username->email lookup during login
   // For display, always read from auth.users.email to avoid sync issues
-  const { error } = await supabase.from("profiles").upsert(
-    {
-      id: existingProfile?.id,
-      user_id: userId,
-      email, // Stored for username lookup only
-      username,
-      stats,
-      last_seen_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id" }
-  );
+  if (finalStats) {
+    const { error } = await supabase.from("profiles").upsert(
+      {
+        id: existingProfile?.id,
+        user_id: userId,
+        email, // Stored for username lookup only
+        username,
+        // Write to all columns (stats JSONB column has been removed)
+        total_xp: finalStats.totalXP,
+        day_streak: finalStats.dayStreak,
+        questions_answered: finalStats.questionsAnswered,
+        correct_answers: finalStats.correctAnswers,
+        answer_streak: finalStats.answerStreak,
+        last_question_date: finalStats.lastQuestionDate,
+        questions_answered_today: finalStats.questionsAnsweredToday,
+        last_valid_streak_date: finalStats.lastValidStreakDate,
+        achievements: finalStats.achievements,
+        answered_question_ids: finalStats.answeredQuestionIds,
+        last_seen_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
 
-  if (error) {
-    // Check for unique violation on username
-    if (
-      error.code === "23505" ||
-      (typeof error.message === "string" &&
-        error.message.toLowerCase().includes("username"))
-    ) {
-      return "That username is already taken. Please choose another one.";
+    if (error) {
+      // Check for unique violation on username
+      if (
+        error.code === "23505" ||
+        (typeof error.message === "string" &&
+          error.message.toLowerCase().includes("username"))
+      ) {
+        return "That username is already taken. Please choose another one.";
+      }
+      return error.message ?? "Failed to attach profile to user.";
     }
-    return error.message ?? "Failed to attach profile to user.";
+  } else {
+    // No stats to sync, just update username/email
+    const { error } = await supabase.from("profiles").upsert(
+      {
+        id: existingProfile?.id,
+        user_id: userId,
+        email,
+        username,
+        last_seen_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+
+    if (error) {
+      // Check for unique violation on username
+      if (
+        error.code === "23505" ||
+        (typeof error.message === "string" &&
+          error.message.toLowerCase().includes("username"))
+      ) {
+        return "That username is already taken. Please choose another one.";
+      }
+      return error.message ?? "Failed to attach profile to user.";
+    }
   }
 
   // If we have stats from Supabase, sync them down to local storage so this device matches the account
@@ -220,12 +275,26 @@ async function signInWithEmail(
   // Fetch username & stats from profile and sync to this device
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("*")
+    .select("user_id, username, email, total_xp, day_streak, questions_answered, correct_answers, answer_streak, last_question_date, questions_answered_today, last_valid_streak_date, achievements, answered_question_ids")
     .eq("user_id", data.user.id)
     .maybeSingle();
 
-  if (profileRow?.stats) {
-    await storageService.saveUserProgress(profileRow.stats as UserProgress);
+  // Reconstruct UserProgress from columns
+  // Database is the source of truth for authenticated users
+  if (profileRow) {
+    const reconstructedStats: UserProgress = {
+      totalXP: profileRow.total_xp ?? 0,
+      dayStreak: profileRow.day_streak ?? 0,
+      questionsAnswered: profileRow.questions_answered ?? 0,
+      correctAnswers: profileRow.correct_answers ?? 0,
+      answerStreak: profileRow.answer_streak ?? 0,
+      lastQuestionDate: profileRow.last_question_date ?? null,
+      questionsAnsweredToday: profileRow.questions_answered_today ?? 0,
+      lastValidStreakDate: profileRow.last_valid_streak_date ?? null,
+      achievements: profileRow.achievements ?? [],
+      answeredQuestionIds: profileRow.answered_question_ids ?? [],
+    };
+    await storageService.saveUserProgress(reconstructedStats);
   }
 
   const username = (profileRow?.username as string | null) ?? null;
