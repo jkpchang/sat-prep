@@ -33,6 +33,7 @@ export interface Achievement {
   icon: string;
   unlocked: boolean;
   unlockedDate?: string;
+  xpReward?: number; // XP awarded when this achievement is unlocked
 }
 
 export interface LeaderboardEntry {

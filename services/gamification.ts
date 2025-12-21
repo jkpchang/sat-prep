@@ -5,18 +5,12 @@ import { isToday, isYesterday, getTodayString } from "../utils/dateUtils";
 
 const ACHIEVEMENTS: Achievement[] = [
   {
-    id: "first_question",
-    name: "Getting Started",
-    description: "Answer your first question",
-    icon: "🔰",
-    unlocked: false,
-  },
-  {
     id: "streak_3",
     name: "Streak Starter",
     description: "Maintain a 3-day streak",
     icon: "🔥",
     unlocked: false,
+    xpReward: 25,
   },
   {
     id: "streak_7",
@@ -24,6 +18,7 @@ const ACHIEVEMENTS: Achievement[] = [
     description: "Maintain a 7-day streak",
     icon: "💪",
     unlocked: false,
+    xpReward: 50,
   },
   {
     id: "streak_30",
@@ -31,6 +26,7 @@ const ACHIEVEMENTS: Achievement[] = [
     description: "Maintain a 30-day streak",
     icon: "👑",
     unlocked: false,
+    xpReward: 200,
   },
   {
     id: "answer_streak_5",
@@ -38,6 +34,7 @@ const ACHIEVEMENTS: Achievement[] = [
     description: "Get 5 questions correct in a row",
     icon: "⚡",
     unlocked: false,
+    xpReward: 30,
   },
   {
     id: "answer_streak_10",
@@ -45,6 +42,7 @@ const ACHIEVEMENTS: Achievement[] = [
     description: "Get 10 questions correct in a row",
     icon: "🔥",
     unlocked: false,
+    xpReward: 75,
   },
   {
     id: "answer_streak_20",
@@ -52,13 +50,31 @@ const ACHIEVEMENTS: Achievement[] = [
     description: "Get 20 questions correct in a row",
     icon: "🏅",
     unlocked: false,
+    xpReward: 150,
   },
   {
-    id: "xp_1000",
-    name: "Knowledge Seeker",
-    description: "Earn 1000 XP",
-    icon: "📚",
+    id: "questions_100",
+    name: "Centurion",
+    description: "Answer 100 questions",
+    icon: "🛡️",
     unlocked: false,
+    xpReward: 100,
+  },
+  {
+    id: "questions_250",
+    name: "Dedicated Scholar",
+    description: "Answer 250 questions",
+    icon: "📖",
+    unlocked: false,
+    xpReward: 150,
+  },
+  {
+    id: "questions_500",
+    name: "Question Master",
+    description: "Answer 500 questions",
+    icon: "🎓",
+    unlocked: false,
+    xpReward: 250,
   },
 ];
 
@@ -290,8 +306,14 @@ export class GamificationService {
         case "streak_30":
           shouldUnlock = this.progress.dayStreak >= 30;
           break;
-        case "xp_1000":
-          shouldUnlock = this.progress.totalXP >= 1000;
+        case "questions_100":
+          shouldUnlock = this.progress.questionsAnswered >= 100;
+          break;
+        case "questions_250":
+          shouldUnlock = this.progress.questionsAnswered >= 250;
+          break;
+        case "questions_500":
+          shouldUnlock = this.progress.questionsAnswered >= 500;
           break;
         case "answer_streak_5":
           shouldUnlock = (this.progress.answerStreak || 0) >= 5;
@@ -306,6 +328,7 @@ export class GamificationService {
 
       if (shouldUnlock) {
         this.progress.achievements.push(achievement.id);
+        // Don't award XP here - it will be awarded when user clicks "Collect XP" in the modal
         newAchievements.push({
           ...achievement,
           unlocked: true,
@@ -350,6 +373,34 @@ export class GamificationService {
     await this.saveProgress();
 
     return { xpGained: amount, newAchievements };
+  }
+
+  /**
+   * Award XP for collecting an achievement reward
+   * @param achievementId The ID of the achievement being collected
+   * @returns The amount of XP gained and any new achievements unlocked
+   */
+  async collectAchievementXP(
+    achievementId: string
+  ): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
+    const achievement = ACHIEVEMENTS.find((a) => a.id === achievementId);
+    if (!achievement || !achievement.xpReward) {
+      return { xpGained: 0, newAchievements: [] };
+    }
+
+    // Verify the achievement is actually unlocked
+    if (!this.progress.achievements.includes(achievementId)) {
+      return { xpGained: 0, newAchievements: [] };
+    }
+
+    // Award the XP
+    this.progress.totalXP += achievement.xpReward;
+
+    // Check for new achievements that might have been unlocked by this XP gain
+    const newAchievements = await this.checkAchievements();
+    await this.saveProgress();
+
+    return { xpGained: achievement.xpReward, newAchievements };
   }
 
   private async saveProgress(): Promise<void> {

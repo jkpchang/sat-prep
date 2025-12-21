@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ interface StreakCelebrationModalProps {
   visible: boolean;
   dayStreak: number;
   onClose: () => void;
-  onCollectXP?: () => void;
+  onCollectXP?: () => Promise<void>;
 }
 
 interface Flame {
@@ -33,6 +33,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({
   onClose,
   onCollectXP,
 }) => {
+  const [isCollecting, setIsCollecting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const flameAnimations = useRef<Flame[]>(
@@ -47,6 +48,8 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({
 
   useEffect(() => {
     if (visible) {
+      // Reset state when modal becomes visible
+      setIsCollecting(false);
       // Reset animations
       fadeAnim.setValue(0);
       scaleAnim.setValue(0.8);
@@ -219,11 +222,19 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({
 
           {onCollectXP && (
               <TouchableOpacity
-                style={styles.collectButton}
-                onPress={() => {
-                  onCollectXP();
+                style={[
+                  styles.collectButton,
+                  isCollecting && styles.collectButtonDisabled,
+                ]}
+                onPress={async () => {
+                  if (isCollecting) return;
+                  setIsCollecting(true);
+                  // Call onCollectXP - parent will handle closing the modal and XP animation
+                  await onCollectXP();
+                  // Close modal after XP collection is handled
                   onClose();
                 }}
+                disabled={isCollecting}
               >
                 <Text style={styles.collectButtonText}>
                   Collect 5 XP
@@ -323,6 +334,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#FF6B35",
     minWidth: 180,
+  },
+  collectButtonDisabled: {
+    backgroundColor: "#BDC3C7",
+    borderColor: "#95A5A6",
+    opacity: 0.6,
   },
   collectButtonText: {
     color: "#FFFFFF",

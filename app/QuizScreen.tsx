@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Animated,
   Dimensions,
 } from "react-native";
@@ -18,6 +17,7 @@ import {
 import { gamificationService } from "../services/gamification";
 import { Question, Achievement } from "../types";
 import { StreakCelebrationModal } from "../components/StreakCelebrationModal";
+import { AchievementCelebrationModal } from "../components/AchievementCelebrationModal";
 import {
   triggerSuccessFeedback,
   initializeFeedbackSound,
@@ -57,6 +57,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const [showStars, setShowStars] = useState(false);
   const [showStreakCelebration, setShowStreakCelebration] = useState(false);
   const [dayStreak, setDayStreak] = useState(0);
+  const [currentAchievement, setCurrentAchievement] =
+    useState<Achievement | null>(null);
+  const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
 
   const buttonRef = useRef<View>(null);
   const xpBadgeRef = useRef<View>(null);
@@ -81,7 +84,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   useEffect(() => {
     // Initialize feedback sound system
     initializeFeedbackSound();
-    
+
     gamificationService.initialize().then(() => {
       loadNewQuestion();
       loadXP();
@@ -290,20 +293,26 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     // Update day streak if it changed
     if (result.streakExtended) {
       setDayStreak(result.newDayStreak);
-      // Show celebration modal after a short delay to let the result animation play
-      setTimeout(() => {
-        setShowStreakCelebration(true);
-      }, 800);
     }
 
-    if (result.newAchievements.length > 0) {
+    // Queue achievements and streak celebration together
+    if (result.streakExtended || result.newAchievements.length > 0) {
       setTimeout(() => {
-        Alert.alert(
-          "🎉 Achievement Unlocked!",
-          result.newAchievements.map((a) => `${a.icon} ${a.name}`).join("\n"),
-          [{ text: "Awesome!" }]
-        );
-      }, 500);
+        // Show streak celebration first if it exists, then achievements
+        if (result.streakExtended) {
+          // Queue achievements to show after streak modal closes
+          if (result.newAchievements.length > 0) {
+            setAchievementQueue(result.newAchievements);
+          }
+          setShowStreakCelebration(true);
+        } else {
+          // No streak, show achievements directly
+          if (result.newAchievements.length > 0) {
+            setAchievementQueue(result.newAchievements);
+            showNextAchievement(result.newAchievements);
+          }
+        }
+      }, 800);
     }
   };
 
@@ -318,7 +327,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const handleCollectStreakXP = async () => {
     // Trigger haptic and sound feedback when collecting 5 XP
     triggerSuccessFeedback();
-    
+
     const result = await gamificationService.addBonusXP(5);
     const newTotalXP = totalXP + result.xpGained;
     setTotalXP(newTotalXP);
@@ -326,15 +335,75 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     // Animate XP gain with the existing animation
     animateXPGain(newTotalXP, true); // true for isCorrect to show stars
 
-    if (result.newAchievements.length > 0) {
+    // Close streak modal
+    setShowStreakCelebration(false);
+
+    // Queue any new achievements to show after XP animation
+    setAchievementQueue((prev) => {
+      const updatedQueue = [...prev, ...result.newAchievements];
+
+      // Wait for XP animation to complete before showing next achievement
       setTimeout(() => {
-        Alert.alert(
-          "🎉 Achievement Unlocked!",
-          result.newAchievements.map((a) => `${a.icon} ${a.name}`).join("\n"),
-          [{ text: "Awesome!" }]
-        );
-      }, 500);
+        if (updatedQueue.length > 0) {
+          showNextAchievement(updatedQueue);
+        }
+      }, 1000);
+
+      return updatedQueue;
+    });
+  };
+
+  const showNextAchievement = (achievements: Achievement[]) => {
+    if (achievements.length > 0) {
+      setCurrentAchievement(achievements[0]);
+      setAchievementQueue(achievements.slice(1));
     }
+  };
+
+  const handleAchievementClose = () => {
+    setCurrentAchievement(null);
+    // If user closes without collecting, still show next achievement after a delay
+    // This handles the case where user closes modal without collecting XP
+    setAchievementQueue((prev) => {
+      if (prev.length > 0) {
+        setTimeout(() => {
+          showNextAchievement(prev);
+        }, 500);
+      }
+      return prev;
+    });
+  };
+
+  const handleCollectAchievementXP = async (achievement: Achievement) => {
+    // Trigger haptic and sound feedback when collecting XP
+    triggerSuccessFeedback();
+
+    // Award the XP for this achievement
+    const result = await gamificationService.collectAchievementXP(
+      achievement.id
+    );
+    const newTotalXP = totalXP + result.xpGained;
+    setTotalXP(newTotalXP);
+    setXpGained(result.xpGained);
+
+    // Animate XP gain (animation takes ~800ms total)
+    animateXPGain(newTotalXP, true);
+
+    // Get current queue and add any new achievements
+    setAchievementQueue((prev) => {
+      const updatedQueue = [...prev, ...result.newAchievements];
+
+      // Wait for XP animation to complete before showing next achievement
+      // XP animation: 600ms odometer + 200ms popup fade in + 800ms popup fade out + 300ms delay = ~1900ms total
+      // We'll wait 1000ms to let the main animation play, then show next achievement
+      setTimeout(() => {
+        if (updatedQueue.length > 0) {
+          showNextAchievement(updatedQueue);
+        }
+      }, 1000);
+
+      return updatedQueue;
+    });
   };
 
   const AnimatedXPText = () => {
@@ -566,9 +635,33 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       <StreakCelebrationModal
         visible={showStreakCelebration}
         dayStreak={dayStreak}
-        onClose={() => setShowStreakCelebration(false)}
+        onClose={() => {
+          setShowStreakCelebration(false);
+          // After streak modal closes, show achievements if any are queued
+          setAchievementQueue((prev) => {
+            if (prev.length > 0) {
+              setTimeout(() => {
+                showNextAchievement(prev);
+              }, 500);
+            }
+            return prev;
+          });
+        }}
         onCollectXP={handleCollectStreakXP}
       />
+
+      {currentAchievement && (
+        <AchievementCelebrationModal
+          visible={!!currentAchievement}
+          achievement={currentAchievement}
+          onClose={handleAchievementClose}
+          onCollectXP={
+            currentAchievement.xpReward && currentAchievement.xpReward > 0
+              ? () => handleCollectAchievementXP(currentAchievement)
+              : undefined
+          }
+        />
+      )}
     </View>
   );
 };

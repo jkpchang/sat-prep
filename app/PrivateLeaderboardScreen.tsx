@@ -22,11 +22,12 @@ import { AddMemberModal } from "../components/AddMemberModal";
 import { TransferOwnershipModal } from "../components/TransferOwnershipModal";
 import { DeleteMemberModal } from "../components/DeleteMemberModal";
 import { AddMemberCelebrationModal } from "../components/AddMemberCelebrationModal";
-import { LeaderboardMember, PrivateLeaderboard } from "../types";
+import { AchievementCelebrationModal } from "../components/AchievementCelebrationModal";
+import { LeaderboardMember, PrivateLeaderboard, Achievement } from "../types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CustomAlert, AlertButton } from "../components/CustomAlert";
 import { gamificationService } from "../services/gamification";
-import { Alert } from "react-native";
+import { triggerSuccessFeedback } from "../utils/feedbackUtils";
 
 type RootStackParamList = {
   Main: undefined;
@@ -67,6 +68,8 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
   const [showDeleteMemberModal, setShowDeleteMemberModal] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [addedMemberUsername, setAddedMemberUsername] = useState("");
+  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
 
   // Initialize gamification service
   useEffect(() => {
@@ -118,6 +121,37 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
   const hideAlert = () => {
     setAlertVisible(false);
     setAlertConfig(null);
+  };
+
+  const showNextAchievement = (achievements: Achievement[]) => {
+    if (achievements.length > 0) {
+      setCurrentAchievement(achievements[0]);
+      setAchievementQueue(achievements.slice(1));
+    }
+  };
+
+  const handleAchievementClose = () => {
+    setCurrentAchievement(null);
+    // Show next achievement in queue if any
+    if (achievementQueue.length > 0) {
+      setTimeout(() => {
+        showNextAchievement(achievementQueue);
+      }, 300);
+    }
+  };
+
+  const handleCollectAchievementXP = async (achievement: Achievement) => {
+    // Trigger haptic and sound feedback when collecting XP
+    triggerSuccessFeedback();
+    
+    // Award the XP for this achievement
+    const result = await gamificationService.collectAchievementXP(achievement.id);
+
+    // Check if this XP gain unlocked any new achievements
+    if (result.newAchievements.length > 0) {
+      // Add to queue after current achievement is closed
+      setAchievementQueue((prev) => [...prev, ...result.newAchievements]);
+    }
   };
 
   // Mutation for deleting leaderboard
@@ -324,19 +358,33 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           setAddedMemberUsername("");
         }}
         onCollectXP={async () => {
+          // Trigger haptic and sound feedback when collecting 10 XP
+          triggerSuccessFeedback();
+          
           const result = await gamificationService.addBonusXP(10);
           
           if (result.newAchievements.length > 0) {
+            // Show achievements one by one
             setTimeout(() => {
-              Alert.alert(
-                "🎉 Achievement Unlocked!",
-                result.newAchievements.map((a) => `${a.icon} ${a.name}`).join("\n"),
-                [{ text: "Awesome!" }]
-              );
+              setAchievementQueue(result.newAchievements);
+              showNextAchievement(result.newAchievements);
             }, 500);
           }
         }}
       />
+
+      {currentAchievement && (
+        <AchievementCelebrationModal
+          visible={!!currentAchievement}
+          achievement={currentAchievement}
+          onClose={handleAchievementClose}
+          onCollectXP={
+            currentAchievement.xpReward && currentAchievement.xpReward > 0
+              ? () => handleCollectAchievementXP(currentAchievement)
+              : undefined
+          }
+        />
+      )}
 
       {alertConfig && (
         <CustomAlert

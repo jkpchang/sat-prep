@@ -8,18 +8,19 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
+import { Achievement } from "../types";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-const STAR_COUNT = 15;
+const CONFETTI_COUNT = 25;
 
-interface AddMemberCelebrationModalProps {
+interface AchievementCelebrationModalProps {
   visible: boolean;
-  username: string;
+  achievement: Achievement;
   onClose: () => void;
-  onCollectXP?: () => void;
+  onCollectXP?: () => Promise<void>;
 }
 
-interface Star {
+interface Confetti {
   translateX: Animated.Value;
   translateY: Animated.Value;
   scale: Animated.Value;
@@ -27,17 +28,14 @@ interface Star {
   rotation: Animated.Value;
 }
 
-export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps> = ({
-  visible,
-  username,
-  onClose,
-  onCollectXP,
-}) => {
+export const AchievementCelebrationModal: React.FC<
+  AchievementCelebrationModalProps
+> = ({ visible, achievement, onClose, onCollectXP }) => {
   const [isCollecting, setIsCollecting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const starAnimations = useRef<Star[]>(
-    Array.from({ length: STAR_COUNT }, () => ({
+  const confettiAnimations = useRef<Confetti[]>(
+    Array.from({ length: CONFETTI_COUNT }, () => ({
       translateX: new Animated.Value(0),
       translateY: new Animated.Value(0),
       scale: new Animated.Value(1),
@@ -53,12 +51,12 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
       // Reset animations
       fadeAnim.setValue(0);
       scaleAnim.setValue(0.8);
-      starAnimations.forEach((star) => {
-        star.translateX.setValue(0);
-        star.translateY.setValue(0);
-        star.scale.setValue(1);
-        star.opacity.setValue(0);
-        star.rotation.setValue(0);
+      confettiAnimations.forEach((confetti) => {
+        confetti.translateX.setValue(0);
+        confetti.translateY.setValue(0);
+        confetti.scale.setValue(1);
+        confetti.opacity.setValue(0);
+        confetti.rotation.setValue(0);
       });
 
       // Animate modal entrance
@@ -76,63 +74,63 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
         }),
       ]).start();
 
-      // Animate stars
+      // Animate confetti
       setTimeout(() => {
-        animateStars();
+        animateConfetti();
       }, 200);
     }
   }, [visible]);
 
-  const animateStars = () => {
-    const animations = starAnimations.map((star, index) => {
+  const animateConfetti = () => {
+    const animations = confettiAnimations.map((confetti, index) => {
       // Random starting position around the center
-      const angle = (index / STAR_COUNT) * Math.PI * 2;
-      const radius = 80 + Math.random() * 40;
+      const angle = (index / CONFETTI_COUNT) * Math.PI * 2;
+      const radius = 100 + Math.random() * 50;
       const startX = Math.cos(angle) * radius;
       const startY = Math.sin(angle) * radius;
 
       // Random end position (spread outward)
-      const endRadius = 180 + Math.random() * 120;
+      const endRadius = 200 + Math.random() * 150;
       const endX = Math.cos(angle) * endRadius;
       const endY = Math.sin(angle) * endRadius;
 
       return Animated.parallel([
         Animated.sequence([
-          Animated.timing(star.opacity, {
+          Animated.timing(confetti.opacity, {
             toValue: 1,
             duration: 200,
             useNativeDriver: true,
           }),
           Animated.parallel([
-            Animated.timing(star.translateX, {
+            Animated.timing(confetti.translateX, {
               toValue: endX,
               duration: 1500,
               useNativeDriver: true,
             }),
-            Animated.timing(star.translateY, {
+            Animated.timing(confetti.translateY, {
               toValue: endY,
               duration: 1500,
               useNativeDriver: true,
             }),
             Animated.sequence([
-              Animated.timing(star.scale, {
+              Animated.timing(confetti.scale, {
                 toValue: 1.5,
                 duration: 300,
                 useNativeDriver: true,
               }),
-              Animated.timing(star.scale, {
+              Animated.timing(confetti.scale, {
                 toValue: 0.3,
                 duration: 1200,
                 useNativeDriver: true,
               }),
             ]),
-            Animated.timing(star.rotation, {
+            Animated.timing(confetti.rotation, {
               toValue: 1,
               duration: 1500,
               useNativeDriver: true,
             }),
           ]),
-          Animated.timing(star.opacity, {
+          Animated.timing(confetti.opacity, {
             toValue: 0,
             duration: 200,
             useNativeDriver: true,
@@ -145,6 +143,8 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
   };
 
   if (!visible) return null;
+
+  const xpReward = achievement.xpReward || 0;
 
   return (
     <Modal
@@ -161,9 +161,9 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
           },
         ]}
       >
-        {/* Animated stars */}
-        {starAnimations.map((star, index) => {
-          const spin = star.rotation.interpolate({
+        {/* Animated confetti */}
+        {confettiAnimations.map((confetti, index) => {
+          const spin = confetti.rotation.interpolate({
             inputRange: [0, 1],
             outputRange: ["0deg", "360deg"],
           });
@@ -172,20 +172,20 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
             <Animated.View
               key={index}
               style={[
-                styles.star,
+                styles.confetti,
                 {
-                  opacity: star.opacity,
+                  opacity: confetti.opacity,
                   transform: [
-                    { translateX: star.translateX },
-                    { translateY: star.translateY },
-                    { scale: star.scale },
+                    { translateX: confetti.translateX },
+                    { translateY: confetti.translateY },
+                    { scale: confetti.scale },
                     { rotate: spin },
                   ],
                 },
               ]}
               pointerEvents="none"
             >
-              <Text style={styles.starEmoji}>⭐</Text>
+              <Text style={styles.confettiEmoji}>🎉</Text>
             </Animated.View>
           );
         })}
@@ -199,41 +199,46 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
             },
           ]}
         >
-          <View style={styles.starContainer}>
-            <Text style={styles.bigStar}>⭐</Text>
+          <View style={styles.iconContainer}>
+            <Text style={styles.bigIcon}>{achievement.icon}</Text>
           </View>
 
-          <Text style={styles.title}>Member Added!</Text>
-          <Text style={styles.subtitle}>
-            {username} has been added to the leaderboard
-          </Text>
+          <Text style={styles.title}>Achievement Unlocked!</Text>
+          <Text style={styles.achievementName}>{achievement.name}</Text>
+          <Text style={styles.description}>{achievement.description}</Text>
 
-          <View style={styles.xpContainer}>
-            <Text style={styles.xpNumber}>10</Text>
-            <Text style={styles.xpLabel}>XP Reward</Text>
-          </View>
+          {xpReward > 0 && (
+            <View style={styles.xpContainer}>
+              <Text style={styles.xpNumber}>+{xpReward}</Text>
+              <Text style={styles.xpLabel}>XP Reward</Text>
+            </View>
+          )}
 
-          <Text style={styles.message}>
-            Keep building your community! Add more members to grow together.
-          </Text>
-
-          {onCollectXP && (
+          {onCollectXP && xpReward > 0 && (
             <TouchableOpacity
               style={[
                 styles.collectButton,
                 isCollecting && styles.collectButtonDisabled,
               ]}
-              onPress={() => {
+              onPress={async () => {
                 if (isCollecting) return;
                 setIsCollecting(true);
-                onCollectXP();
+                // Call onCollectXP - parent will handle closing the modal and XP animation
+                await onCollectXP();
+                // Close modal after XP collection is handled
                 onClose();
               }}
               disabled={isCollecting}
             >
               <Text style={styles.collectButtonText}>
-                Collect 10 XP
+                Collect {xpReward} XP
               </Text>
+            </TouchableOpacity>
+          )}
+
+          {(!onCollectXP || xpReward === 0) && (
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Awesome!</Text>
             </TouchableOpacity>
           )}
         </Animated.View>
@@ -249,7 +254,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  star: {
+  confetti: {
     position: "absolute",
     width: 40,
     height: 40,
@@ -258,7 +263,7 @@ const styles = StyleSheet.create({
     top: SCREEN_HEIGHT / 2,
     left: SCREEN_WIDTH / 2,
   },
-  starEmoji: {
+  confettiEmoji: {
     fontSize: 32,
   },
   content: {
@@ -274,24 +279,32 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 10,
   },
-  starContainer: {
+  iconContainer: {
     marginBottom: 16,
   },
-  bigStar: {
+  bigIcon: {
     fontSize: 80,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#2C3E50",
     marginBottom: 8,
     textAlign: "center",
   },
-  subtitle: {
-    fontSize: 18,
+  achievementName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#4ECDC4",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  description: {
+    fontSize: 16,
     color: "#7F8C8D",
     marginBottom: 24,
     textAlign: "center",
+    lineHeight: 22,
   },
   xpContainer: {
     backgroundColor: "#F0F9FF",
@@ -314,13 +327,6 @@ const styles = StyleSheet.create({
     color: "#4ECDC4",
     fontWeight: "600",
   },
-  message: {
-    fontSize: 14,
-    color: "#7F8C8D",
-    textAlign: "center",
-    marginBottom: 24,
-    lineHeight: 20,
-  },
   collectButton: {
     backgroundColor: "#4ECDC4",
     paddingHorizontal: 32,
@@ -341,5 +347,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  closeButton: {
+    backgroundColor: "#4ECDC4",
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#3AB8B0",
+    minWidth: 180,
+  },
+  closeButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
-
