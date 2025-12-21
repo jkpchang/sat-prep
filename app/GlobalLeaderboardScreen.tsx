@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  getGlobalLeaderboardByXP,
-  getGlobalLeaderboardByStreak,
+  getGlobalLeaderboardViewByXP,
+  getGlobalLeaderboardViewByStreak,
 } from "../services/leaderboard";
 import { LeaderboardEntry } from "../types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -35,51 +36,39 @@ interface GlobalLeaderboardScreenProps {
   route: { params: { type: "xp" | "streak" } };
 }
 
-export const GlobalLeaderboardScreen: React.FC<GlobalLeaderboardScreenProps> = ({
-  navigation,
-  route,
-}) => {
+export const GlobalLeaderboardScreen: React.FC<
+  GlobalLeaderboardScreenProps
+> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { authProfile } = useAuth();
   const { type } = route.params;
-  const [loading, setLoading] = useState(true);
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [offset, setOffset] = useState(0);
-  const pageSize = 50;
 
-  useEffect(() => {
-    loadEntries();
-  }, [type]);
-
-  const loadEntries = async (loadMore: boolean = false) => {
-    try {
-      setLoading(true);
-      const currentOffset = loadMore ? offset : 0;
-      const newEntries = await (type === "xp"
-        ? getGlobalLeaderboardByXP(pageSize, currentOffset)
-        : getGlobalLeaderboardByStreak(pageSize, currentOffset));
-
-      if (loadMore) {
-        setEntries([...entries, ...newEntries]);
-      } else {
-        setEntries(newEntries);
+  const {
+    data: leaderboardData,
+    isLoading: loading,
+    refetch,
+  } = useQuery({
+    queryKey: ["globalLeaderboardView", type, authProfile?.userId],
+    queryFn: async () => {
+      if (!authProfile?.userId) {
+        return {
+          topEntries: [],
+          userEntry: null,
+          userRank: null,
+          surroundingEntries: [],
+        };
       }
+      return type === "xp"
+        ? getGlobalLeaderboardViewByXP(authProfile.userId)
+        : getGlobalLeaderboardViewByStreak(authProfile.userId);
+    },
+    enabled: !!authProfile?.userId,
+  });
 
-      setHasMore(newEntries.length === pageSize);
-      setOffset(currentOffset + newEntries.length);
-    } catch (error) {
-      console.error("Error loading leaderboard:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      loadEntries(true);
-    }
-  };
+  const topEntries = leaderboardData?.topEntries || [];
+  const userEntry = leaderboardData?.userEntry || null;
+  const userRank = leaderboardData?.userRank ?? null;
+  const surroundingEntries = leaderboardData?.surroundingEntries || [];
 
   const handleRowClick = (userId: string) => {
     navigation.navigate("UserProfile", { userId });
@@ -92,12 +81,17 @@ export const GlobalLeaderboardScreen: React.FC<GlobalLeaderboardScreenProps> = (
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          Global - {type === "xp" ? "XP" : "Days Streak"}
+          Global - {type === "xp" ? "⭐ XP" : "🔥 Days Streak"}
         </Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity
+          style={styles.refreshButton}
+          onPress={() => refetch()}
+        >
+          <Text style={styles.refreshIcon}>🔄</Text>
+        </TouchableOpacity>
       </View>
 
-      {loading && entries.length === 0 ? (
+      {loading && topEntries.length === 0 ? (
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color="#4ECDC4" />
         </View>
@@ -105,57 +99,107 @@ export const GlobalLeaderboardScreen: React.FC<GlobalLeaderboardScreenProps> = (
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.content}
-          onScrollEndDrag={handleLoadMore}
         >
-          {entries.map((entry) => {
-            const isCurrentUser = entry.userId === authProfile?.userId;
-            return (
-              <TouchableOpacity
-                key={entry.userId}
-                style={[
-                  styles.entry,
-                  isCurrentUser && styles.currentUserEntry,
-                ]}
-                onPress={() => handleRowClick(entry.userId)}
-              >
-                <Text
-                  style={[styles.rank, isCurrentUser && styles.currentUserText]}
-                >
-                  {entry.rank}
-                </Text>
-                <Text
-                  style={[
-                    styles.username,
-                    isCurrentUser && styles.currentUserText,
-                  ]}
-                  numberOfLines={1}
-                >
-                  {entry.username || "Unknown"}
-                </Text>
-                <Text
-                  style={[styles.value, isCurrentUser && styles.currentUserText]}
-                >
-                  {type === "xp" ? entry.totalXP : entry.dayStreak}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-
-          {hasMore && (
-            <TouchableOpacity
-              style={styles.loadMoreButton}
-              onPress={handleLoadMore}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#4ECDC4" />
-              ) : (
-                <Text style={styles.loadMoreText}>Load More</Text>
-              )}
-            </TouchableOpacity>
+          {/* Top 10 */}
+          {topEntries.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>Top 10</Text>
+              {topEntries.map((entry) => {
+                const isCurrentUser = entry.userId === authProfile?.userId;
+                return (
+                  <TouchableOpacity
+                    key={entry.userId}
+                    style={[
+                      styles.entry,
+                      isCurrentUser && styles.currentUserEntry,
+                    ]}
+                    onPress={() => handleRowClick(entry.userId)}
+                  >
+                    <Text
+                      style={[
+                        styles.rank,
+                        isCurrentUser && styles.currentUserText,
+                      ]}
+                    >
+                      {entry.rank}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.username,
+                        isCurrentUser && styles.currentUserText,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {entry.username || "Unknown"}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.value,
+                        isCurrentUser && styles.currentUserText,
+                      ]}
+                    >
+                      <Text style={styles.valueIcon}>
+                        {type === "xp" ? "⭐" : "🔥"}
+                      </Text>
+                      {type === "xp" ? entry.totalXP : entry.dayStreak}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </>
           )}
 
-          {entries.length === 0 && !loading && (
+          {/* User's position (if not in top 10) */}
+          {userRank && userRank > 10 && surroundingEntries.length > 0 && (
+            <>
+              <View style={styles.separator} />
+              <Text style={styles.sectionTitle}>Your Position</Text>
+              {surroundingEntries.map((entry) => {
+                const isCurrentUser = entry.userId === authProfile?.userId;
+                return (
+                  <TouchableOpacity
+                    key={entry.userId}
+                    style={[
+                      styles.entry,
+                      isCurrentUser && styles.currentUserEntry,
+                    ]}
+                    onPress={() => handleRowClick(entry.userId)}
+                  >
+                    <Text
+                      style={[
+                        styles.rank,
+                        isCurrentUser && styles.currentUserText,
+                      ]}
+                    >
+                      {entry.rank}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.username,
+                        isCurrentUser && styles.currentUserText,
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {entry.username || "Unknown"}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.value,
+                        isCurrentUser && styles.currentUserText,
+                      ]}
+                    >
+                      <Text style={styles.valueIcon}>
+                        {type === "xp" ? "⭐" : "🔥"}
+                      </Text>
+                      {type === "xp" ? entry.totalXP : entry.dayStreak}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </>
+          )}
+
+          {topEntries.length === 0 && !loading && (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No entries available</Text>
             </View>
@@ -192,6 +236,19 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 60,
+  },
+  refreshButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: "#F8F9FA",
+    borderRadius: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    minWidth: 32,
+    minHeight: 32,
+  },
+  refreshIcon: {
+    fontSize: 18,
   },
   scrollView: {
     flex: 1,
@@ -230,6 +287,25 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#2C3E50",
   },
+  valueIcon: {
+    fontSize: 16,
+    marginRight: 3,
+    lineHeight: 22,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2C3E50",
+    marginTop: 16,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 16,
+    marginHorizontal: 16,
+  },
   username: {
     flex: 1,
     fontSize: 16,
@@ -242,23 +318,11 @@ const styles = StyleSheet.create({
     color: "#2C3E50",
     minWidth: 80,
     textAlign: "right",
+    lineHeight: 22,
   },
   currentUserText: {
     color: "#2C3E50",
     fontWeight: "700",
-  },
-  loadMoreButton: {
-    marginTop: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: "#4ECDC4",
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  loadMoreText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
   },
   emptyContainer: {
     padding: 32,
@@ -270,4 +334,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-

@@ -12,6 +12,10 @@ A mobile app built with React Native and Expo that gamifies SAT preparation, mak
   - Progress tracking
 - **Question Practice**: Multiple choice questions with immediate feedback
 - **Progress Dashboard**: View your stats, achievements, and progress
+- **Leaderboards**: 
+  - Global leaderboards (XP and Day Streak)
+  - Private leaderboards (create, invite members, manage)
+  - Real-time updates with React Query caching
 
 ## Tech Stack
 
@@ -19,6 +23,8 @@ A mobile app built with React Native and Expo that gamifies SAT preparation, mak
 - React 19.1.0
 - TypeScript
 - React Navigation 7.x
+- Supabase (Backend-as-a-Service: PostgreSQL, Auth, RLS)
+- React Query (@tanstack/react-query) - Data fetching and caching
 - AsyncStorage (local data persistence)
 - Zustand (state management - installed but using Context API for MVP)
 
@@ -112,8 +118,7 @@ The app currently includes sample SAT questions covering:
 
 - [ ] Adaptive difficulty system
 - [ ] More question types and categories
-- [ ] Social features (leaderboards, friend challenges)
-- [ ] User accounts and cloud sync
+- [ ] Enhanced social features (notifications, chat)
 - [ ] Study reminders and notifications
 - [ ] Detailed analytics and insights
 - [ ] Timer functionality for timed practice

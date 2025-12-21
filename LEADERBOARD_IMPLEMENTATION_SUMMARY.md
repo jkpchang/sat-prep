@@ -75,6 +75,9 @@
 - ✅ Indexed columns for fast queries
 - ✅ Pagination support
 - ✅ Efficient queries (no loading all users into memory)
+- ✅ React Query caching (5-minute stale time) to reduce API calls
+- ✅ Manual refresh buttons (🔄) on all leaderboard views
+- ✅ Smart query invalidation after mutations
 
 ## ⏸️ Deferred Features
 
@@ -106,11 +109,26 @@
 - ✅ All TODO comments updated to reference documentation
 - ✅ Inaccurate comments in migration files fixed
 - ✅ Clear comments explaining design decisions
+- ✅ Unused code removed (handleRemoveMember, unused imports)
 
 ### Error Handling
 - ✅ Comprehensive error handling throughout
 - ✅ User-friendly error messages
 - ✅ Console.error for debugging (appropriate for development)
+
+### Data Fetching & Caching
+- ✅ React Query implemented for all leaderboard queries
+- ✅ Automatic caching with 5-minute stale time
+- ✅ Query invalidation after mutations (create, delete, transfer, add/remove members)
+- ✅ Manual refresh buttons (🔄) on all leaderboard views
+- ✅ No aggressive refetching on screen focus (removed useFocusEffect)
+
+### Data Fetching & Caching
+- ✅ React Query implemented for all leaderboard queries
+- ✅ Automatic caching with 5-minute stale time
+- ✅ Query invalidation after mutations (create, delete, transfer, add/remove members)
+- ✅ Manual refresh buttons on all leaderboard views
+- ✅ No aggressive refetching on screen focus (removed useFocusEffect)
 
 ### Known Limitations
 1. **Rank Calculation**: `getUserGlobalRankByXP` and `getUserGlobalRankByStreak` fetch large batches (10000) for rank calculation. This is acceptable for preview panels but could be optimized with window functions if needed.
@@ -136,6 +154,7 @@ All core functionality is implemented and tested. The code is production-ready w
 **New Files:**
 - `migrations/001_leaderboard_schema.sql`
 - `migrations/002_normalize_stats_columns.sql`
+- `migrations/006_fix_ownership_transfer_rls.sql` - Fixed RLS policy for ownership transfer
 - `services/leaderboard.ts`
 - `services/preferences.ts`
 - `components/GlobalLeaderboardPanel.tsx`
@@ -143,6 +162,7 @@ All core functionality is implemented and tested. The code is production-ready w
 - `components/CreateLeaderboardModal.tsx`
 - `components/AddMemberModal.tsx`
 - `components/TransferOwnershipModal.tsx`
+- `components/DeleteMemberModal.tsx` - Remove member functionality
 - `app/LeaderboardScreen.tsx`
 - `app/GlobalLeaderboardScreen.tsx`
 - `app/PrivateLeaderboardScreen.tsx`
@@ -150,8 +170,9 @@ All core functionality is implemented and tested. The code is production-ready w
 
 **Modified Files:**
 - `types/index.ts` - Added leaderboard type definitions
-- `App.tsx` - Added leaderboard navigation
+- `App.tsx` - Added leaderboard navigation, React Query setup
 - `app/HomeScreen.tsx` - Removed leaderboard button (now a tab)
+- `package.json` - Added @tanstack/react-query dependency
 
 **Documentation:**
 - `LEADERBOARD.md` - Updated with implementation details

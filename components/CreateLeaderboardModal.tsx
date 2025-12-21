@@ -14,7 +14,7 @@ import { useAuth } from "../contexts/AuthContext";
 interface CreateLeaderboardModalProps {
   visible: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (leaderboardId: string) => void;
 }
 
 export const CreateLeaderboardModal: React.FC<CreateLeaderboardModalProps> = ({
@@ -52,11 +52,11 @@ export const CreateLeaderboardModal: React.FC<CreateLeaderboardModalProps> = ({
 
     if (result.error) {
       setError(result.error);
-    } else {
+    } else if (result.leaderboard) {
       setName("");
       setDescription("");
       setError(null);
-      onSuccess();
+      onSuccess(result.leaderboard.id);
       onClose();
     }
   };

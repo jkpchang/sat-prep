@@ -8,6 +8,7 @@ interface GlobalLeaderboardPanelProps {
   userRank: number | null;
   currentUserId: string;
   onShowMore: () => void;
+  onRefresh?: () => void;
 }
 
 export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
@@ -16,23 +17,31 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
   userRank,
   currentUserId,
   onShowMore,
+  onRefresh,
 }) => {
   if (entries.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>
-          Global Leaderboard - {type === "xp" ? "XP" : "Days Streak"}
+          Global Leaderboard - {type === "xp" ? "⭐ XP" : "🔥 Days Streak"}
         </Text>
         <Text style={styles.emptyText}>No entries available</Text>
       </View>
     );
   }
 
-  const title = `Global Leaderboard - ${type === "xp" ? "XP" : "Days Streak"}`;
+  const title = `Global Leaderboard - ${type === "xp" ? "⭐ XP" : "🔥 Days Streak"}`;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>{title}</Text>
+        {onRefresh && (
+          <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
+            <Text style={styles.refreshIcon}>🔄</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       <View style={styles.entriesContainer}>
         {entries.map((entry) => {
           const isCurrentUser = entry.userId === currentUserId;
@@ -54,6 +63,9 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
                 {entry.username || "Unknown"}
               </Text>
               <Text style={[styles.value, isCurrentUser && styles.currentUserText]}>
+                <Text style={styles.valueIcon}>
+                  {type === "xp" ? "⭐" : "🔥"}
+                </Text>
                 {type === "xp" ? entry.totalXP : entry.dayStreak}
               </Text>
             </View>
@@ -80,11 +92,30 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
   title: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#2C3E50",
-    marginBottom: 12,
+    flex: 1,
+  },
+  refreshButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: "#F8F9FA",
+    borderRadius: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    minWidth: 32,
+    minHeight: 32,
+  },
+  refreshIcon: {
+    fontSize: 18,
   },
   entriesContainer: {
     gap: 8,
@@ -120,6 +151,12 @@ const styles = StyleSheet.create({
     color: "#2C3E50",
     minWidth: 60,
     textAlign: "right",
+    lineHeight: 20,
+  },
+  valueIcon: {
+    fontSize: 14,
+    marginRight: 3,
+    lineHeight: 20,
   },
   currentUserText: {
     color: "#2C3E50",

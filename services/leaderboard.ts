@@ -108,7 +108,180 @@ export async function getGlobalLeaderboardByStreak(
 }
 
 /**
+ * Get optimized global leaderboard view: top 10 + user's position with 5 before/after
+ * This is more efficient than loading all entries for large user bases
+ */
+export async function getGlobalLeaderboardViewByXP(
+  userId: string
+): Promise<{
+  topEntries: LeaderboardEntry[];
+  userEntry: LeaderboardEntry | null;
+  userRank: number | null;
+  surroundingEntries: LeaderboardEntry[];
+}> {
+  const isHidden = await checkIfUserHidesFromGlobal(userId);
+  if (isHidden) {
+    return {
+      topEntries: await getGlobalLeaderboardByXP(10, 0),
+      userEntry: null,
+      userRank: null,
+      surroundingEntries: [],
+    };
+  }
+
+  // Get top 10
+  const topEntries = await getGlobalLeaderboardByXP(10, 0);
+
+  // Get user's profile to find their rank
+  const { data: userProfile } = await supabase
+    .from("public_profile_data")
+    .select("user_id, username, total_xp, day_streak")
+    .eq("user_id", userId)
+    .single();
+
+  if (!userProfile) {
+    return {
+      topEntries,
+      userEntry: null,
+      userRank: null,
+      surroundingEntries: [],
+    };
+  }
+
+  // Count users with higher XP to get user's rank
+  // Note: We count all users with better stats, including hidden ones
+  // The rank represents position among all users, but hidden users won't appear in the list
+  const { count: betterCount } = await supabase
+    .from("public_profile_data")
+    .select("*", { count: "exact", head: true })
+    .gt("total_xp", userProfile.total_xp);
+
+  const userRank = (betterCount || 0) + 1;
+
+  // If user is in top 10, they're already included
+  const userInTop10 = topEntries.some((e) => e.userId === userId);
+
+  let userEntry: LeaderboardEntry | null = null;
+  let surroundingEntries: LeaderboardEntry[] = [];
+
+  if (userInTop10) {
+    // User is in top 10, find them in the list
+    userEntry = topEntries.find((e) => e.userId === userId) || null;
+  } else {
+    // User is not in top 10, get their entry and 5 before/after
+    // Get 5 entries before user (offset = rank - 6, limit = 5)
+    const beforeOffset = Math.max(0, userRank - 6);
+    const beforeEntries = await getGlobalLeaderboardByXP(5, beforeOffset);
+
+    // Get user's entry (at rank - 1 offset)
+    const userOffset = userRank - 1;
+    const userEntries = await getGlobalLeaderboardByXP(1, userOffset);
+    userEntry = userEntries[0] || null;
+
+    // Get 5 entries after user
+    const afterOffset = userRank;
+    const afterEntries = await getGlobalLeaderboardByXP(5, afterOffset);
+
+    surroundingEntries = [...beforeEntries, ...(userEntry ? [userEntry] : []), ...afterEntries];
+  }
+
+  return {
+    topEntries,
+    userEntry,
+    userRank,
+    surroundingEntries,
+  };
+}
+
+/**
+ * Get optimized global leaderboard view: top 10 + user's position with 5 before/after
+ * This is more efficient than loading all entries for large user bases
+ */
+export async function getGlobalLeaderboardViewByStreak(
+  userId: string
+): Promise<{
+  topEntries: LeaderboardEntry[];
+  userEntry: LeaderboardEntry | null;
+  userRank: number | null;
+  surroundingEntries: LeaderboardEntry[];
+}> {
+  const isHidden = await checkIfUserHidesFromGlobal(userId);
+  if (isHidden) {
+    return {
+      topEntries: await getGlobalLeaderboardByStreak(10, 0),
+      userEntry: null,
+      userRank: null,
+      surroundingEntries: [],
+    };
+  }
+
+  // Get top 10
+  const topEntries = await getGlobalLeaderboardByStreak(10, 0);
+
+  // Get user's profile to find their rank
+  const { data: userProfile } = await supabase
+    .from("public_profile_data")
+    .select("user_id, username, total_xp, day_streak")
+    .eq("user_id", userId)
+    .single();
+
+  if (!userProfile) {
+    return {
+      topEntries,
+      userEntry: null,
+      userRank: null,
+      surroundingEntries: [],
+    };
+  }
+
+  // Count users with higher streak to get user's rank
+  // Note: We count all users with better stats, including hidden ones
+  // The rank represents position among all users, but hidden users won't appear in the list
+  const { count: betterCount } = await supabase
+    .from("public_profile_data")
+    .select("*", { count: "exact", head: true })
+    .gt("day_streak", userProfile.day_streak);
+
+  const userRank = (betterCount || 0) + 1;
+
+  // If user is in top 10, they're already included
+  const userInTop10 = topEntries.some((e) => e.userId === userId);
+
+  let userEntry: LeaderboardEntry | null = null;
+  let surroundingEntries: LeaderboardEntry[] = [];
+
+  if (userInTop10) {
+    // User is in top 10, find them in the list
+    userEntry = topEntries.find((e) => e.userId === userId) || null;
+  } else {
+    // User is not in top 10, get their entry and 5 before/after
+    // Get 5 entries before user (offset = rank - 6, limit = 5)
+    const beforeOffset = Math.max(0, userRank - 6);
+    const beforeEntries = await getGlobalLeaderboardByStreak(5, beforeOffset);
+
+    // Get user's entry (at rank - 1 offset)
+    const userOffset = userRank - 1;
+    const userEntries = await getGlobalLeaderboardByStreak(1, userOffset);
+    userEntry = userEntries[0] || null;
+
+    // Get 5 entries after user
+    const afterOffset = userRank;
+    const afterEntries = await getGlobalLeaderboardByStreak(5, afterOffset);
+
+    surroundingEntries = [...beforeEntries, ...(userEntry ? [userEntry] : []), ...afterEntries];
+  }
+
+  return {
+    topEntries,
+    userEntry,
+    userRank,
+    surroundingEntries,
+  };
+}
+
+/**
  * Get user's rank and surrounding entries in global XP leaderboard
+ * @deprecated Use getGlobalLeaderboardViewByXP for better performance
  */
 export async function getUserGlobalRankByXP(
   userId: string
@@ -142,6 +315,7 @@ export async function getUserGlobalRankByXP(
 
 /**
  * Get user's rank and surrounding entries in global streak leaderboard
+ * @deprecated Use getGlobalLeaderboardViewByStreak for better performance
  */
 export async function getUserGlobalRankByStreak(
   userId: string

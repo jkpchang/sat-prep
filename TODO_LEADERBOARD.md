@@ -360,7 +360,7 @@
 - [x] Optimize queries (normalized columns with indexes for database-level ordering)
 - [x] Use secure view `public_profile_data` to prevent email access
 - [x] Database-level ORDER BY instead of client-side sorting
-- [ ] Cache leaderboard data appropriately (deferred - can be added if needed)
+- [x] Cache leaderboard data appropriately (implemented with React Query)
 - [ ] Consider debouncing for frequent updates (deferred)
 
 ### Testing

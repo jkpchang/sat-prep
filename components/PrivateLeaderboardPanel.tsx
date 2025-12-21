@@ -9,6 +9,7 @@ interface PrivateLeaderboardPanelProps {
   currentUserId: string;
   onShowMore: () => void;
   onManage?: () => void;
+  onRefresh?: () => void;
   isOwner: boolean;
 }
 
@@ -19,6 +20,7 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
   currentUserId,
   onShowMore,
   onManage,
+  onRefresh,
   isOwner,
 }) => {
   const [sortBy, setSortBy] = useState<"xp" | "streak">("xp");
@@ -55,11 +57,18 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
             <Text style={styles.description}>{leaderboard.description}</Text>
           )}
         </View>
-        {isOwner && onManage && (
-          <TouchableOpacity style={styles.manageButton} onPress={onManage}>
-            <Text style={styles.manageButtonIcon}>⚙️</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.headerButtons}>
+          {onRefresh && (
+            <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
+              <Text style={styles.refreshIcon}>🔄</Text>
+            </TouchableOpacity>
+          )}
+          {isOwner && onManage && (
+            <TouchableOpacity style={styles.manageButton} onPress={onManage}>
+              <Text style={styles.manageButtonIcon}>⚙️</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <View style={styles.tabsContainer}>
@@ -118,6 +127,9 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
               <Text
                 style={[styles.value, isCurrentUser && styles.currentUserText]}
               >
+                <Text style={styles.valueIcon}>
+                  {sortBy === "xp" ? "⭐" : "🔥"}
+                </Text>
                 {sortBy === "xp" ? entry.totalXP : entry.dayStreak}
               </Text>
             </View>
@@ -162,6 +174,24 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     color: "#7F8C8D",
+  },
+  headerButtons: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  refreshButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    backgroundColor: "#F8F9FA",
+    borderRadius: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    minWidth: 32,
+    minHeight: 32,
+  },
+  refreshIcon: {
+    fontSize: 18,
   },
   manageButton: {
     paddingVertical: 6,
@@ -243,6 +273,12 @@ const styles = StyleSheet.create({
     color: "#2C3E50",
     minWidth: 60,
     textAlign: "right",
+    lineHeight: 20,
+  },
+  valueIcon: {
+    fontSize: 14,
+    marginRight: 3,
+    lineHeight: 20,
   },
   currentUserText: {
     color: "#2C3E50",

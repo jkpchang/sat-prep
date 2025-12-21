@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../contexts/AuthContext";
 import { GlobalLeaderboardPanel } from "../components/GlobalLeaderboardPanel";
 import { PrivateLeaderboardPanel } from "../components/PrivateLeaderboardPanel";
@@ -21,7 +22,11 @@ import {
   getPrivateLeaderboardMembers,
   getUserRankInPrivateLeaderboard,
 } from "../services/leaderboard";
-import { LeaderboardEntry, PrivateLeaderboard, LeaderboardMember } from "../types";
+import {
+  LeaderboardEntry,
+  PrivateLeaderboard,
+  LeaderboardMember,
+} from "../types";
 import { CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -55,60 +60,65 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const { authProfile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [globalXPEntries, setGlobalXPEntries] = useState<LeaderboardEntry[]>([]);
-  const [globalStreakEntries, setGlobalStreakEntries] = useState<LeaderboardEntry[]>([]);
-  const [globalXPRank, setGlobalXPRank] = useState<number | null>(null);
-  const [globalStreakRank, setGlobalStreakRank] = useState<number | null>(null);
-  const [privateLeaderboards, setPrivateLeaderboards] = useState<
-    Array<{
-      leaderboard: PrivateLeaderboard;
-      entries: LeaderboardMember[];
-      userRank: number | null;
-    }>
-  >([]);
+  const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  useEffect(() => {
-    loadLeaderboards();
-  }, [authProfile?.userId, authProfile?.username]);
-
-  const loadLeaderboards = async () => {
-    // Require authenticated user with username (not anonymous)
-    if (!authProfile?.userId || !authProfile?.username) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      // Load global XP leaderboard
+  // Query for global XP leaderboard
+  const {
+    data: globalXPData,
+    isLoading: loadingXP,
+    refetch: refetchGlobalXP,
+  } = useQuery({
+    queryKey: ["globalLeaderboard", "xp", authProfile?.userId],
+    queryFn: async () => {
+      if (!authProfile?.userId) return null;
       const xpRankData = await getUserGlobalRankByXP(authProfile.userId);
       if (xpRankData) {
-        setGlobalXPEntries(xpRankData.entries);
-        setGlobalXPRank(xpRankData.rank);
+        return xpRankData;
       } else {
         // User not in leaderboard, get top 5
         const topXP = await getGlobalLeaderboardByXP(5, 0);
-        setGlobalXPEntries(topXP);
-        setGlobalXPRank(null);
+        return { entries: topXP, rank: null };
       }
+    },
+    enabled: !!authProfile?.userId && !!authProfile?.username,
+  });
 
-      // Load global Streak leaderboard
-      const streakRankData = await getUserGlobalRankByStreak(authProfile.userId);
+  // Query for global Streak leaderboard
+  const {
+    data: globalStreakData,
+    isLoading: loadingStreak,
+    refetch: refetchGlobalStreak,
+  } = useQuery({
+    queryKey: ["globalLeaderboard", "streak", authProfile?.userId],
+    queryFn: async () => {
+      if (!authProfile?.userId) return null;
+      const streakRankData = await getUserGlobalRankByStreak(
+        authProfile.userId
+      );
       if (streakRankData) {
-        setGlobalStreakEntries(streakRankData.entries);
-        setGlobalStreakRank(streakRankData.rank);
+        return streakRankData;
       } else {
         // User not in leaderboard, get top 5
         const topStreak = await getGlobalLeaderboardByStreak(5, 0);
-        setGlobalStreakEntries(topStreak);
-        setGlobalStreakRank(null);
+        return { entries: topStreak, rank: null };
       }
+    },
+    enabled: !!authProfile?.userId && !!authProfile?.username,
+  });
 
-      // Load private leaderboards
-      const privateLbs = await getPrivateLeaderboardsForUser(authProfile.userId);
+  // Query for private leaderboards
+  const {
+    data: privateLeaderboards,
+    isLoading: loadingPrivate,
+    refetch: refetchPrivateLeaderboards,
+  } = useQuery({
+    queryKey: ["privateLeaderboards", authProfile?.userId],
+    queryFn: async () => {
+      if (!authProfile?.userId) return [];
+      const privateLbs = await getPrivateLeaderboardsForUser(
+        authProfile.userId
+      );
       const privateLbData = await Promise.all(
         privateLbs.map(async (lb) => {
           const rankData = await getUserRankInPrivateLeaderboard(
@@ -134,13 +144,16 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
           }
         })
       );
-      setPrivateLeaderboards(privateLbData);
-    } catch (error) {
-      console.error("Error loading leaderboards:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return privateLbData;
+    },
+    enabled: !!authProfile?.userId && !!authProfile?.username,
+  });
+
+  const loading = loadingXP || loadingStreak || loadingPrivate;
+  const globalXPEntries = globalXPData?.entries || [];
+  const globalXPRank = globalXPData?.rank ?? null;
+  const globalStreakEntries = globalStreakData?.entries || [];
+  const globalStreakRank = globalStreakData?.rank ?? null;
 
   const handleShowGlobalXP = () => {
     // Navigate to stack screen
@@ -227,7 +240,10 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
           <ActivityIndicator size="large" color="#4ECDC4" />
         </View>
       ) : (
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+        >
           {/* Global XP Leaderboard */}
           <GlobalLeaderboardPanel
             type="xp"
@@ -235,6 +251,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
             userRank={globalXPRank}
             currentUserId={authProfile.userId}
             onShowMore={handleShowGlobalXP}
+            onRefresh={() => refetchGlobalXP()}
           />
 
           {/* Global Streak Leaderboard */}
@@ -244,17 +261,18 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
             userRank={globalStreakRank}
             currentUserId={authProfile.userId}
             onShowMore={handleShowGlobalStreak}
+            onRefresh={() => refetchGlobalStreak()}
           />
 
           {/* Private Leaderboards */}
-          {privateLeaderboards.length === 0 ? (
+          {privateLeaderboards?.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
                 You're not in any private leaderboards yet
               </Text>
             </View>
           ) : (
-            privateLeaderboards.map(({ leaderboard, entries, userRank }) => (
+            privateLeaderboards?.map(({ leaderboard, entries, userRank }) => (
               <PrivateLeaderboardPanel
                 key={leaderboard.id}
                 leaderboard={leaderboard}
@@ -267,6 +285,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
                     ? () => handleManagePrivate(leaderboard.id)
                     : undefined
                 }
+                onRefresh={() => refetchPrivateLeaderboards()}
                 isOwner={leaderboard.ownerId === authProfile.userId}
               />
             ))
@@ -285,7 +304,15 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
       <CreateLeaderboardModal
         visible={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onSuccess={loadLeaderboards}
+        onSuccess={(leaderboardId) => {
+          // Invalidate private leaderboards query to refresh the list
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+          // Navigate directly to the leaderboard detail page
+          const stackNav = navigation.getParent();
+          if (stackNav) {
+            (stackNav as any).navigate("PrivateLeaderboard", { leaderboardId });
+          }
+        }}
       />
     </View>
   );
@@ -381,4 +408,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-

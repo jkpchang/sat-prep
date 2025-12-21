@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAuth } from "../contexts/AuthContext";
 import {
   getPrivateLeaderboardMembers,
   getPrivateLeaderboardsForUser,
-  removeMemberFromLeaderboard,
   deletePrivateLeaderboard,
   addMemberToLeaderboard,
   transferOwnership,
@@ -20,6 +20,7 @@ import {
 import { CreateLeaderboardModal } from "../components/CreateLeaderboardModal";
 import { AddMemberModal } from "../components/AddMemberModal";
 import { TransferOwnershipModal } from "../components/TransferOwnershipModal";
+import { DeleteMemberModal } from "../components/DeleteMemberModal";
 import { LeaderboardMember, PrivateLeaderboard } from "../types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CustomAlert, AlertButton } from "../components/CustomAlert";
@@ -49,10 +50,8 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
 }) => {
   const insets = useSafeAreaInsets();
   const { authProfile } = useAuth();
+  const queryClient = useQueryClient();
   const { leaderboardId } = route.params;
-  const [loading, setLoading] = useState(true);
-  const [leaderboard, setLeaderboard] = useState<PrivateLeaderboard | null>(null);
-  const [members, setMembers] = useState<LeaderboardMember[]>([]);
   const [sortBy, setSortBy] = useState<"xp" | "streak">("xp");
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{
@@ -62,31 +61,40 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
   } | null>(null);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showDeleteMemberModal, setShowDeleteMemberModal] = useState(false);
 
-  useEffect(() => {
-    loadLeaderboard();
-  }, [leaderboardId, sortBy]);
+  // Query for leaderboard members
+  const {
+    data: members = [],
+    isLoading: loadingMembers,
+    refetch: refetchMembers,
+  } = useQuery({
+    queryKey: ["privateLeaderboardMembers", leaderboardId, sortBy],
+    queryFn: () => getPrivateLeaderboardMembers(leaderboardId, sortBy),
+  });
 
-  const loadLeaderboard = async () => {
-    try {
-      setLoading(true);
-      const membersData = await getPrivateLeaderboardMembers(leaderboardId, sortBy);
-      setMembers(membersData);
+  // Query for leaderboard info
+  const {
+    data: leaderboard,
+    isLoading: loadingLeaderboard,
+    refetch: refetchLeaderboard,
+  } = useQuery({
+    queryKey: ["privateLeaderboard", leaderboardId, authProfile?.userId],
+    queryFn: async () => {
+      if (!authProfile?.userId) return null;
+      const userLeaderboards = await getPrivateLeaderboardsForUser(authProfile.userId);
+      return userLeaderboards.find((l) => l.id === leaderboardId) || null;
+    },
+    enabled: !!authProfile?.userId,
+  });
 
-      // Get leaderboard info
-      if (authProfile?.userId) {
-        const userLeaderboards = await getPrivateLeaderboardsForUser(authProfile.userId);
-        const lb = userLeaderboards.find((l) => l.id === leaderboardId);
-        if (lb) {
-          setLeaderboard(lb);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading leaderboard:", error);
-    } finally {
-      setLoading(false);
-    }
+  // Refresh both queries
+  const handleRefresh = () => {
+    refetchMembers();
+    refetchLeaderboard();
   };
+
+  const loading = loadingMembers || loadingLeaderboard;
 
   const showAlert = (
     title: string,
@@ -102,40 +110,22 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
     setAlertConfig(null);
   };
 
-  const handleRemoveMember = (userId: string, username: string) => {
-    if (!authProfile?.userId) return;
-
-    showAlert(
-      "Remove Member",
-      `Are you sure you want to remove ${username} from this leaderboard?`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-          onPress: hideAlert,
-        },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: async () => {
-            hideAlert();
-            const result = await removeMemberFromLeaderboard(
-              leaderboardId,
-              userId,
-              authProfile.userId
-            );
-            if (result.success) {
-              loadLeaderboard();
-            } else {
-              showAlert("Error", result.error || "Failed to remove member", [
-                { text: "OK", onPress: hideAlert },
-              ]);
-            }
-          },
-        },
-      ]
-    );
-  };
+  // Mutation for deleting leaderboard
+  const deleteMutation = useMutation({
+    mutationFn: ({ leaderboardId, ownerId }: { leaderboardId: string; ownerId: string }) =>
+      deletePrivateLeaderboard(leaderboardId, ownerId),
+    onSuccess: () => {
+      // Invalidate queries to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+      queryClient.invalidateQueries({ queryKey: ["privateLeaderboard", leaderboardId] });
+      navigation.goBack();
+    },
+    onError: (error: any) => {
+      showAlert("Error", error?.message || "Failed to delete leaderboard", [
+        { text: "OK", onPress: hideAlert },
+      ]);
+    },
+  });
 
   const handleDeleteLeaderboard = () => {
     if (!authProfile?.userId) return;
@@ -152,19 +142,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         {
           text: "Delete",
           style: "destructive",
-          onPress: async () => {
+          onPress: () => {
             hideAlert();
-            const result = await deletePrivateLeaderboard(
-              leaderboardId,
-              authProfile.userId
-            );
-            if (result.success) {
-              navigation.goBack();
-            } else {
-              showAlert("Error", result.error || "Failed to delete leaderboard", [
-                { text: "OK", onPress: hideAlert },
-              ]);
-            }
+            deleteMutation.mutate({ leaderboardId, ownerId: authProfile.userId });
           },
         },
       ]
@@ -186,7 +166,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         <Text style={styles.headerTitle}>
           {leaderboard?.name || "Leaderboard"}
         </Text>
-        <View style={styles.placeholder} />
+        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+          <Text style={styles.refreshIcon}>🔄</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.tabs}>
@@ -195,7 +177,7 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           onPress={() => setSortBy("xp")}
         >
           <Text style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}>
-            XP
+            ⭐ XP
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -205,7 +187,7 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           <Text
             style={[styles.tabText, sortBy === "streak" && styles.activeTabText]}
           >
-            Streak
+            🔥 Streak
           </Text>
         </TouchableOpacity>
       </View>
@@ -238,18 +220,11 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
                 <Text
                   style={[styles.value, isCurrentUser && styles.currentUserText]}
                 >
+                  <Text style={styles.valueIcon}>
+                    {sortBy === "xp" ? "⭐" : "🔥"}
+                  </Text>
                   {sortBy === "xp" ? member.totalXP : member.dayStreak}
                 </Text>
-                {isOwner && !isCurrentUser && (
-                  <TouchableOpacity
-                    style={styles.removeButton}
-                    onPress={() =>
-                      handleRemoveMember(member.userId, member.username || "User")
-                    }
-                  >
-                    <Text style={styles.removeButtonText}>Remove</Text>
-                  </TouchableOpacity>
-                )}
               </TouchableOpacity>
             );
           })}
@@ -267,6 +242,12 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
                 onPress={() => setShowAddMemberModal(true)}
               >
                 <Text style={styles.actionButtonText}>Add Member</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => setShowDeleteMemberModal(true)}
+              >
+                <Text style={styles.actionButtonText}>Remove Member</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
@@ -289,7 +270,22 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         visible={showAddMemberModal}
         leaderboardId={leaderboardId}
         onClose={() => setShowAddMemberModal(false)}
-        onSuccess={loadLeaderboard}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboardMembers", leaderboardId] });
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+        }}
+      />
+
+      <DeleteMemberModal
+        visible={showDeleteMemberModal}
+        leaderboardId={leaderboardId}
+        members={members}
+        ownerId={leaderboard?.ownerId || ""}
+        onClose={() => setShowDeleteMemberModal(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboardMembers", leaderboardId] });
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+        }}
       />
 
       <TransferOwnershipModal
@@ -297,7 +293,10 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         leaderboardId={leaderboardId}
         currentOwnerId={leaderboard?.ownerId || ""}
         onClose={() => setShowTransferModal(false)}
-        onSuccess={loadLeaderboard}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboard", leaderboardId] });
+          queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+        }}
       />
 
       {alertConfig && (
@@ -339,6 +338,19 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 60,
+  },
+  refreshButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: "#F8F9FA",
+    borderRadius: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    minWidth: 32,
+    minHeight: 32,
+  },
+  refreshIcon: {
+    fontSize: 18,
   },
   tabs: {
     flexDirection: "row",
@@ -417,22 +429,16 @@ const styles = StyleSheet.create({
     color: "#2C3E50",
     minWidth: 80,
     textAlign: "right",
+    lineHeight: 22,
+  },
+  valueIcon: {
+    fontSize: 16,
+    marginRight: 3,
+    lineHeight: 22,
   },
   currentUserText: {
     color: "#2C3E50",
     fontWeight: "700",
-  },
-  removeButton: {
-    marginLeft: 12,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: "#E74C3C",
-    borderRadius: 6,
-  },
-  removeButtonText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "600",
   },
   emptyContainer: {
     padding: 32,

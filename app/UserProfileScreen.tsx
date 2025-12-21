@@ -53,10 +53,11 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     try {
       setLoading(true);
 
-      // Fetch profile with all columns (stats JSONB column has been removed)
+      // Use public_profile_data view for public profile access (bypasses RLS restrictions)
+      // This view only exposes public data (no email)
       const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("username, total_xp, day_streak, questions_answered, correct_answers, answer_streak, last_question_date, questions_answered_today, last_valid_streak_date, achievements, answered_question_ids")
+        .from("public_profile_data")
+        .select("user_id, username, total_xp, day_streak, questions_answered, correct_answers, answer_streak, last_question_date, questions_answered_today, last_valid_streak_date, achievements, answered_question_ids")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -86,14 +87,16 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
       };
       setStats(reconstructedStats);
 
-      // Load achievements
+      // Load only unlocked achievements
       const allAchievements = gamificationService.getAchievements();
       const userAchievementIds = profile.achievements || [];
-      const userAchievements = allAchievements.map((ach) => ({
-        ...ach,
-        unlocked: userAchievementIds.includes(ach.id),
-      }));
-      setAchievements(userAchievements);
+      const unlockedAchievements = allAchievements
+        .filter((ach) => userAchievementIds.includes(ach.id))
+        .map((ach) => ({
+          ...ach,
+          unlocked: true,
+        }));
+      setAchievements(unlockedAchievements);
     } catch (error) {
       console.error("Error loading user profile:", error);
     } finally {
@@ -108,7 +111,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.backButton}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Profile</Text>
+          <Text style={styles.headerTitle}>{username || "Profile"}</Text>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.centerContent}>
@@ -140,60 +143,59 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
       ? Math.round((stats.correctAnswers / stats.questionsAnswered) * 100)
       : 0;
 
-  const unlockedCount = achievements.filter((a) => a.unlocked).length;
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>{username || "Profile"}</Text>
         <View style={styles.placeholder} />
-      </View>
-
-      <View style={styles.profileSection}>
-        <Text style={styles.username}>{username || "Unknown User"}</Text>
       </View>
 
       <View style={styles.statsSection}>
         <Text style={styles.sectionTitle}>Statistics</Text>
         <View style={styles.progressGrid}>
-          <ProgressCard label="Total XP" value={stats.totalXP} icon="⭐" />
-          <ProgressCard
-            label="Questions"
-            value={stats.questionsAnswered}
-            icon="❓"
-          />
-          <ProgressCard
-            label="Correct"
-            value={stats.correctAnswers}
-            icon="✅"
-          />
-          <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
-          <ProgressCard
-            label="Day Streak"
-            value={stats.dayStreak}
-            icon="🔥"
-          />
-          <ProgressCard
-            label="Answer Streak"
-            value={stats.answerStreak}
-            icon="⚡"
-          />
-          <ProgressCard
-            label="Achievements"
-            value={`${unlockedCount}/${achievements.length}`}
-            icon="🏆"
-          />
+          <View style={styles.gridRow}>
+            <ProgressCard label="Total XP" value={stats.totalXP} icon="⭐" />
+            <ProgressCard
+              label="Questions"
+              value={stats.questionsAnswered}
+              icon="❓"
+            />
+            <ProgressCard
+              label="Correct"
+              value={stats.correctAnswers}
+              icon="✅"
+            />
+          </View>
+          <View style={styles.gridRow}>
+            <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
+            <ProgressCard
+              label="Day Streak"
+              value={stats.dayStreak}
+              icon="🔥"
+            />
+            <ProgressCard
+              label="Answer Streak"
+              value={stats.answerStreak}
+              icon="⚡"
+            />
+          </View>
         </View>
       </View>
 
       <View style={styles.achievementsSection}>
         <Text style={styles.sectionTitle}>Achievements</Text>
-        {achievements.map((achievement) => (
-          <AchievementBadge key={achievement.id} achievement={achievement} />
-        ))}
+        {achievements.length > 0 ? (
+          achievements.map((achievement) => (
+            <AchievementBadge key={achievement.id} achievement={achievement} />
+          ))
+        ) : (
+          <Text style={styles.noAchievementsText}>
+            No achievements yet - what a noob
+          </Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -238,24 +240,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#7F8C8D",
   },
-  profileSection: {
-    padding: 24,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    marginTop: 16,
-    marginHorizontal: 16,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  username: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#2C3E50",
-  },
   statsSection: {
     marginTop: 16,
     padding: 16,
@@ -267,13 +251,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   progressGrid: {
+    marginHorizontal: -4,
+  },
+  gridRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    marginBottom: 8,
   },
   achievementsSection: {
     marginTop: 24,
     padding: 16,
+  },
+  noAchievementsText: {
+    fontSize: 16,
+    color: "#7F8C8D",
+    fontStyle: "italic",
+    textAlign: "center",
+    paddingVertical: 24,
   },
 });
 

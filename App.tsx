@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Text } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HomeScreen } from "./app/HomeScreen";
 import { QuizScreen } from "./app/QuizScreen";
 import { ProgressScreen } from "./app/ProgressScreen";
@@ -14,6 +15,16 @@ import { GlobalLeaderboardScreen } from "./app/GlobalLeaderboardScreen";
 import { PrivateLeaderboardScreen } from "./app/PrivateLeaderboardScreen";
 import { UserProfileScreen } from "./app/UserProfileScreen";
 import { AuthProvider } from "./contexts/AuthContext";
+
+// Create a query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    },
+  },
+});
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -103,43 +114,45 @@ function HomeTabs() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <StatusBar style="dark" />
-          <Stack.Navigator
-            screenOptions={{
-              animation: "none",
-            }}
-          >
-            <Stack.Screen
-              name="Main"
-              component={HomeTabs}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Quiz"
-              component={QuizScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="GlobalLeaderboard"
-              component={GlobalLeaderboardScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="PrivateLeaderboard"
-              component={PrivateLeaderboardScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="UserProfile"
-              component={UserProfileScreen}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <StatusBar style="dark" />
+            <Stack.Navigator
+              screenOptions={{
+                animation: "none",
+              }}
+            >
+              <Stack.Screen
+                name="Main"
+                component={HomeTabs}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Quiz"
+                component={QuizScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="GlobalLeaderboard"
+                component={GlobalLeaderboardScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="PrivateLeaderboard"
+                component={PrivateLeaderboardScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="UserProfile"
+                component={UserProfileScreen}
+                options={{ headerShown: false }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
