@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { Question } from "../types";
+import { typography } from "../styles/typography";
 
 interface QuestionCardProps {
   question: Question;
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   categoryText: {
     color: "#FFFFFF",
     fontSize: 10,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   formulaContainer: {
     marginBottom: 16,
@@ -135,10 +136,10 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 20,
-    lineHeight: 24,
+    lineHeight: 26,
   },
   optionSvgContainer: {
     flex: 1,
@@ -177,18 +178,20 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#2C3E50",
     flex: 1,
+    lineHeight: 22,
   },
   checkmark: {
     fontSize: 20,
     color: "#4CAF50",
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   crossmark: {
     fontSize: 20,
     color: "#F44336",
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   explanationContainer: {
     marginTop: 16,
@@ -200,12 +203,13 @@ const styles = StyleSheet.create({
   },
   explanationLabel: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#1976D2",
     marginBottom: 4,
   },
   explanationText: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#424242",
     lineHeight: 20,
   },

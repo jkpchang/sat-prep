@@ -15,6 +15,7 @@ import {
   getGlobalLeaderboardViewByStreak,
 } from "../services/leaderboard";
 import { LeaderboardEntry } from "../types";
+import { typography } from "../styles/typography";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
@@ -78,7 +79,7 @@ export const GlobalLeaderboardScreen: React.FC<
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Text style={styles.backButton}>&lt; Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           Global - {type === "xp" ? "⭐ XP" : "🔥 Days Streak"}
@@ -226,12 +227,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
-    fontWeight: "600",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   placeholder: {
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
   rank: {
     width: 50,
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   valueIcon: {
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginTop: 16,
     marginBottom: 12,
@@ -309,12 +310,13 @@ const styles = StyleSheet.create({
   username: {
     flex: 1,
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#2C3E50",
     marginLeft: 12,
   },
   value: {
     fontSize: 18,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     minWidth: 80,
     textAlign: "right",
@@ -322,7 +324,7 @@ const styles = StyleSheet.create({
   },
   currentUserText: {
     color: "#2C3E50",
-    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
   },
   emptyContainer: {
     padding: 32,
@@ -330,6 +332,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
   },

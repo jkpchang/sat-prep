@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LeaderboardEntry } from "../types";
+import { typography } from "../styles/typography";
 
 interface GlobalLeaderboardPanelProps {
   type: "xp" | "streak";
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     flex: 1,
   },
@@ -140,18 +141,19 @@ const styles = StyleSheet.create({
   rank: {
     width: 40,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   username: {
     flex: 1,
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#2C3E50",
     marginLeft: 12,
   },
   value: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     minWidth: 60,
     textAlign: "right",
@@ -164,10 +166,11 @@ const styles = StyleSheet.create({
   },
   currentUserText: {
     color: "#2C3E50",
-    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
   },
   emptyText: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
     paddingVertical: 16,
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
   showMoreText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
 });
 

@@ -13,6 +13,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { GlobalLeaderboardPanel } from "../components/GlobalLeaderboardPanel";
 import { PrivateLeaderboardPanel } from "../components/PrivateLeaderboardPanel";
 import { CreateLeaderboardModal } from "../components/CreateLeaderboardModal";
+import { typography } from "../styles/typography";
 import {
   getGlobalLeaderboardByXP,
   getGlobalLeaderboardByStreak,
@@ -337,12 +338,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
-    fontWeight: "600",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   placeholder: {
@@ -361,13 +362,14 @@ const styles = StyleSheet.create({
   },
   messageTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 16,
     textAlign: "center",
   },
   messageText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
     marginBottom: 24,
@@ -384,7 +386,7 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
   emptyContainer: {
     padding: 32,
@@ -392,6 +394,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
     marginBottom: 16,
@@ -408,6 +411,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
 });

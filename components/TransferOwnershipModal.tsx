@@ -12,6 +12,7 @@ import { transferOwnership } from "../services/leaderboard";
 import { getPrivateLeaderboardMembers } from "../services/leaderboard";
 import { LeaderboardMember } from "../types";
 import { useAuth } from "../contexts/AuthContext";
+import { typography } from "../styles/typography";
 
 interface TransferOwnershipModalProps {
   visible: boolean;
@@ -189,12 +190,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     marginBottom: 24,
   },
@@ -220,19 +222,20 @@ const styles = StyleSheet.create({
   },
   memberName: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
-    fontWeight: "500",
   },
   selectedMemberText: {
     color: "#FFFFFF",
   },
   checkmark: {
     fontSize: 20,
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
-    fontWeight: "bold",
   },
   emptyText: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
     padding: 32,
@@ -240,6 +243,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: "#E74C3C",
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     marginBottom: 16,
   },
   buttons: {
@@ -261,7 +265,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: "#2C3E50",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
   transferButton: {
     backgroundColor: "#4ECDC4",
@@ -272,7 +276,7 @@ const styles = StyleSheet.create({
   transferButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
 });
 

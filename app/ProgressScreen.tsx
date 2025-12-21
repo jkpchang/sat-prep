@@ -13,6 +13,7 @@ import { CustomAlert, AlertButton } from "../components/CustomAlert";
 import { gamificationService } from "../services/gamification";
 import { storageService } from "../services/storage";
 import { UserProgress, Achievement } from "../types";
+import { typography } from "../styles/typography";
 
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
@@ -146,7 +147,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Text style={styles.backButton}>&lt; Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Progress</Text>
         <View style={styles.placeholder} />
@@ -233,12 +234,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
-    fontWeight: "600",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   placeholder: {
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 16,
   },
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   },
   clearHistoryText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
-    fontWeight: "600",
   },
 });

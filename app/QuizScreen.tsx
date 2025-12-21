@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { QuestionCard } from "../components/QuestionCard";
+import { typography } from "../styles/typography";
 import {
   getRandomQuestion,
   getFilteredSampleQuestions,
@@ -441,7 +442,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
           <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
             <View style={styles.headerLeft}>
               <TouchableOpacity onPress={handleFinish}>
-                <Text style={styles.backButton}>← Back</Text>
+                <Text style={styles.backButton}>&lt; Back</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.headerCenter}>
@@ -494,7 +495,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={handleFinish}>
-            <Text style={styles.backButton}>← Back</Text>
+            <Text style={styles.backButton}>&lt; Back</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.headerCenter}>
@@ -717,7 +718,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   headerRight: {
@@ -727,8 +728,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
-    fontWeight: "600",
   },
   xpBadge: {
     flexDirection: "row",
@@ -744,7 +745,7 @@ const styles = StyleSheet.create({
   },
   xpText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
     minWidth: 30,
     textAlign: "right",
@@ -766,7 +767,7 @@ const styles = StyleSheet.create({
   xpGainText: {
     color: "#FFFFFF",
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   button: {
     backgroundColor: "#4ECDC4",
@@ -782,7 +783,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   buttonRow: {
     flexDirection: "row",
@@ -813,7 +814,7 @@ const styles = StyleSheet.create({
   buttonSecondaryText: {
     color: "#4ECDC4",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   completionContainer: {
     flex: 1,
@@ -834,13 +835,14 @@ const styles = StyleSheet.create({
   },
   completionTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     textAlign: "center",
     marginBottom: 12,
   },
   completionMessage: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
   },

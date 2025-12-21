@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
+import { typography } from "../styles/typography";
 
 export interface AlertButton {
   text: string;
@@ -125,12 +126,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 12,
   },
   message: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     lineHeight: 22,
   },
@@ -160,17 +162,17 @@ const styles = StyleSheet.create({
   },
   defaultButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#7F8C8D",
   },
   destructiveButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#E74C3C",
   },
 });

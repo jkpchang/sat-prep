@@ -13,6 +13,7 @@ import { gamificationService } from "../services/gamification";
 import { Achievement, UserProgress } from "../types";
 import { ProgressCard } from "../components/ProgressCard";
 import { AchievementBadge } from "../components/AchievementBadge";
+import { typography } from "../styles/typography";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
@@ -109,7 +110,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backButton}>← Back</Text>
+            <Text style={styles.backButton}>&lt; Back</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{username || "Profile"}</Text>
           <View style={styles.placeholder} />
@@ -126,7 +127,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backButton}>← Back</Text>
+            <Text style={styles.backButton}>&lt; Back</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile</Text>
           <View style={styles.placeholder} />
@@ -147,7 +148,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Text style={styles.backButton}>&lt; Back</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{username || "Profile"}</Text>
         <View style={styles.placeholder} />
@@ -220,12 +221,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
-    fontWeight: "600",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   placeholder: {
@@ -238,6 +239,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
   },
   statsSection: {
@@ -246,7 +248,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 16,
   },
@@ -263,6 +265,7 @@ const styles = StyleSheet.create({
   },
   noAchievementsText: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     fontStyle: "italic",
     textAlign: "center",

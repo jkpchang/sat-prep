@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { typography } from "../styles/typography";
 
 interface ProgressCardProps {
   label: string;
@@ -7,7 +8,11 @@ interface ProgressCardProps {
   icon?: string;
 }
 
-export const ProgressCard: React.FC<ProgressCardProps> = ({ label, value, icon }) => {
+export const ProgressCard: React.FC<ProgressCardProps> = ({
+  label,
+  value,
+  icon,
+}) => {
   return (
     <View style={styles.container}>
       {icon && <Text style={styles.icon}>{icon}</Text>}
@@ -19,10 +24,10 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({ label, value, icon }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
     marginHorizontal: 4,
     minWidth: 100,
@@ -33,14 +38,14 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2C3E50',
+    fontFamily: typography.fontFamily.bold,
+    color: "#2C3E50",
     marginBottom: 4,
   },
   label: {
     fontSize: 12,
-    color: '#7F8C8D',
-    textAlign: 'center',
+    fontFamily: typography.fontFamily.regular,
+    color: "#7F8C8D",
+    textAlign: "center",
   },
 });
-

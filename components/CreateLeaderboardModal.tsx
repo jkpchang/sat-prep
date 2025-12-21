@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { createPrivateLeaderboard } from "../services/leaderboard";
 import { useAuth } from "../contexts/AuthContext";
+import { typography } from "../styles/typography";
 
 interface CreateLeaderboardModalProps {
   visible: boolean;
@@ -145,13 +146,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 24,
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 8,
     marginTop: 16,
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#2C3E50",
     backgroundColor: "#FFFFFF",
   },
@@ -172,6 +174,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: "#E74C3C",
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     marginTop: 8,
   },
   buttons: {
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: "#2C3E50",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
   createButton: {
     backgroundColor: "#4ECDC4",
@@ -201,7 +204,7 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
 });
 

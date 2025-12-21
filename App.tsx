@@ -4,8 +4,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { Text } from "react-native";
+import { Text, View, ActivityIndicator } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  useFonts,
+  Comfortaa_400Regular,
+  Comfortaa_700Bold,
+} from "@expo-google-fonts/comfortaa";
 import { HomeScreen } from "./app/HomeScreen";
 import { QuizScreen } from "./app/QuizScreen";
 import { ProgressScreen } from "./app/ProgressScreen";
@@ -113,6 +118,19 @@ function HomeTabs() {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Comfortaa_400Regular,
+    Comfortaa_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#4ECDC4" />
+      </View>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

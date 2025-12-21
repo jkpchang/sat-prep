@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { USERNAME_REGEX } from "../services/auth";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { typography } from "../styles/typography";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
 type TabParamList = {
@@ -458,39 +459,32 @@ export const ProfileScreen: React.FC = () => {
 
   const renderAuthForms = () => (
     <View style={styles.card}>
-      <View style={styles.toggleRow}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            mode === "signup" && styles.toggleButtonActive,
-          ]}
-          onPress={() => setMode("signup")}
-        >
-          <Text
-            style={[
-              styles.toggleButtonText,
-              mode === "signup" && styles.toggleButtonTextActive,
-            ]}
+      <View style={styles.tabsContainer}>
+        <View style={styles.tabs}>
+          <TouchableOpacity
+            style={[styles.tab, mode === "signup" && styles.activeTab]}
+            onPress={() => setMode("signup")}
           >
-            Create account
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            mode === "login" && styles.toggleButtonActive,
-          ]}
-          onPress={() => setMode("login")}
-        >
-          <Text
-            style={[
-              styles.toggleButtonText,
-              mode === "login" && styles.toggleButtonTextActive,
-            ]}
+            <Text
+              style={[
+                styles.tabText,
+                mode === "signup" && styles.activeTabText,
+              ]}
+            >
+              Create account
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, mode === "login" && styles.activeTab]}
+            onPress={() => setMode("login")}
           >
-            Log in
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[styles.tabText, mode === "login" && styles.activeTabText]}
+            >
+              Log in
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {mode === "signup" ? (
@@ -630,12 +624,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     marginBottom: 16,
   },
@@ -650,15 +645,17 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#34495E",
     marginTop: 8,
   },
   value: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#2C3E50",
     marginTop: 2,
+    marginBottom: 12,
   },
   input: {
     marginTop: 4,
@@ -668,6 +665,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     backgroundColor: "#FDFDFD",
   },
   button: {
@@ -683,42 +681,53 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
   helperText: {
     fontSize: 12,
+    fontFamily: typography.fontFamily.regular,
     color: "#95A5A6",
     marginTop: 12,
   },
-  toggleRow: {
-    flexDirection: "row",
+  tabsContainer: {
     marginBottom: 12,
-    borderRadius: 999,
-    backgroundColor: "#ECF0F1",
+    backgroundColor: "#F8F9FA",
+    borderRadius: 10,
+    padding: 4,
   },
-  toggleButton: {
+  tabs: {
+    flexDirection: "row",
+  },
+  tab: {
     flex: 1,
     paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
     alignItems: "center",
-    borderRadius: 999,
+    justifyContent: "center",
   },
-  toggleButtonActive: {
+  activeTab: {
     backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  toggleButtonText: {
+  tabText: {
     fontSize: 14,
+    fontWeight: "600",
     color: "#7F8C8D",
-    fontWeight: "500",
   },
-  toggleButtonTextActive: {
-    color: "#2C3E50",
-    fontWeight: "700",
+  activeTabText: {
+    color: "#4ECDC4",
   },
   inputError: {
     borderColor: "#E74C3C",
   },
   errorText: {
     fontSize: 12,
+    fontFamily: typography.fontFamily.regular,
     color: "#E74C3C",
     marginTop: 4,
     marginBottom: 4,
@@ -745,12 +754,13 @@ const styles = StyleSheet.create({
   },
   pendingEmailValue: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#E67E22",
-    fontWeight: "500",
     marginBottom: 4,
   },
   pendingEmailNote: {
     fontSize: 12,
+    fontFamily: typography.fontFamily.regular,
     color: "#E67E22",
     fontStyle: "italic",
   },

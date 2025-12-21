@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { typography } from "../styles/typography";
 
 interface DayStreakDisplayProps {
   dayStreak: number;
@@ -83,14 +84,14 @@ const styles = StyleSheet.create({
   },
   checkmark: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
     marginBottom: 4,
   },
   completeText: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
-    fontWeight: "600",
     opacity: 0.9,
   },
   fireEmoji: {
@@ -102,22 +103,24 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
   },
   streakLabel: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#FFFFFF",
     opacity: 0.9,
   },
   questionsNumber: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#FFFFFF",
     textAlign: "right",
   },
   questionsLabel: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#FFFFFF",
     opacity: 0.9,
     textAlign: "right",

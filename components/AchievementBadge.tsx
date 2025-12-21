@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Achievement } from '../types';
+import { typography } from '../styles/typography';
 
 interface AchievementBadgeProps {
   achievement: Achievement;
@@ -46,12 +47,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: typography.fontFamily.bold,
     color: '#2C3E50',
     marginBottom: 4,
   },
   description: {
     fontSize: 12,
+    fontFamily: typography.fontFamily.regular,
     color: '#7F8C8D',
     textAlign: 'center',
   },
@@ -60,9 +62,9 @@ const styles = StyleSheet.create({
   },
   unlockedDate: {
     fontSize: 10,
+    fontFamily: typography.fontFamily.bold,
     color: '#4ECDC4',
     marginTop: 8,
-    fontWeight: '600',
   },
 });
 

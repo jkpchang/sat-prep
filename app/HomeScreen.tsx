@@ -12,6 +12,7 @@ import { DayStreakDisplay } from "../components/DayStreakDisplay";
 import { ProgressCard } from "../components/ProgressCard";
 import { gamificationService } from "../services/gamification";
 import { UserProgress } from "../types";
+import { typography } from "../styles/typography";
 
 import { CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
@@ -139,12 +140,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
   },
   dailyChallenge: {
@@ -160,12 +162,13 @@ const styles = StyleSheet.create({
   },
   challengeTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 8,
   },
   challengeDescription: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     marginBottom: 16,
   },
@@ -178,14 +181,14 @@ const styles = StyleSheet.create({
   startButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
   },
   progressSection: {
     marginTop: 24,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 12,
   },
@@ -202,6 +205,6 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: "#4ECDC4",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
 });

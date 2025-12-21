@@ -8,6 +8,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
+import { typography } from "../styles/typography";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const FLAME_COUNT = 20;
@@ -287,13 +288,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 18,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     marginBottom: 24,
     textAlign: "center",
@@ -310,17 +312,18 @@ const styles = StyleSheet.create({
   },
   streakNumber: {
     fontSize: 48,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#FF6B35",
     marginBottom: 4,
   },
   streakLabel: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#FF6B35",
-    fontWeight: "600",
   },
   message: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
     marginBottom: 24,
@@ -343,7 +346,7 @@ const styles = StyleSheet.create({
   collectButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     textAlign: "center",
   },
 });

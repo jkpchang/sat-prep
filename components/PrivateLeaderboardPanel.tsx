@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { PrivateLeaderboard, LeaderboardMember } from "../types";
+import { typography } from "../styles/typography";
 
 interface PrivateLeaderboardPanelProps {
   leaderboard: PrivateLeaderboard;
@@ -14,7 +15,9 @@ interface PrivateLeaderboardPanelProps {
   isOwner: boolean;
 }
 
-export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = ({
+export const PrivateLeaderboardPanel: React.FC<
+  PrivateLeaderboardPanelProps
+> = ({
   leaderboard,
   entries,
   userRank,
@@ -107,10 +110,7 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
           return (
             <TouchableOpacity
               key={entry.userId}
-              style={[
-                styles.entry,
-                isCurrentUser && styles.currentUserEntry,
-              ]}
+              style={[styles.entry, isCurrentUser && styles.currentUserEntry]}
               onPress={() => onEntryPress?.(entry.userId)}
               activeOpacity={0.7}
             >
@@ -171,12 +171,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
   },
   headerButtons: {
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#7F8C8D",
   },
   activeTabText: {
@@ -262,18 +263,19 @@ const styles = StyleSheet.create({
   rank: {
     width: 40,
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
   },
   username: {
     flex: 1,
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#2C3E50",
     marginLeft: 12,
   },
   value: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     minWidth: 60,
     textAlign: "right",
@@ -286,10 +288,11 @@ const styles = StyleSheet.create({
   },
   currentUserText: {
     color: "#2C3E50",
-    fontWeight: "700",
+    fontFamily: typography.fontFamily.bold,
   },
   emptyText: {
     fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     textAlign: "center",
     paddingVertical: 16,
@@ -305,7 +308,6 @@ const styles = StyleSheet.create({
   showMoreText: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: typography.fontFamily.bold,
   },
 });
-

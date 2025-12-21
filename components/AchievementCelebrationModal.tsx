@@ -8,6 +8,7 @@ import {
   Animated,
   Dimensions,
 } from "react-native";
+import { typography } from "../styles/typography";
 import { Achievement } from "../types";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -287,20 +288,21 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#2C3E50",
     marginBottom: 8,
     textAlign: "center",
   },
   achievementName: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
     marginBottom: 8,
     textAlign: "center",
   },
   description: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
     color: "#7F8C8D",
     marginBottom: 24,
     textAlign: "center",
@@ -318,14 +320,14 @@ const styles = StyleSheet.create({
   },
   xpNumber: {
     fontSize: 48,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
     marginBottom: 4,
   },
   xpLabel: {
     fontSize: 16,
+    fontFamily: typography.fontFamily.bold,
     color: "#4ECDC4",
-    fontWeight: "600",
   },
   collectButton: {
     backgroundColor: "#4ECDC4",
@@ -344,7 +346,7 @@ const styles = StyleSheet.create({
   collectButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     textAlign: "center",
   },
   closeButton: {
@@ -359,7 +361,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: typography.fontFamily.bold,
     textAlign: "center",
   },
 });
