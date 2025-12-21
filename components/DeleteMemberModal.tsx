@@ -110,7 +110,7 @@ export const DeleteMemberModal: React.FC<DeleteMemberModalProps> = ({
             ))}
             {deletableMembers.length === 0 && (
               <Text style={styles.emptyText}>
-                No members available to delete
+                No members available to remove
               </Text>
             )}
           </ScrollView>
@@ -137,7 +137,7 @@ export const DeleteMemberModal: React.FC<DeleteMemberModalProps> = ({
               {deleting ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={styles.deleteButtonText}>Delete</Text>
+                <Text style={styles.deleteButtonText}>Remove</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -246,4 +246,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-

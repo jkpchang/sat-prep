@@ -81,11 +81,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { marginTop: insets.top + 24 }]}>
-        <Text style={styles.title}>Testez!</Text>
+        <Text style={styles.title}>satUP!</Text>
         <Text style={styles.subtitle}>Level up your skills!</Text>
       </View>
 
-      <DayStreakDisplay dayStreak={progress.dayStreak} />
+      <DayStreakDisplay
+        dayStreak={progress.dayStreak}
+        questionsAnsweredToday={progress.questionsAnsweredToday}
+      />
 
       <View style={styles.dailyChallenge}>
         <Text style={styles.challengeTitle}>📚 Daily Challenge</Text>

@@ -10,6 +10,7 @@ interface PrivateLeaderboardPanelProps {
   onShowMore: () => void;
   onManage?: () => void;
   onRefresh?: () => void;
+  onEntryPress?: (userId: string) => void;
   isOwner: boolean;
 }
 
@@ -21,6 +22,7 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
   onShowMore,
   onManage,
   onRefresh,
+  onEntryPress,
   isOwner,
 }) => {
   const [sortBy, setSortBy] = useState<"xp" | "streak">("xp");
@@ -103,12 +105,14 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
         {sortedEntries.map((entry) => {
           const isCurrentUser = entry.userId === currentUserId;
           return (
-            <View
+            <TouchableOpacity
               key={entry.userId}
               style={[
                 styles.entry,
                 isCurrentUser && styles.currentUserEntry,
               ]}
+              onPress={() => onEntryPress?.(entry.userId)}
+              activeOpacity={0.7}
             >
               <Text
                 style={[styles.rank, isCurrentUser && styles.currentUserText]}
@@ -132,7 +136,7 @@ export const PrivateLeaderboardPanel: React.FC<PrivateLeaderboardPanelProps> = (
                 </Text>
                 {sortBy === "xp" ? entry.totalXP : entry.dayStreak}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>

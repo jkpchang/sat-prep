@@ -329,6 +329,10 @@ export async function loginWithEmailOrUsername(
     return signInWithEmail(identifier, password);
   }
 
+  // For username lookup, ensure we have an anonymous session to call the RPC function
+  // The RPC function requires authentication (even anonymous) due to RLS
+  await ensureAnonymousAuth();
+
   // Otherwise, treat as username: look up the profile to get email
   // Use secure database function that only returns user_id and email (not stats or other sensitive data)
   const { data: profileRow, error: lookupError } = await supabase.rpc(
@@ -336,8 +340,18 @@ export async function loginWithEmailOrUsername(
     { username_to_lookup: identifier }
   );
 
-  if (lookupError || !profileRow || profileRow.length === 0 || !profileRow[0]?.email) {
+  if (lookupError) {
+    console.error("[auth] Error looking up username:", lookupError);
+    return { profile: null, error: `Username lookup failed: ${lookupError.message}` };
+  }
+
+  if (!profileRow || profileRow.length === 0) {
     return { profile: null, error: "Username not found" };
+  }
+
+  if (!profileRow[0]?.email) {
+    console.error(`[auth] Username '${identifier}' found but has no email associated`);
+    return { profile: null, error: "Username found but no email associated. Please contact support." };
   }
 
   return signInWithEmail(profileRow[0].email as string, password);

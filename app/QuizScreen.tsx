@@ -17,6 +17,11 @@ import {
 } from "../services/questions";
 import { gamificationService } from "../services/gamification";
 import { Question, Achievement } from "../types";
+import { StreakCelebrationModal } from "../components/StreakCelebrationModal";
+import {
+  triggerSuccessFeedback,
+  initializeFeedbackSound,
+} from "../utils/feedbackUtils";
 
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -50,6 +55,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [totalXP, setTotalXP] = useState(0);
   const [showStars, setShowStars] = useState(false);
+  const [showStreakCelebration, setShowStreakCelebration] = useState(false);
+  const [dayStreak, setDayStreak] = useState(0);
 
   const buttonRef = useRef<View>(null);
   const xpBadgeRef = useRef<View>(null);
@@ -72,6 +79,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   ).current;
 
   useEffect(() => {
+    // Initialize feedback sound system
+    initializeFeedbackSound();
+    
     gamificationService.initialize().then(() => {
       loadNewQuestion();
       loadXP();
@@ -88,6 +98,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     await gamificationService.initialize();
     const progress = gamificationService.getProgress();
     setTotalXP(progress.totalXP);
+    setDayStreak(progress.dayStreak);
   };
 
   const loadNewQuestion = async () => {
@@ -260,6 +271,11 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     const isCorrect = selectedAnswer === question.correctAnswer;
     setShowResult(true);
 
+    // Trigger haptic and sound feedback when answer is correct
+    if (isCorrect) {
+      triggerSuccessFeedback();
+    }
+
     const result = await gamificationService.recordPractice(
       isCorrect,
       question.id
@@ -270,6 +286,15 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     const newTotalXP = totalXP + result.xpGained;
     setTotalXP(newTotalXP);
     animateXPGain(newTotalXP, isCorrect);
+
+    // Update day streak if it changed
+    if (result.streakExtended) {
+      setDayStreak(result.newDayStreak);
+      // Show celebration modal after a short delay to let the result animation play
+      setTimeout(() => {
+        setShowStreakCelebration(true);
+      }, 800);
+    }
 
     if (result.newAchievements.length > 0) {
       setTimeout(() => {
@@ -288,6 +313,28 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
 
   const handleFinish = () => {
     navigation.goBack();
+  };
+
+  const handleCollectStreakXP = async () => {
+    // Trigger haptic and sound feedback when collecting 5 XP
+    triggerSuccessFeedback();
+    
+    const result = await gamificationService.addBonusXP(5);
+    const newTotalXP = totalXP + result.xpGained;
+    setTotalXP(newTotalXP);
+    setXpGained(result.xpGained);
+    // Animate XP gain with the existing animation
+    animateXPGain(newTotalXP, true); // true for isCorrect to show stars
+
+    if (result.newAchievements.length > 0) {
+      setTimeout(() => {
+        Alert.alert(
+          "🎉 Achievement Unlocked!",
+          result.newAchievements.map((a) => `${a.icon} ${a.name}`).join("\n"),
+          [{ text: "Awesome!" }]
+        );
+      }, 500);
+    }
   };
 
   const AnimatedXPText = () => {
@@ -515,6 +562,13 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
             </Animated.View>
           );
         })}
+
+      <StreakCelebrationModal
+        visible={showStreakCelebration}
+        dayStreak={dayStreak}
+        onClose={() => setShowStreakCelebration(false)}
+        onCollectXP={handleCollectStreakXP}
+      />
     </View>
   );
 };

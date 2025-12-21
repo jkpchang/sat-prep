@@ -8,12 +8,12 @@ const ACHIEVEMENTS: Achievement[] = [
     id: "first_question",
     name: "Getting Started",
     description: "Answer your first question",
-    icon: "🎯",
+    icon: "🔰",
     unlocked: false,
   },
   {
     id: "streak_3",
-    name: "On a Roll",
+    name: "Streak Starter",
     description: "Maintain a 3-day streak",
     icon: "🔥",
     unlocked: false,
@@ -195,7 +195,12 @@ export class GamificationService {
   async recordPractice(
     isCorrect: boolean,
     questionId?: number
-  ): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
+  ): Promise<{
+    xpGained: number;
+    newAchievements: Achievement[];
+    streakExtended: boolean;
+    newDayStreak: number;
+  }> {
     const today = getTodayString();
     const lastQuestionDate = this.progress.lastQuestionDate;
 
@@ -209,9 +214,26 @@ export class GamificationService {
     this.progress.lastQuestionDate = today;
 
     // Check if we've hit the 5-question threshold
+    let streakExtended = false;
+    let newDayStreak = this.progress.dayStreak;
     if (this.progress.questionsAnsweredToday === MIN_QUESTIONS_FOR_STREAK) {
       // This day now counts toward streak
+      const previousStreak = this.progress.dayStreak;
+      const previousValidDate = this.progress.lastValidStreakDate;
       await this.updateStreakForDay(today);
+      newDayStreak = this.progress.dayStreak;
+      // Streak extended if:
+      // 1. Streak increased (consecutive day)
+      // 2. Streak started (0 to 1)
+      // 3. Streak reset after gap (any number to 1, but only if it's a new day being counted)
+      // We don't celebrate if the same day was already counted (updateStreakForDay does nothing)
+      const wasAlreadyCountedToday =
+        previousValidDate && isToday(previousValidDate);
+      streakExtended =
+        !wasAlreadyCountedToday &&
+        (newDayStreak > previousStreak ||
+          (previousStreak === 0 && newDayStreak === 1) ||
+          (previousStreak > 1 && newDayStreak === 1)); // New streak after gap
     }
 
     if (
@@ -241,7 +263,7 @@ export class GamificationService {
 
     await this.saveProgress();
 
-    return { xpGained, newAchievements };
+    return { xpGained, newAchievements, streakExtended, newDayStreak };
   }
 
   private async checkAchievements(): Promise<Achievement[]> {
@@ -312,6 +334,22 @@ export class GamificationService {
       ...ach,
       unlocked: this.progress.achievements.includes(ach.id),
     }));
+  }
+
+  /**
+   * Add bonus XP to the user's account (e.g., from streak rewards)
+   * @param amount Amount of XP to add
+   * @returns The amount of XP added and any new achievements unlocked
+   */
+  async addBonusXP(
+    amount: number
+  ): Promise<{ xpGained: number; newAchievements: Achievement[] }> {
+    this.progress.totalXP += amount;
+
+    const newAchievements = await this.checkAchievements();
+    await this.saveProgress();
+
+    return { xpGained: amount, newAchievements };
   }
 
   private async saveProgress(): Promise<void> {

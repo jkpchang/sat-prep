@@ -15,7 +15,7 @@ interface AddMemberModalProps {
   visible: boolean;
   leaderboardId: string;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (username: string) => void;
 }
 
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({
@@ -54,10 +54,11 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
     if (result.error) {
       setError(result.error);
     } else {
+      const addedUsername = username.trim();
       setUsername("");
       setError(null);
-      onSuccess();
       onClose();
+      onSuccess(addedUsername);
     }
   };
 

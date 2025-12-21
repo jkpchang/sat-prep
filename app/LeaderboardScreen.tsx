@@ -252,6 +252,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
             currentUserId={authProfile.userId}
             onShowMore={handleShowGlobalXP}
             onRefresh={() => refetchGlobalXP()}
+            onEntryPress={handleRowClick}
           />
 
           {/* Global Streak Leaderboard */}
@@ -262,6 +263,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
             currentUserId={authProfile.userId}
             onShowMore={handleShowGlobalStreak}
             onRefresh={() => refetchGlobalStreak()}
+            onEntryPress={handleRowClick}
           />
 
           {/* Private Leaderboards */}
@@ -286,6 +288,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
                     : undefined
                 }
                 onRefresh={() => refetchPrivateLeaderboards()}
+                onEntryPress={handleRowClick}
                 isOwner={leaderboard.ownerId === authProfile.userId}
               />
             ))

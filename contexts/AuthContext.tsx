@@ -47,13 +47,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const loadAuthState = async () => {
     try {
-      // Ensure anonymous auth is set up (won't create if session exists)
-      await ensureAnonymousAuth();
-
-      // Get current session
+      // Get current session first
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session?.user) {
+        // User is authenticated - don't create anonymous session
         // Fetch profile to get username and profileEmail
         const { data: profileRow } = await supabase
           .from("profiles")
@@ -93,12 +91,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Always initialize gamification service (will load from local storage, which may have been synced above)
         await gamificationService.initialize();
       } else {
+        // No authenticated session - ensure anonymous auth for guest users
+        await ensureAnonymousAuth();
         setAuthProfile(null);
         // Initialize gamification service for anonymous users too
         await gamificationService.initialize();
       }
     } catch (error) {
-      console.error("Error loading auth state:", error);
+      console.error("[AuthContext] Error loading auth state:", error);
+      // On error, try to ensure anonymous auth as fallback
+      try {
+        await ensureAnonymousAuth();
+      } catch (anonError) {
+        console.error("[AuthContext] Failed to create anonymous session after error:", anonError);
+      }
       setAuthProfile(null);
     } finally {
       setLoading(false);
@@ -219,12 +225,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        // Reload profile when auth state changes
-        loadAuthState();
-      } else {
-        setAuthProfile(null);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Handle different auth events
+      switch (event) {
+        case "SIGNED_IN":
+          // User signed in - reload auth state
+          loadAuthState();
+          break;
+        case "SIGNED_OUT":
+          // User signed out - clear auth profile and ensure anonymous auth
+          setAuthProfile(null);
+          ensureAnonymousAuth().catch((err) => {
+            console.error("[AuthContext] Failed to create anonymous session after signout:", err);
+          });
+          break;
+        case "TOKEN_REFRESHED":
+          // Token was refreshed - session is still valid, just reload to get updated session
+          if (session?.user) {
+            loadAuthState();
+          }
+          break;
+        case "USER_UPDATED":
+          // User data was updated - reload auth state
+          if (session?.user) {
+            loadAuthState();
+          }
+          break;
+        case "PASSWORD_RECOVERY":
+          // Password recovery initiated - no action needed
+          break;
+        default:
+          // For any other event, if we have a session, reload; otherwise clear
+          if (session?.user) {
+            loadAuthState();
+          } else {
+            setAuthProfile(null);
+          }
       }
     });
 

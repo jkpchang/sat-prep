@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -21,9 +21,12 @@ import { CreateLeaderboardModal } from "../components/CreateLeaderboardModal";
 import { AddMemberModal } from "../components/AddMemberModal";
 import { TransferOwnershipModal } from "../components/TransferOwnershipModal";
 import { DeleteMemberModal } from "../components/DeleteMemberModal";
+import { AddMemberCelebrationModal } from "../components/AddMemberCelebrationModal";
 import { LeaderboardMember, PrivateLeaderboard } from "../types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CustomAlert, AlertButton } from "../components/CustomAlert";
+import { gamificationService } from "../services/gamification";
+import { Alert } from "react-native";
 
 type RootStackParamList = {
   Main: undefined;
@@ -62,6 +65,13 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showDeleteMemberModal, setShowDeleteMemberModal] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
+  const [addedMemberUsername, setAddedMemberUsername] = useState("");
+
+  // Initialize gamification service
+  useEffect(() => {
+    gamificationService.initialize();
+  }, []);
 
   // Query for leaderboard members
   const {
@@ -241,25 +251,29 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
                 style={styles.actionButton}
                 onPress={() => setShowAddMemberModal(true)}
               >
-                <Text style={styles.actionButtonText}>Add Member</Text>
+                <Text style={styles.actionButtonIcon}>+</Text>
+                <Text style={styles.actionButtonText}>Add User</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => setShowDeleteMemberModal(true)}
               >
-                <Text style={styles.actionButtonText}>Remove Member</Text>
+                <Text style={styles.actionButtonIcon}>−</Text>
+                <Text style={styles.actionButtonText}>Remove User</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => setShowTransferModal(true)}
               >
-                <Text style={styles.actionButtonText}>Transfer Ownership</Text>
+                <Text style={styles.actionButtonIcon}>⇄</Text>
+                <Text style={styles.actionButtonText}>Transfer</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={handleDeleteLeaderboard}
               >
-                <Text style={styles.deleteButtonText}>Delete Leaderboard</Text>
+                <Text style={styles.deleteButtonIcon}>×</Text>
+                <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -270,9 +284,12 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         visible={showAddMemberModal}
         leaderboardId={leaderboardId}
         onClose={() => setShowAddMemberModal(false)}
-        onSuccess={() => {
+        onSuccess={(username) => {
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboardMembers", leaderboardId] });
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+          // Show celebration modal with the added member's username
+          setAddedMemberUsername(username);
+          setShowCelebrationModal(true);
         }}
       />
 
@@ -296,6 +313,28 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboard", leaderboardId] });
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
+        }}
+      />
+
+      <AddMemberCelebrationModal
+        visible={showCelebrationModal}
+        username={addedMemberUsername}
+        onClose={() => {
+          setShowCelebrationModal(false);
+          setAddedMemberUsername("");
+        }}
+        onCollectXP={async () => {
+          const result = await gamificationService.addBonusXP(10);
+          
+          if (result.newAchievements.length > 0) {
+            setTimeout(() => {
+              Alert.alert(
+                "🎉 Achievement Unlocked!",
+                result.newAchievements.map((a) => `${a.icon} ${a.name}`).join("\n"),
+                [{ text: "Awesome!" }]
+              );
+            }, 500);
+          }
         }}
       />
 
@@ -454,31 +493,55 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     borderTopWidth: 1,
     borderTopColor: "#E0E0E0",
+    flexDirection: "row",
     gap: 12,
+    justifyContent: "space-between",
   },
   actionButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    flex: 1,
+    aspectRatio: 1,
     backgroundColor: "#4ECDC4",
     borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 70,
+    maxHeight: 70,
+    paddingVertical: 8,
+  },
+  actionButtonIcon: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "600",
+    marginBottom: 4,
   },
   actionButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "600",
+    textAlign: "center",
   },
   deleteButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    flex: 1,
+    aspectRatio: 1,
     backgroundColor: "#E74C3C",
     borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
+    minHeight: 70,
+    maxHeight: 70,
+    paddingVertical: 8,
+  },
+  deleteButtonIcon: {
+    color: "#FFFFFF",
+    fontSize: 24,
+    fontWeight: "600",
+    marginBottom: 4,
   },
   deleteButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "600",
+    textAlign: "center",
   },
 });
 

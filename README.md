@@ -1,4 +1,4 @@
-# Testez - Gamified Learning App
+# satUP! - Gamified Learning App
 
 A mobile app built with React Native and Expo that gamifies SAT preparation, making studying feel like playing a game (inspired by Duolingo).
 

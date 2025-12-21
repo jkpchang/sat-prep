@@ -9,6 +9,7 @@ interface GlobalLeaderboardPanelProps {
   currentUserId: string;
   onShowMore: () => void;
   onRefresh?: () => void;
+  onEntryPress?: (userId: string) => void;
 }
 
 export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
@@ -18,6 +19,7 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
   currentUserId,
   onShowMore,
   onRefresh,
+  onEntryPress,
 }) => {
   if (entries.length === 0) {
     return (
@@ -46,12 +48,14 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
         {entries.map((entry) => {
           const isCurrentUser = entry.userId === currentUserId;
           return (
-            <View
+            <TouchableOpacity
               key={entry.userId}
               style={[
                 styles.entry,
                 isCurrentUser && styles.currentUserEntry,
               ]}
+              onPress={() => onEntryPress?.(entry.userId)}
+              activeOpacity={0.7}
             >
               <Text style={[styles.rank, isCurrentUser && styles.currentUserText]}>
                 {entry.rank}
@@ -68,7 +72,7 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
                 </Text>
                 {type === "xp" ? entry.totalXP : entry.dayStreak}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>
