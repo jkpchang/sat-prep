@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LeaderboardEntry } from "../types";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface GlobalLeaderboardPanelProps {
   type: "xp" | "streak";
@@ -86,12 +87,12 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -106,13 +107,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     flex: 1,
   },
   refreshButton: {
     paddingVertical: 4,
     paddingHorizontal: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -131,30 +132,30 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
   },
   currentUserEntry: {
-    backgroundColor: "#F0FDFC",
+    backgroundColor: theme.colors.tintMint,
     borderWidth: 2,
-    borderColor: "#4ECDC4",
+    borderColor: theme.colors.primary,
   },
   rank: {
     width: 40,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   username: {
     flex: 1,
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginLeft: 12,
   },
   value: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     minWidth: 60,
     textAlign: "right",
     lineHeight: 20,
@@ -165,13 +166,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   currentUserText: {
-    color: "#2C3E50",
+    color: theme.colors.text,
     fontFamily: typography.fontFamily.bold,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
     paddingVertical: 16,
   },
@@ -179,12 +180,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     borderRadius: 6,
     alignSelf: "flex-end",
   },
   showMoreText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 12,
     fontFamily: typography.fontFamily.bold,
   },

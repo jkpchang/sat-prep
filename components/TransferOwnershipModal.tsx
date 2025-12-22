@@ -13,6 +13,7 @@ import { getPrivateLeaderboardMembers } from "../services/leaderboard";
 import { LeaderboardMember } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface TransferOwnershipModalProps {
   visible: boolean;
@@ -108,7 +109,7 @@ export const TransferOwnershipModal: React.FC<TransferOwnershipModalProps> = ({
 
           {loading ? (
             <View style={styles.centerContent}>
-              <ActivityIndicator size="large" color="#4ECDC4" />
+            <ActivityIndicator size="large" color={theme.colors.primary} />
             </View>
           ) : (
             <ScrollView style={styles.membersList}>
@@ -161,7 +162,7 @@ export const TransferOwnershipModal: React.FC<TransferOwnershipModalProps> = ({
               disabled={transferring || !selectedUserId}
             >
               {transferring ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.onPrimary} />
               ) : (
                 <Text style={styles.transferButtonText}>Transfer</Text>
               )}
@@ -176,12 +177,12 @@ export const TransferOwnershipModal: React.FC<TransferOwnershipModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: theme.colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   modal: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 24,
     width: "90%",
@@ -191,13 +192,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     marginBottom: 24,
   },
   centerContent: {
@@ -214,34 +215,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderRadius: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     marginBottom: 8,
   },
   selectedMember: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
   },
   memberName: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   selectedMemberText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
   },
   checkmark: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
     padding: 32,
   },
   errorText: {
-    color: "#E74C3C",
+    color: theme.colors.danger,
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
     marginBottom: 16,
@@ -260,21 +261,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
   },
   cancelButtonText: {
-    color: "#2C3E50",
+    color: theme.colors.text,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },
   transferButton: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
   },
   disabledButton: {
-    backgroundColor: "#CCCCCC",
+    backgroundColor: theme.colors.neutral300,
   },
   transferButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },

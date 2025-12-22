@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           .eq("user_id", session.user.id)
           .maybeSingle();
 
-        const authEmail = session.user.email; // From auth.users (confirmed/active)
+        const authEmail = session.user.email ?? null; // From auth.users (confirmed/active)
         const profileEmail = (profileRow?.email as string | null) ?? null; // From profiles (may differ if email change is pending confirmation)
 
         const profile: AuthProfile = {

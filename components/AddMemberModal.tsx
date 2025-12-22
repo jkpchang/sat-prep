@@ -11,6 +11,7 @@ import {
 import { addMemberToLeaderboard } from "../services/leaderboard";
 import { useAuth } from "../contexts/AuthContext";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface AddMemberModalProps {
   visible: boolean;
@@ -106,7 +107,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
               disabled={loading || !username.trim()}
             >
               {loading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.onPrimary} />
               ) : (
                 <Text style={styles.addButtonText}>Add</Text>
               )}
@@ -121,12 +122,12 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: theme.colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   modal: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 24,
     width: "90%",
@@ -135,27 +136,27 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 24,
   },
   label: {
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: theme.colors.border,
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#2C3E50",
-    backgroundColor: "#FFFFFF",
+    color: theme.colors.text,
+    backgroundColor: theme.colors.surface,
   },
   errorText: {
-    color: "#E74C3C",
+    color: theme.colors.danger,
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
     marginTop: 8,
@@ -174,18 +175,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
   },
   cancelButtonText: {
-    color: "#2C3E50",
+    color: theme.colors.text,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },
   addButton: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
   },
   addButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },

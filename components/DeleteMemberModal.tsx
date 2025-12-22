@@ -12,6 +12,7 @@ import { removeMemberFromLeaderboard } from "../services/leaderboard";
 import { LeaderboardMember } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface DeleteMemberModalProps {
   visible: boolean;
@@ -136,7 +137,7 @@ export const DeleteMemberModal: React.FC<DeleteMemberModalProps> = ({
               disabled={deleting || !selectedUserId}
             >
               {deleting ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.colors.onDanger} />
               ) : (
                 <Text style={styles.deleteButtonText}>Remove</Text>
               )}
@@ -151,12 +152,12 @@ export const DeleteMemberModal: React.FC<DeleteMemberModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: theme.colors.overlay,
     justifyContent: "center",
     alignItems: "center",
   },
   modal: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 24,
     width: "90%",
@@ -166,13 +167,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     marginBottom: 24,
   },
   membersList: {
@@ -185,34 +186,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderRadius: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     marginBottom: 8,
   },
   selectedMember: {
-    backgroundColor: "#E74C3C",
+    backgroundColor: theme.colors.danger,
   },
   memberName: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   selectedMemberText: {
-    color: "#FFFFFF",
+    color: theme.colors.onDanger,
   },
   checkmark: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.onDanger,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
     padding: 32,
   },
   errorText: {
-    color: "#E74C3C",
+    color: theme.colors.danger,
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
     marginBottom: 16,
@@ -231,21 +232,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
   },
   cancelButtonText: {
-    color: "#2C3E50",
+    color: theme.colors.text,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },
   deleteButton: {
-    backgroundColor: "#E74C3C",
+    backgroundColor: theme.colors.danger,
   },
   disabledButton: {
-    backgroundColor: "#CCCCCC",
+    backgroundColor: theme.colors.neutral300,
   },
   deleteButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onDanger,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },

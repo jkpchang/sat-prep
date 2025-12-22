@@ -12,7 +12,9 @@ import { USERNAME_REGEX } from "../services/auth";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { ThemedButton } from "../components/ThemedButton";
 
 type TabParamList = {
   Home: undefined;
@@ -380,21 +382,19 @@ export const ProfileScreen: React.FC = () => {
             <Text style={styles.label}>Username</Text>
             <Text style={styles.value}>{authProfile?.username ?? "—"}</Text>
 
-            <TouchableOpacity
-              style={styles.button}
+            <ThemedButton
+              title="Edit Profile"
               onPress={handleStartEdit}
               disabled={loading}
-            >
-              <Text style={styles.buttonText}>Edit Profile</Text>
-            </TouchableOpacity>
+            />
 
-            <TouchableOpacity
-              style={[styles.button, styles.logoutButton]}
+            <ThemedButton
+              title="Log out"
               onPress={handleLogout}
+              variant="danger"
               disabled={loading}
-            >
-              <Text style={styles.buttonText}>Log out</Text>
-            </TouchableOpacity>
+              style={{ marginTop: 16 }}
+            />
           </>
         ) : (
           <>
@@ -409,7 +409,7 @@ export const ProfileScreen: React.FC = () => {
               autoCapitalize="none"
               keyboardType="email-address"
               placeholder="Enter email"
-              placeholderTextColor="#95A5A6"
+              placeholderTextColor={theme.colors.disabledBorder}
             />
             {emailError && <Text style={styles.errorText}>{emailError}</Text>}
 
@@ -423,33 +423,27 @@ export const ProfileScreen: React.FC = () => {
               }}
               autoCapitalize="none"
               placeholder="Enter username"
-              placeholderTextColor="#95A5A6"
+              placeholderTextColor={theme.colors.disabledBorder}
             />
             {usernameError && (
               <Text style={styles.errorText}>{usernameError}</Text>
             )}
 
             <View style={styles.editButtonRow}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+              <ThemedButton
+                title="Cancel"
                 onPress={handleCancelEdit}
                 disabled={loading}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  styles.saveButton,
-                  loading && styles.buttonDisabled,
-                ]}
+                variant="outline"
+                style={{ flex: 1, marginRight: 8 }}
+              />
+              <ThemedButton
+                title={loading ? "Saving..." : "Save Changes"}
                 onPress={handleSaveChanges}
                 disabled={loading}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? "Saving..." : "Save Changes"}
-                </Text>
-              </TouchableOpacity>
+                loading={loading}
+                style={{ flex: 1, marginLeft: 8 }}
+              />
             </View>
           </>
         )}
@@ -500,7 +494,7 @@ export const ProfileScreen: React.FC = () => {
             autoCapitalize="none"
             keyboardType="email-address"
             placeholder="you@example.com"
-            placeholderTextColor="#95A5A6"
+            placeholderTextColor={theme.colors.disabledBorder}
           />
           {emailError && <Text style={styles.errorText}>{emailError}</Text>}
 
@@ -514,7 +508,7 @@ export const ProfileScreen: React.FC = () => {
             }}
             autoCapitalize="none"
             placeholder="cool_username"
-            placeholderTextColor="#95A5A6"
+            placeholderTextColor={theme.colors.disabledBorder}
           />
           {usernameError && (
             <Text style={styles.errorText}>{usernameError}</Text>
@@ -530,21 +524,19 @@ export const ProfileScreen: React.FC = () => {
             }}
             secureTextEntry
             placeholder="••••••••"
-            placeholderTextColor="#95A5A6"
+            placeholderTextColor={theme.colors.disabledBorder}
           />
           {passwordError && (
             <Text style={styles.errorText}>{passwordError}</Text>
           )}
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+          <ThemedButton
+            title={loading ? "Creating..." : "Create account"}
             onPress={handleSignup}
             disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? "Creating..." : "Create account"}
-            </Text>
-          </TouchableOpacity>
+            loading={loading}
+            style={{ marginTop: 16 }}
+          />
         </>
       ) : (
         <>
@@ -558,7 +550,7 @@ export const ProfileScreen: React.FC = () => {
             }}
             autoCapitalize="none"
             placeholder="you@example.com or cool_username"
-            placeholderTextColor="#95A5A6"
+            placeholderTextColor={theme.colors.disabledBorder}
           />
           {identifierError && (
             <Text style={styles.errorText}>{identifierError}</Text>
@@ -574,21 +566,19 @@ export const ProfileScreen: React.FC = () => {
             }}
             secureTextEntry
             placeholder="••••••••"
-            placeholderTextColor="#95A5A6"
+            placeholderTextColor={theme.colors.disabledBorder}
           />
           {passwordError && (
             <Text style={styles.errorText}>{passwordError}</Text>
           )}
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
+          <ThemedButton
+            title={loading ? "Logging in..." : "Log in"}
             onPress={handleLogin}
             disabled={loading}
-          >
-            <Text style={styles.buttonText}>
-              {loading ? "Logging in..." : "Log in"}
-            </Text>
-          </TouchableOpacity>
+            loading={loading}
+            style={{ marginTop: 16 }}
+          />
         </>
       )}
 
@@ -619,26 +609,26 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F7FA",
+    backgroundColor: theme.colors.background,
     paddingHorizontal: 16,
   },
   title: {
     fontSize: 28,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     marginBottom: 16,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 16,
     padding: 16,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -647,51 +637,51 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#34495E",
+    color: theme.colors.textSubtle,
     marginTop: 8,
   },
   value: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginTop: 2,
     marginBottom: 12,
   },
   input: {
     marginTop: 4,
     borderWidth: 1,
-    borderColor: "#D0D7DE",
+    borderColor: theme.colors.borderStrong,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    backgroundColor: "#FDFDFD",
+    backgroundColor: theme.colors.surfaceElevated,
   },
   button: {
     marginTop: 16,
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
   },
   logoutButton: {
-    backgroundColor: "#E74C3C",
+    backgroundColor: theme.colors.danger,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: theme.colors.white,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },
   helperText: {
     fontSize: 12,
     fontFamily: typography.fontFamily.regular,
-    color: "#95A5A6",
+    color: theme.colors.disabledBorder,
     marginTop: 12,
   },
   tabsContainer: {
     marginBottom: 12,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 10,
     padding: 4,
   },
@@ -707,8 +697,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeTab: {
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    backgroundColor: theme.colors.surface,
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -717,18 +707,18 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   activeTabText: {
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   inputError: {
-    borderColor: "#E74C3C",
+    borderColor: theme.colors.danger,
   },
   errorText: {
     fontSize: 12,
     fontFamily: typography.fontFamily.regular,
-    color: "#E74C3C",
+    color: theme.colors.danger,
     marginTop: 4,
     marginBottom: 4,
   },
@@ -742,7 +732,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#95A5A6",
+    backgroundColor: theme.colors.disabledBorder,
     marginRight: 8,
   },
   saveButton: {
@@ -755,13 +745,13 @@ const styles = StyleSheet.create({
   pendingEmailValue: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#E67E22",
+    color: theme.colors.accentOrange,
     marginBottom: 4,
   },
   pendingEmailNote: {
     fontSize: 12,
     fontFamily: typography.fontFamily.regular,
-    color: "#E67E22",
+    color: theme.colors.accentOrange,
     fontStyle: "italic",
   },
 });

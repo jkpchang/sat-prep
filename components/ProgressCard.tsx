@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface ProgressCardProps {
   label: string;
@@ -24,7 +25,7 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -39,13 +40,13 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 4,
   },
   label: {
     fontSize: 12,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
   },
 });

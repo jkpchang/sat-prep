@@ -14,6 +14,7 @@ import { gamificationService } from "../services/gamification";
 import { storageService } from "../services/storage";
 import { UserProgress, Achievement } from "../types";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 
@@ -218,7 +219,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E8ECF0", // Changed from "#F5F7FA" to a darker gray
+    backgroundColor: theme.colors.backgroundAlt,
   },
   content: {
     paddingBottom: 32,
@@ -228,19 +229,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: theme.colors.border,
   },
   backButton: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   placeholder: {
     width: 60,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 16,
   },
   progressGrid: {
@@ -273,14 +274,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   clearHistoryButton: {
-    backgroundColor: "#E74C3C",
+    backgroundColor: theme.colors.danger,
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 8,
     minWidth: 200,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -289,6 +290,6 @@ const styles = StyleSheet.create({
   clearHistoryText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.onDanger,
   },
 });

@@ -2,6 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import type { NavigatorScreenParams } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { Text, View, ActivityIndicator } from "react-native";
@@ -20,6 +21,7 @@ import { GlobalLeaderboardScreen } from "./app/GlobalLeaderboardScreen";
 import { PrivateLeaderboardScreen } from "./app/PrivateLeaderboardScreen";
 import { UserProfileScreen } from "./app/UserProfileScreen";
 import { AuthProvider } from "./contexts/AuthContext";
+import { theme } from "./theme";
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -31,21 +33,38 @@ const queryClient = new QueryClient({
   },
 });
 
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+type TabParamList = {
+  Home: undefined;
+  Leaderboard: undefined;
+  Progress: undefined;
+  Profile: undefined;
+};
+
+type RootStackParamList = {
+  Main: NavigatorScreenParams<TabParamList>;
+  Quiz: undefined;
+  GlobalLeaderboard: { type: "xp" | "streak" };
+  PrivateLeaderboard: { leaderboardId: string };
+  UserProfile: { userId: string };
+};
+
+const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function HomeTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: "#4ECDC4",
-        tabBarInactiveTintColor: "#7F8C8D",
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textMuted,
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
           paddingBottom: 12,
           paddingTop: 12,
           height: 70,
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.border,
         },
       }}
     >
@@ -57,7 +76,7 @@ function HomeTabs() {
             <Text
               style={{
                 fontSize: 32,
-                color: focused ? "#4ECDC4" : "#7F8C8D",
+                color: focused ? theme.colors.primary : theme.colors.textMuted,
               }}
             >
               🏠
@@ -73,7 +92,7 @@ function HomeTabs() {
             <Text
               style={{
                 fontSize: 32,
-                color: focused ? "#4ECDC4" : "#7F8C8D",
+                color: focused ? theme.colors.primary : theme.colors.textMuted,
               }}
             >
               🏆
@@ -89,7 +108,7 @@ function HomeTabs() {
             <Text
               style={{
                 fontSize: 32,
-                color: focused ? "#4ECDC4" : "#7F8C8D",
+                color: focused ? theme.colors.primary : theme.colors.textMuted,
               }}
             >
               📊
@@ -105,7 +124,7 @@ function HomeTabs() {
             <Text
               style={{
                 fontSize: 32,
-                color: focused ? "#4ECDC4" : "#7F8C8D",
+                color: focused ? theme.colors.primary : theme.colors.textMuted,
               }}
             >
               👤
@@ -126,7 +145,7 @@ export default function App() {
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#4ECDC4" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }

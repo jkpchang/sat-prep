@@ -250,7 +250,7 @@ export async function signUpWithEmailUsernamePassword(
         return {
           profile: {
             userId: data.user.id,
-            email: data.user.email, // Confirmed email from auth.users
+            email: data.user.email ?? null, // Confirmed email from auth.users
             profileEmail: email, // Email in profiles (same as confirmed for new signups)
             username,
           },
@@ -301,7 +301,7 @@ async function signInWithEmail(
 
   // Ensure this device's profile is attached to the user
   if (username) {
-    await attachProfileToUser(data.user.id, data.user.email, username);
+    await attachProfileToUser(data.user.id, data.user.email ?? null, username);
   }
 
       // Get profileEmail from profiles table
@@ -310,7 +310,7 @@ async function signInWithEmail(
       return {
         profile: {
           userId: data.user.id,
-          email: data.user.email, // Confirmed email from auth.users
+          email: data.user.email ?? null, // Confirmed email from auth.users
           profileEmail: profileEmail, // Email from profiles (may differ if pending confirmation)
           username,
         },

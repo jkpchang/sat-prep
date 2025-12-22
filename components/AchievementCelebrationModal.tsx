@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { typography } from "../styles/typography";
 import { Achievement } from "../types";
+import { theme } from "../theme";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CONFETTI_COUNT = 25;
@@ -251,7 +252,7 @@ export const AchievementCelebrationModal: React.FC<
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    backgroundColor: theme.colors.overlayStrong,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -268,13 +269,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   content: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 24,
     padding: 32,
     alignItems: "center",
     width: SCREEN_WIDTH * 0.85,
     maxWidth: 400,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -289,77 +290,77 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 8,
     textAlign: "center",
   },
   achievementName: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
     marginBottom: 8,
     textAlign: "center",
   },
   description: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     marginBottom: 24,
     textAlign: "center",
     lineHeight: 22,
   },
   xpContainer: {
-    backgroundColor: "#F0F9FF",
+    backgroundColor: theme.colors.infoBgAlt,
     borderRadius: 16,
     padding: 24,
     marginBottom: 24,
     borderWidth: 2,
-    borderColor: "#4ECDC4",
+    borderColor: theme.colors.primary,
     minWidth: 150,
     alignItems: "center",
   },
   xpNumber: {
     fontSize: 48,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
     marginBottom: 4,
   },
   xpLabel: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   collectButton: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#3AB8B0",
+    borderColor: theme.colors.primaryPressed,
     minWidth: 180,
   },
   collectButtonDisabled: {
-    backgroundColor: "#BDC3C7",
-    borderColor: "#95A5A6",
+    backgroundColor: theme.colors.disabled,
+    borderColor: theme.colors.disabledBorder,
     opacity: 0.6,
   },
   collectButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
     textAlign: "center",
   },
   closeButton: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#3AB8B0",
+    borderColor: theme.colors.primaryPressed,
     minWidth: 180,
   },
   closeButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
     textAlign: "center",

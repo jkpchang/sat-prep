@@ -14,6 +14,7 @@ import { GlobalLeaderboardPanel } from "../components/GlobalLeaderboardPanel";
 import { PrivateLeaderboardPanel } from "../components/PrivateLeaderboardPanel";
 import { CreateLeaderboardModal } from "../components/CreateLeaderboardModal";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 import {
   getGlobalLeaderboardByXP,
   getGlobalLeaderboardByStreak,
@@ -238,7 +239,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
 
       {loading ? (
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#4ECDC4" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       ) : (
         <ScrollView
@@ -325,26 +326,26 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E8ECF0",
+    backgroundColor: theme.colors.backgroundAlt,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: theme.colors.border,
   },
   backButton: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   placeholder: {
     width: 60,
@@ -363,20 +364,20 @@ const styles = StyleSheet.create({
   messageTitle: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 16,
     textAlign: "center",
   },
   messageText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
     marginBottom: 24,
     paddingHorizontal: 32,
   },
   loginButton: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 8,
@@ -384,7 +385,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loginButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
     marginBottom: 16,
   },
@@ -404,12 +405,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     paddingVertical: 14,
     paddingHorizontal: 24,
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     borderRadius: 8,
     alignItems: "center",
   },
   createButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },

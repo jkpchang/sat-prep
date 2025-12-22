@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { Question } from "../types";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface QuestionCardProps {
   question: Question;
@@ -101,18 +102,18 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     padding: 20,
     borderRadius: 16,
     margin: 16,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   categoryBadge: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 10,
     fontFamily: typography.fontFamily.bold,
   },
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 8,
     minHeight: 100,
     width: "100%",
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   questionText: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 20,
     lineHeight: 26,
   },
@@ -161,62 +162,62 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   option: {
-    backgroundColor: "#F8F9FA",
-    borderColor: "#E0E0E0",
+    backgroundColor: theme.colors.surfaceSubtle,
+    borderColor: theme.colors.border,
   },
   optionSelected: {
-    backgroundColor: "#E3F2FD",
-    borderColor: "#2196F3",
+    backgroundColor: theme.colors.infoBg,
+    borderColor: theme.colors.info,
   },
   optionCorrect: {
-    backgroundColor: "#C8E6C9",
-    borderColor: "#4CAF50",
+    backgroundColor: theme.colors.successBg,
+    borderColor: theme.colors.successStrong,
   },
   optionIncorrect: {
-    backgroundColor: "#FFCDD2",
-    borderColor: "#F44336",
+    backgroundColor: theme.colors.dangerBg,
+    borderColor: theme.colors.dangerStrong,
   },
   optionText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#2C3E50",
+    color: theme.colors.text,
     flex: 1,
     lineHeight: 22,
   },
   checkmark: {
     fontSize: 20,
-    color: "#4CAF50",
+    color: theme.colors.successStrong,
     fontFamily: typography.fontFamily.bold,
   },
   crossmark: {
     fontSize: 20,
-    color: "#F44336",
+    color: theme.colors.dangerStrong,
     fontFamily: typography.fontFamily.bold,
   },
   explanationContainer: {
     marginTop: 16,
     padding: 12,
-    backgroundColor: "#F0F7FF",
+    backgroundColor: theme.colors.infoBgAlt,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: "#2196F3",
+    borderLeftColor: theme.colors.info,
   },
   explanationLabel: {
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
-    color: "#1976D2",
+    color: theme.colors.infoStrong,
     marginBottom: 4,
   },
   explanationText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#424242",
+    color: theme.colors.textGray,
     lineHeight: 20,
   },
   imageContainer: {
     marginVertical: 16,
     alignItems: "center",
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 8,
     padding: 8,
   },

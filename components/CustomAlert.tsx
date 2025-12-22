@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 export interface AlertButton {
   text: string;
@@ -105,17 +106,17 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: theme.colors.overlay,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   alertContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     width: "100%",
     maxWidth: 400,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -127,19 +128,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 12,
   },
   message: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     lineHeight: 22,
   },
   buttonContainer: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: theme.colors.border,
   },
   button: {
     flex: 1,
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
   },
   buttonSpacing: {
     borderLeftWidth: 1,
-    borderLeftColor: "#E0E0E0",
+    borderLeftColor: theme.colors.border,
   },
   defaultButton: {
     backgroundColor: "transparent",
@@ -163,17 +164,17 @@ const styles = StyleSheet.create({
   defaultButtonText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   cancelButtonText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   destructiveButtonText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#E74C3C",
+    color: theme.colors.danger,
   },
 });
 

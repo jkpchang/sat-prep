@@ -14,6 +14,7 @@ import { Achievement, UserProgress } from "../types";
 import { ProgressCard } from "../components/ProgressCard";
 import { AchievementBadge } from "../components/AchievementBadge";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type RootStackParamList = {
@@ -116,7 +117,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
           <View style={styles.placeholder} />
         </View>
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#4ECDC4" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       </View>
     );
@@ -205,7 +206,7 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E8ECF0",
+    backgroundColor: theme.colors.backgroundAlt,
   },
   content: {
     paddingBottom: 32,
@@ -215,19 +216,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: theme.colors.border,
   },
   backButton: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   placeholder: {
     width: 60,
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   statsSection: {
     marginTop: 16,
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 16,
   },
   progressGrid: {
@@ -266,7 +267,7 @@ const styles = StyleSheet.create({
   noAchievementsText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     fontStyle: "italic",
     textAlign: "center",
     paddingVertical: 24,

@@ -19,6 +19,7 @@ import {
 } from "../services/leaderboard";
 import { CreateLeaderboardModal } from "../components/CreateLeaderboardModal";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 import { AddMemberModal } from "../components/AddMemberModal";
 import { TransferOwnershipModal } from "../components/TransferOwnershipModal";
 import { DeleteMemberModal } from "../components/DeleteMemberModal";
@@ -239,7 +240,7 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
 
       {loading ? (
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#4ECDC4" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       ) : (
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
@@ -403,26 +404,26 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E8ECF0",
+    backgroundColor: theme.colors.backgroundAlt,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: theme.colors.border,
   },
   backButton: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   headerTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   placeholder: {
     width: 60,
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
   refreshButton: {
     paddingVertical: 4,
     paddingHorizontal: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -444,9 +445,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: theme.colors.border,
     gap: 8,
   },
   tab: {
@@ -454,19 +455,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     alignItems: "center",
   },
   activeTab: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
   },
   tabText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   activeTabText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
   },
   scrollView: {
     flex: 1,
@@ -486,36 +487,36 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     marginBottom: 8,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
   currentUserEntry: {
-    backgroundColor: "#F0FDFC",
+    backgroundColor: theme.colors.tintMint,
     borderWidth: 2,
-    borderColor: "#4ECDC4",
+    borderColor: theme.colors.primary,
   },
   rank: {
     width: 50,
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   username: {
     flex: 1,
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginLeft: 12,
   },
   value: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     minWidth: 80,
     textAlign: "right",
     lineHeight: 22,
@@ -526,7 +527,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   currentUserText: {
-    color: "#2C3E50",
+    color: theme.colors.text,
     fontFamily: typography.fontFamily.bold,
   },
   emptyContainer: {
@@ -535,14 +536,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
   },
   ownerActions: {
     marginTop: 24,
     paddingTop: 24,
     borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: theme.colors.border,
     flexDirection: "row",
     gap: 12,
     justifyContent: "space-between",
@@ -550,7 +551,7 @@ const styles = StyleSheet.create({
   actionButton: {
     flex: 1,
     aspectRatio: 1,
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -559,13 +560,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   actionButtonIcon: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 24,
     fontWeight: "600",
     marginBottom: 4,
   },
   actionButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
@@ -573,7 +574,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     flex: 1,
     aspectRatio: 1,
-    backgroundColor: "#E74C3C",
+    backgroundColor: theme.colors.danger,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -582,13 +583,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   deleteButtonIcon: {
-    color: "#FFFFFF",
+    color: theme.colors.onDanger,
     fontSize: 24,
     fontWeight: "600",
     marginBottom: 4,
   },
   deleteButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onDanger,
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",

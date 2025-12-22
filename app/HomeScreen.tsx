@@ -10,9 +10,11 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DayStreakDisplay } from "../components/DayStreakDisplay";
 import { ProgressCard } from "../components/ProgressCard";
+import { ThemedButton } from "../components/ThemedButton";
 import { gamificationService } from "../services/gamification";
 import { UserProgress } from "../types";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 import { CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
@@ -96,12 +98,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <Text style={styles.challengeDescription}>
           Complete 5 questions today to maintain your streak!
         </Text>
-        <TouchableOpacity
-          style={styles.startButton}
+        <ThemedButton
+          title="Start Practice"
           onPress={handleStartPractice}
-        >
-          <Text style={styles.startButtonText}>Start Practice</Text>
-        </TouchableOpacity>
+          size="lg"
+        />
       </View>
 
       <View style={styles.progressSection}>
@@ -117,12 +118,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       </View>
 
-      <TouchableOpacity
-        style={styles.secondaryButton}
+      <ThemedButton
+        title="View Full Progress →"
         onPress={() => navigation.navigate("Progress")}
-      >
-        <Text style={styles.secondaryButtonText}>View Full Progress →</Text>
-      </TouchableOpacity>
+        variant="ghost"
+      />
     </ScrollView>
   );
 };
@@ -130,7 +130,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F7FA",
+    backgroundColor: theme.colors.background,
   },
   content: {
     padding: 16,
@@ -141,20 +141,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   dailyChallenge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     padding: 20,
     borderRadius: 16,
     marginVertical: 16,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -163,23 +163,23 @@ const styles = StyleSheet.create({
   challengeTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 8,
   },
   challengeDescription: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     marginBottom: 16,
   },
   startButton: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
   },
   startButtonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
   },
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 12,
   },
   progressGrid: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   secondaryButtonText: {
-    color: "#4ECDC4",
+    color: theme.colors.primary,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
   },

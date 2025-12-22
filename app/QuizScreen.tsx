@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { QuestionCard } from "../components/QuestionCard";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 import {
   getRandomQuestion,
   getFilteredSampleQuestions,
@@ -670,7 +671,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F7FA",
+    backgroundColor: theme.colors.background,
   },
   scrollView: {
     flex: 1,
@@ -697,9 +698,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: theme.colors.border,
     width: "100%",
     position: "absolute",
     top: 0,
@@ -719,7 +720,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   headerRight: {
     width: 100,
@@ -729,12 +730,12 @@ const styles = StyleSheet.create({
   backButton: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   xpBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -746,7 +747,7 @@ const styles = StyleSheet.create({
   xpText: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     minWidth: 30,
     textAlign: "right",
   },
@@ -754,23 +755,23 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -30,
     right: 0,
-    backgroundColor: "#2ECC71",
+    backgroundColor: theme.colors.success,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
   },
   xpGainText: {
-    color: "#FFFFFF",
+    color: theme.colors.onSuccess,
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
   },
   button: {
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -778,10 +779,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonDisabled: {
-    backgroundColor: "#BDC3C7",
+    backgroundColor: theme.colors.disabled,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
   },
@@ -792,18 +793,18 @@ const styles = StyleSheet.create({
   },
   buttonSecondary: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#4ECDC4",
+    borderColor: theme.colors.primary,
     minHeight: 56,
   },
   buttonPrimary: {
     flex: 1,
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -812,7 +813,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   buttonSecondaryText: {
-    color: "#4ECDC4",
+    color: theme.colors.primary,
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
   },
@@ -823,7 +824,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   completionCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     padding: 32,
     borderRadius: 16,
     alignItems: "center",
@@ -836,14 +837,14 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontSize: 24,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     textAlign: "center",
     marginBottom: 12,
   },
   completionMessage: {
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
   },
 });

@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface DayStreakDisplayProps {
   dayStreak: number;
@@ -54,7 +55,7 @@ export const DayStreakDisplay: React.FC<DayStreakDisplayProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    backgroundColor: "#FF6B6B",
+    backgroundColor: theme.colors.streak,
     padding: 16,
     borderRadius: 12,
     marginVertical: 8,
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRightWidth: 1,
-    borderRightColor: "rgba(255, 255, 255, 0.3)",
+    borderRightColor: theme.colors.whiteAlpha30,
     paddingRight: 16,
   },
   leftZoneFullWidth: {
@@ -85,13 +86,13 @@ const styles = StyleSheet.create({
   checkmark: {
     fontSize: 32,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.white,
     marginBottom: 4,
   },
   completeText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.white,
     opacity: 0.9,
   },
   fireEmoji: {
@@ -104,24 +105,24 @@ const styles = StyleSheet.create({
   streakNumber: {
     fontSize: 28,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.white,
   },
   streakLabel: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#FFFFFF",
+    color: theme.colors.white,
     opacity: 0.9,
   },
   questionsNumber: {
     fontSize: 28,
     fontFamily: typography.fontFamily.bold,
-    color: "#FFFFFF",
+    color: theme.colors.white,
     textAlign: "right",
   },
   questionsLabel: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#FFFFFF",
+    color: theme.colors.white,
     opacity: 0.9,
     textAlign: "right",
   },

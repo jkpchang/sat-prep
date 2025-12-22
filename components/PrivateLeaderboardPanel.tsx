@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { PrivateLeaderboard, LeaderboardMember } from "../types";
 import { typography } from "../styles/typography";
+import { theme } from "../theme";
 
 interface PrivateLeaderboardPanelProps {
   leaderboard: PrivateLeaderboard;
@@ -149,12 +150,12 @@ export const PrivateLeaderboardPanel: React.FC<
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.surface,
     borderRadius: 12,
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
-    shadowColor: "#000",
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -172,13 +173,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginBottom: 4,
   },
   description: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   headerButtons: {
     flexDirection: "row",
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   refreshButton: {
     paddingVertical: 6,
     paddingHorizontal: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
   manageButton: {
     paddingVertical: 6,
     paddingHorizontal: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     marginBottom: 12,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
     borderRadius: 10,
     padding: 4,
   },
@@ -229,8 +230,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeTab: {
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    backgroundColor: theme.colors.surface,
+    shadowColor: theme.shadow.color,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -239,10 +240,10 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
   },
   activeTabText: {
-    color: "#4ECDC4",
+    color: theme.colors.primary,
   },
   entriesContainer: {
     gap: 8,
@@ -253,30 +254,30 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: theme.colors.surfaceSubtle,
   },
   currentUserEntry: {
-    backgroundColor: "#F0FDFC",
+    backgroundColor: theme.colors.tintMint,
     borderWidth: 2,
-    borderColor: "#4ECDC4",
+    borderColor: theme.colors.primary,
   },
   rank: {
     width: 40,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
   },
   username: {
     flex: 1,
     fontSize: 16,
     fontFamily: typography.fontFamily.regular,
-    color: "#2C3E50",
+    color: theme.colors.text,
     marginLeft: 12,
   },
   value: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
-    color: "#2C3E50",
+    color: theme.colors.text,
     minWidth: 60,
     textAlign: "right",
     lineHeight: 20,
@@ -287,13 +288,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   currentUserText: {
-    color: "#2C3E50",
+    color: theme.colors.text,
     fontFamily: typography.fontFamily.bold,
   },
   emptyText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.regular,
-    color: "#7F8C8D",
+    color: theme.colors.textMuted,
     textAlign: "center",
     paddingVertical: 16,
   },
@@ -301,12 +302,12 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: "#4ECDC4",
+    backgroundColor: theme.colors.primary,
     borderRadius: 6,
     alignSelf: "flex-end",
   },
   showMoreText: {
-    color: "#FFFFFF",
+    color: theme.colors.onPrimary,
     fontSize: 12,
     fontFamily: typography.fontFamily.bold,
   },
