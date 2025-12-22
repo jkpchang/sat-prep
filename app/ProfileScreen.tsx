@@ -624,6 +624,17 @@ const styles = StyleSheet.create({
     color: theme.colors.textMuted,
     marginBottom: 16,
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: typography.fontFamily.bold,
+    color: theme.colors.text,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    fontFamily: typography.fontFamily.regular,
+    color: theme.colors.textMuted,
+    marginBottom: 20,
+  },
   card: {
     backgroundColor: theme.colors.surface,
     borderRadius: 16,

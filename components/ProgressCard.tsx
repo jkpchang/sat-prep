@@ -25,7 +25,8 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.surfaceSubtle,
+    // Slightly darker than `surfaceSubtle` so this card reads as a distinct tile
+    backgroundColor: theme.colors.backgroundAlt,
     padding: 16,
     borderRadius: 12,
     alignItems: "center",

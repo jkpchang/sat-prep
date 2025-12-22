@@ -201,10 +201,6 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
   if (!authProfile?.userId || !authProfile?.username) {
     return (
       <View style={styles.container}>
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <Text style={styles.headerTitle}>Leaderboards</Text>
-          <View style={styles.placeholder} />
-        </View>
         <View style={styles.centerContent}>
           <Text style={styles.messageTitle}>Sign In Required</Text>
           <Text style={styles.messageText}>
@@ -232,11 +228,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Text style={styles.headerTitle}>Leaderboards</Text>
-        <View style={styles.placeholder} />
-      </View>
-
+      <Text style={styles.title}>Leaderboards</Text>
       {loading ? (
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -326,7 +318,15 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.backgroundAlt,
+    backgroundColor: theme.colors.background,
+  },
+  title: {
+    fontSize: 28,
+    fontFamily: typography.fontFamily.bold,
+    color: theme.colors.text,
+    marginBottom: 4,
+    paddingHorizontal: 16,
+    marginTop: 16,
   },
   header: {
     flexDirection: "row",

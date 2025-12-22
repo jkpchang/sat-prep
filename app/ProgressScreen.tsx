@@ -146,14 +146,6 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>&lt; Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Progress</Text>
-        <View style={styles.placeholder} />
-      </View>
-
       <View style={styles.statsSection}>
         <Text style={styles.sectionTitle}>Statistics</Text>
         <View style={styles.progressGrid}>
@@ -219,7 +211,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.backgroundAlt,
+    backgroundColor: theme.colors.background,
   },
   content: {
     paddingBottom: 32,
