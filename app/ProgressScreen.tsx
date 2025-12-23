@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProgressCard } from "../components/ProgressCard";
 import { AchievementBadge } from "../components/AchievementBadge";
 import { CustomAlert, AlertButton } from "../components/CustomAlert";
@@ -35,7 +35,6 @@ interface ProgressScreenProps {
 export const ProgressScreen: React.FC<ProgressScreenProps> = ({
   navigation,
 }) => {
-  const insets = useSafeAreaInsets();
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -133,9 +132,11 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
 
   if (!progress) {
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -145,55 +146,64 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
       : 0;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.statsSection}>
-        <Text style={styles.sectionTitle}>Statistics</Text>
-        <View style={styles.progressGrid}>
-          <View style={styles.gridRow}>
-            <ProgressCard label="Total XP" value={progress.totalXP} icon="⭐" />
-            <ProgressCard
-              label="Questions"
-              value={progress.questionsAnswered}
-              icon="❓"
-            />
-            <ProgressCard
-              label="Correct"
-              value={progress.correctAnswers}
-              icon="✅"
-            />
-          </View>
-          <View style={styles.gridRow}>
-            <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
-            <ProgressCard
-              label="Day Streak"
-              value={progress.dayStreak}
-              icon="🔥"
-            />
-            <ProgressCard
-              label="Answer Streak"
-              value={progress.answerStreak}
-              icon="⚡"
-            />
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
+        <View style={styles.statsSection}>
+          <Text style={styles.sectionTitle}>Statistics</Text>
+          <View style={styles.progressGrid}>
+            <View style={styles.gridRow}>
+              <ProgressCard
+                label="Total XP"
+                value={progress.totalXP}
+                icon="⭐"
+              />
+              <ProgressCard
+                label="Questions"
+                value={progress.questionsAnswered}
+                icon="❓"
+              />
+              <ProgressCard
+                label="Correct"
+                value={progress.correctAnswers}
+                icon="✅"
+              />
+            </View>
+            <View style={styles.gridRow}>
+              <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
+              <ProgressCard
+                label="Day Streak"
+                value={progress.dayStreak}
+                icon="🔥"
+              />
+              <ProgressCard
+                label="Answer Streak"
+                value={progress.answerStreak}
+                icon="⚡"
+              />
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.achievementsSection}>
-        <Text style={styles.sectionTitle}>Achievements</Text>
-        {achievements.map((achievement) => (
-          <AchievementBadge key={achievement.id} achievement={achievement} />
-        ))}
-      </View>
+        <View style={styles.achievementsSection}>
+          <Text style={styles.sectionTitle}>Achievements</Text>
+          {achievements.map((achievement) => (
+            <AchievementBadge key={achievement.id} achievement={achievement} />
+          ))}
+        </View>
 
-      <View style={styles.clearHistorySection}>
-        <TouchableOpacity
-          style={styles.clearHistoryButton}
-          onPress={handleClearHistory}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.clearHistoryText}>Clear History</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.clearHistorySection}>
+          <TouchableOpacity
+            style={styles.clearHistoryButton}
+            onPress={handleClearHistory}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.clearHistoryText}>Clear History</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       {alertConfig && (
         <CustomAlert
@@ -204,7 +214,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
           onDismiss={hideAlert}
         />
       )}
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -213,8 +223,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
+  scrollView: {
+    flex: 1,
+  },
   content: {
     paddingBottom: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontFamily: typography.fontFamily.regular,
+    color: theme.colors.textMuted,
   },
   header: {
     flexDirection: "row",

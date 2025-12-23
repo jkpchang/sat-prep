@@ -2,7 +2,7 @@
 
 ## Overview
 
-XP (Experience Points) is the primary gamification currency in satUP!. Users earn XP through various activities, primarily by answering questions. XP is displayed prominently in the app header and is used for leaderboard rankings.
+XP (Experience Points) is the primary gamification currency in SatUP!. Users earn XP through various activities, primarily by answering questions. XP is displayed prominently in the app header and is used for leaderboard rankings.
 
 ## XP Values
 

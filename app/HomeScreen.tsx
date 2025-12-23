@@ -70,7 +70,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   if (!progress) {
     return (
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top + 16, paddingHorizontal: 16 },
+        ]}
+      >
         <Text>Loading...</Text>
       </View>
     );
@@ -84,7 +89,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[styles.header, { marginTop: insets.top + 24 }]}>
-        <Text style={styles.title}>satUP!</Text>
+        <Text style={styles.title}>SatUP!</Text>
         <Text style={styles.subtitle}>Level up your skills!</Text>
       </View>
 

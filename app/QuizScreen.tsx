@@ -485,7 +485,12 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     }
 
     return (
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top + 16, paddingHorizontal: 16 },
+        ]}
+      >
         <Text>Loading question...</Text>
       </View>
     );

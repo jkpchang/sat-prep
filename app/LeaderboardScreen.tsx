@@ -228,7 +228,9 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Leaderboards</Text>
+      <Text style={[styles.title, { marginTop: insets.top + 16 }]}>
+        Leaderboards
+      </Text>
       {loading ? (
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
