@@ -101,7 +101,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <View style={styles.dailyChallenge}>
         <Text style={styles.challengeTitle}>📚 Daily Challenge</Text>
         <Text style={styles.challengeDescription}>
-          Complete 5 questions today to maintain your streak!
+          {progress.questionsAnsweredToday >= 5
+            ? "Daily goal completed! 🎉 But you can still keep practicing..."
+            : "Complete 5 questions today to maintain your streak!"}
         </Text>
         <ThemedButton
           title="Start Practice"

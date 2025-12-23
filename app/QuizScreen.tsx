@@ -558,7 +558,10 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + 82 },
+          { 
+            paddingTop: insets.top + 82,
+            paddingBottom: 120, // Extra padding to ensure explanation is visible above button panel
+          },
         ]}
       >
         <QuestionCard
@@ -567,7 +570,14 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
           onSelectAnswer={handleSelectAnswer}
           showResult={showResult}
         />
+      </ScrollView>
 
+      <View
+        style={[
+          styles.buttonContainer,
+          { paddingBottom: insets.bottom + 16 },
+        ]}
+      >
         {!showResult ? (
           <View
             ref={buttonRef}
@@ -600,7 +610,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         )}
-      </ScrollView>
+      </View>
 
       {showStars &&
         starAnimations.map((star, index) => {
@@ -677,8 +687,19 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   content: {
-    paddingBottom: 32,
     paddingTop: 0,
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.background,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    zIndex: 10,
   },
   star: {
     position: "absolute",
@@ -774,8 +795,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     alignItems: "center",
-    margin: 16,
-    marginTop: 8,
   },
   buttonDisabled: {
     backgroundColor: theme.colors.disabled,
@@ -787,7 +806,6 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    padding: 16,
     gap: 12,
   },
   buttonSecondary: {

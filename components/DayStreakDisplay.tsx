@@ -43,8 +43,10 @@ export const DayStreakDisplay: React.FC<DayStreakDisplayProps> = ({
       {isGoalMet && (
         <View style={styles.rightZone}>
           <View style={styles.completeContainer}>
-            <Text style={styles.checkmark}>✓</Text>
-            <Text style={styles.completeText}>Complete!</Text>
+            <View style={styles.checkmarkContainer}>
+              <Text style={styles.checkmark}>✓</Text>
+            </View>
+            <Text style={styles.completeText}>Daily goal completed!</Text>
           </View>
         </View>
       )}
@@ -83,11 +85,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  checkmarkContainer: {
+    alignSelf: "flex-end",
+    marginBottom: 4,
+  },
   checkmark: {
     fontSize: 32,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.white,
-    marginBottom: 4,
   },
   completeText: {
     fontSize: 14,
