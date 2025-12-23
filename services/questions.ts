@@ -10,8 +10,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 1,
     question: "If 3x + 5 = 20, what is the value of x?",
-    options: ["3", "5", "7", "15"],
-    correctAnswer: 1,
+    options: ["5", "3", "7", "15"],
+    correctAnswer: 0,
     explanation:
       "Subtract 5 from both sides: 3x = 15. Then divide by 3: x = 5.",
     category: "math",
@@ -30,8 +30,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 3,
     question: 'The word "ubiquitous" most nearly means:',
-    options: ["rare", "everywhere", "ancient", "complex"],
-    correctAnswer: 1,
+    options: ["everywhere", "rare", "ancient", "complex"],
+    correctAnswer: 0,
     explanation: "Ubiquitous means present, appearing, or found everywhere.",
     category: "reading",
     difficultyLevel: 5,
@@ -40,12 +40,12 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 4,
     question: "Choose the correct sentence:",
     options: [
-      "The team were excited about their victory.",
       "The team was excited about their victory.",
+      "The team were excited about their victory.",
       "The team is excited about their victory.",
       "The team are excited about their victory.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 0,
     explanation:
       '"Team" is a collective noun that takes a singular verb. "Was" is the correct past tense form.',
     category: "writing",
@@ -67,12 +67,12 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 6,
     question: "Choose the best revision that fixes the error:",
     options: [
-      "The experiment was successful, the team celebrated.",
       "The experiment was successful; the team celebrated.",
+      "The experiment was successful, the team celebrated.",
       "The experiment was successful the team celebrated.",
       "The experiment was successful, the team celebrated, loudly.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 0,
     explanation:
       "A semicolon correctly joins two closely related independent clauses. The original is a comma splice.",
     category: "writing",
@@ -91,8 +91,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 8,
     question: "If f(x) = 3x² - 2x + 5, what is f(4)?",
-    options: ["41", "45", "49", "53"],
-    correctAnswer: 1,
+    options: ["45", "41", "49", "53"],
+    correctAnswer: 0,
     explanation: "f(4) = 3(4)² - 2(4) + 5 = 3(16) - 8 + 5 = 48 - 8 + 5 = 45.",
     category: "math",
     difficultyLevel: 5,
@@ -112,12 +112,12 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 10,
     question: "If x² - 4x - 5 = 0, what are the values of x?",
     options: [
-      "x = 1 or x = 5",
       "x = -1 or x = 5",
+      "x = 1 or x = 5",
       "x = 1 or x = -5",
       "x = -1 or x = -5",
     ],
-    correctAnswer: 1,
+    correctAnswer: 0,
     explanation: "Factor: (x - 5)(x + 1) = 0. So x = 5 or x = -1.",
     category: "math",
     difficultyLevel: 6,
@@ -126,8 +126,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 11,
     question:
       "A right triangle has legs of lengths 6 and 8. What is the length of the hypotenuse?",
-    options: ["9", "10", "12", "14"],
-    correctAnswer: 1,
+    options: ["10", "9", "12", "14"],
+    correctAnswer: 0,
     explanation:
       "Using Pythagorean theorem: √(6² + 8²) = √(36 + 64) = √100 = 10.",
     category: "math",
@@ -145,8 +145,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 13,
     question: "If 3x - 7 = 2x + 5, what is the value of x?",
-    options: ["10", "12", "14", "16"],
-    correctAnswer: 1,
+    options: ["12", "10", "14", "16"],
+    correctAnswer: 0,
     explanation:
       "Subtract 2x from both sides: x - 7 = 5. Add 7 to both sides: x = 12.",
     category: "math",
@@ -156,8 +156,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 14,
     question:
       "What is the sum of the solutions to the equation 2x² - 3x - 5 = 0?",
-    options: ["1/2", "3/2", "5/2", "3"],
-    correctAnswer: 1,
+    options: ["3/2", "1/2", "5/2", "3"],
+    correctAnswer: 0,
     explanation:
       "For ax² + bx + c = 0, the sum of solutions is -b/a = -(-3)/2 = 3/2.",
     category: "math",
@@ -167,8 +167,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 15,
     question:
       "A survey shows that 60% of students prefer online classes. If 300 students were surveyed, how many prefer online classes?",
-    options: ["150", "180", "200", "240"],
-    correctAnswer: 1,
+    options: ["180", "150", "200", "240"],
+    correctAnswer: 0,
     explanation: "60% of 300 = 0.60 × 300 = 180 students.",
     category: "math",
     difficultyLevel: 3,
@@ -176,8 +176,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 16,
     question: 'The word "tenuous" most nearly means:',
-    options: ["strong", "weak", "ancient", "complex"],
-    correctAnswer: 1,
+    options: ["weak", "strong", "ancient", "complex"],
+    correctAnswer: 0,
     explanation: "Tenuous means weak, thin, or insubstantial.",
     category: "reading",
     difficultyLevel: 6,
@@ -185,8 +185,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 17,
     question: 'The word "altruism" most nearly means:',
-    options: ["selfishness", "selflessness", "isolation", "ambition"],
-    correctAnswer: 1,
+    options: ["selflessness", "selfishness", "isolation", "ambition"],
+    correctAnswer: 0,
     explanation:
       "Altruism means selfless concern for the well-being of others.",
     category: "reading",
@@ -195,8 +195,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 18,
     question: 'The word "pragmatic" most nearly means:',
-    options: ["idealistic", "practical", "theoretical", "emotional"],
-    correctAnswer: 1,
+    options: ["practical", "idealistic", "theoretical", "emotional"],
+    correctAnswer: 0,
     explanation:
       "Pragmatic means dealing with things in a practical and realistic way.",
     category: "reading",
@@ -205,8 +205,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 19,
     question: 'The word "eclectic" most nearly means:',
-    options: ["uniform", "diverse", "simple", "traditional"],
-    correctAnswer: 1,
+    options: ["diverse", "uniform", "simple", "traditional"],
+    correctAnswer: 0,
     explanation:
       "Eclectic means deriving ideas from a broad and diverse range of sources.",
     category: "reading",
@@ -216,12 +216,12 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 20,
     question: 'The word "platitudes" most nearly means:',
     options: [
-      "original ideas",
       "overused remarks",
+      "original ideas",
       "complex theories",
       "detailed explanations",
     ],
-    correctAnswer: 1,
+    correctAnswer: 0,
     explanation:
       "Platitudes are overused and unoriginal remarks that lack originality.",
     category: "reading",
@@ -230,8 +230,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 21,
     question: 'The word "paradigm" most nearly means:',
-    options: ["mistake", "model", "confusion", "rejection"],
-    correctAnswer: 1,
+    options: ["model", "mistake", "confusion", "rejection"],
+    correctAnswer: 0,
     explanation:
       "Paradigm means a typical example or pattern of something; a model or framework.",
     category: "reading",
@@ -240,8 +240,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 22,
     question: 'The word "cursory" most nearly means:',
-    options: ["thorough", "hasty", "careful", "detailed"],
-    correctAnswer: 1,
+    options: ["hasty", "thorough", "careful", "detailed"],
+    correctAnswer: 0,
     explanation: "Cursory means hasty and therefore not thorough or detailed.",
     category: "reading",
     difficultyLevel: 7,
@@ -249,8 +249,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 23,
     question: 'The word "clandestine" most nearly means:',
-    options: ["public", "secret", "obvious", "transparent"],
-    correctAnswer: 1,
+    options: ["secret", "public", "obvious", "transparent"],
+    correctAnswer: 0,
     explanation:
       "Clandestine means kept secret or done secretively, especially for illicit purposes.",
     category: "reading",
@@ -259,8 +259,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 24,
     question: 'The word "dogmatic" most nearly means:',
-    options: ["flexible", "opinionated", "uncertain", "open-minded"],
-    correctAnswer: 1,
+    options: ["opinionated", "flexible", "uncertain", "open-minded"],
+    correctAnswer: 0,
     explanation:
       "Dogmatic means inclined to lay down principles as incontrovertibly true, without consideration of evidence or others' opinions.",
     category: "reading",
@@ -269,8 +269,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 25,
     question: 'The word "idiosyncratic" most nearly means:',
-    options: ["common", "peculiar", "standard", "typical"],
-    correctAnswer: 1,
+    options: ["common", "typical", "standard", "peculiar"],
+    correctAnswer: 3,
     explanation:
       "Idiosyncratic means peculiar or individual; characteristic of a particular person or thing.",
     category: "reading",
@@ -279,8 +279,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 26,
     question: "What is the median of the data set: {3, 7, 9, 15, 21}?",
-    options: ["7", "9", "15", "11"],
-    correctAnswer: 1,
+    options: ["7", "11", "15", "9"],
+    correctAnswer: 3,
     explanation:
       "The median is the middle value when numbers are arranged in order. Here, 9 is the middle value.",
     category: "math",
@@ -365,8 +365,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 32,
     question: "25% of 80 is:",
-    options: ["15", "20", "25", "40"],
-    correctAnswer: 1,
+    options: ["15", "40", "25", "20"],
+    correctAnswer: 3,
     explanation: "25% is one-fourth. One-fourth of 80 is 20.",
     category: "math",
     subcategory: "math_word_problems_percent",
@@ -375,8 +375,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 33,
     question: "If log₂(32) = x, what is x?",
-    options: ["4", "5", "6", "8"],
-    correctAnswer: 1,
+    options: ["4", "8", "6", "5"],
+    correctAnswer: 3,
     explanation: "32 = 2⁵, so log₂(32) = 5.",
     category: "math",
     subcategory: "math_exponents_logs",
@@ -386,8 +386,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 34,
     question:
       "Choose the option that most logically completes the sentence:\n\nJada studied every night; ______, she felt confident on test day.",
-    options: ["however", "therefore", "for example", "nevertheless"],
-    correctAnswer: 1,
+    options: ["however", "nevertheless", "for example", "therefore"],
+    correctAnswer: 3,
     explanation:
       '"Therefore" signals a result: studying led to confidence. The other choices signal contrast or exemplification.',
     category: "writing",
@@ -400,11 +400,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
       'Choose the best revision (most concise, same meaning):\n\n"Each and every student must bring their ID."',
     options: [
       "Each and every student must bring their ID.",
-      "Every student must bring their ID.",
-      "Each student must bring their personal ID identification.",
       "All students must bring there IDs.",
+      "Each student must bring their personal ID identification.",
+      "Every student must bring their ID.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       '"Every student" is concise and preserves meaning. (D) also has a grammar error: "there" vs. "their."',
     category: "writing",
@@ -416,11 +416,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
     question: "Choose the sentence with correct grammar:",
     options: [
       "Neither of the answers are correct.",
-      "Neither of the answers is correct.",
-      "Neither of the answer are correct.",
       "Neither of the answers be correct.",
+      "Neither of the answer are correct.",
+      "Neither of the answers is correct.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       '"Neither" is singular in standard usage, so it takes a singular verb: "is."',
     category: "writing",
@@ -430,8 +430,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 37,
     question: 'The word "mitigate" most nearly means:',
-    options: ["worsen", "reduce", "predict", "repeat"],
-    correctAnswer: 1,
+    options: ["worsen", "repeat", "predict", "reduce"],
+    correctAnswer: 3,
     explanation: '"Mitigate" means to make less severe or intense; to reduce.',
     category: "reading",
     subcategory: "reading_vocabulary_in_context",
@@ -440,8 +440,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 38,
     question: "If 3(x - 2) = 15, what is x?",
-    options: ["5", "7", "9", "11"],
-    correctAnswer: 1,
+    options: ["5", "11", "9", "7"],
+    correctAnswer: 3,
     explanation: "Divide by 3: x - 2 = 5. Add 2: x = 7.",
     category: "math",
     subcategory: "math_algebra_linear_equations",
@@ -452,11 +452,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
     question: "Choose the correct sentence:",
     options: [
       "After finishing the exam the students left.",
-      "After finishing the exam, the students left.",
-      "After, finishing the exam the students left.",
       "After finishing, the exam the students left.",
+      "After, finishing the exam the students left.",
+      "After finishing the exam, the students left.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       'A comma should follow an introductory phrase: "After finishing the exam, ..."',
     category: "writing",
@@ -466,8 +466,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 40,
     question: 'The word "lucid" most nearly means:',
-    options: ["confusing", "clear", "dangerous", "tired"],
-    correctAnswer: 1,
+    options: ["confusing", "tired", "dangerous", "clear"],
+    correctAnswer: 3,
     explanation: '"Lucid" means clear and easy to understand.',
     category: "reading",
     subcategory: "reading_vocabulary_in_context",
@@ -476,8 +476,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 41,
     question: "If x + y = 10 and x - y = 2, what is x?",
-    options: ["4", "6", "8", "12"],
-    correctAnswer: 1,
+    options: ["4", "12", "8", "6"],
+    correctAnswer: 3,
     explanation: "Add the equations: (x+y)+(x-y)=10+2 → 2x=12 → x=6.",
     category: "math",
     subcategory: "math_algebra_systems",
@@ -514,11 +514,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
       'Choose the best revision (most concise):\n\n"Due to the fact that it was raining, we stayed inside."',
     options: [
       "Due to the fact that it was raining, we stayed inside.",
-      "Because it was raining, we stayed inside.",
-      "Due to it was raining, we stayed inside.",
       "Because of the fact it was raining, we stayed inside.",
+      "Due to it was raining, we stayed inside.",
+      "Because it was raining, we stayed inside.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       '"Because" is concise and correct. The other options are wordy or ungrammatical.',
     category: "writing",
@@ -528,8 +528,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 45,
     question: 'The word "effusive" most nearly means:',
-    options: ["reserved", "overly expressive", "careless", "silent"],
-    correctAnswer: 1,
+    options: ["reserved", "silent", "careless", "overly expressive"],
+    correctAnswer: 3,
     explanation:
       '"Effusive" means showing feelings in an unrestrained, enthusiastic way.',
     category: "reading",
@@ -561,11 +561,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
     question: "Choose the correct sentence:",
     options: [
       "A number of students was late.",
-      "A number of students were late.",
-      "A number of student were late.",
       "A number of students is late.",
+      "A number of student were late.",
+      "A number of students were late.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       '"A number of" is treated as plural, so the verb should be "were."',
     category: "writing",
@@ -576,8 +576,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 48,
     question:
       "A price increases from $50 to $60. What is the percent increase?",
-    options: ["10%", "20%", "25%", "30%"],
-    correctAnswer: 1,
+    options: ["10%", "30%", "25%", "20%"],
+    correctAnswer: 3,
     explanation: "Increase is 10. Percent increase = 10/50 = 0.2 = 20%.",
     category: "math",
     subcategory: "math_word_problems_percent",
@@ -586,8 +586,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 49,
     question: 'The word "sporadic" most nearly means:',
-    options: ["constant", "occasional", "careful", "predictable"],
-    correctAnswer: 1,
+    options: ["constant", "predictable", "careful", "occasional"],
+    correctAnswer: 3,
     explanation: '"Sporadic" means occurring irregularly or occasionally.',
     category: "reading",
     subcategory: "reading_vocabulary_in_context",
@@ -596,8 +596,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 50,
     question: "What is the mean of the numbers 2, 4, 6, and 8?",
-    options: ["4", "5", "6", "7"],
-    correctAnswer: 1,
+    options: ["4", "7", "6", "5"],
+    correctAnswer: 3,
     explanation: "Mean = (2+4+6+8)/4 = 20/4 = 5.",
     category: "math",
     subcategory: "math_statistics_center",
@@ -609,11 +609,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
       'Choose the best revision (parallel structure):\n\n"She likes hiking, to swim, and biking."',
     options: [
       "She likes hiking, to swim, and biking.",
-      "She likes hiking, swimming, and biking.",
-      "She likes to hike, swimming, and bike.",
       "She likes hiking, to swim, and to biking.",
+      "She likes to hike, swimming, and bike.",
+      "She likes hiking, swimming, and biking.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       'Items in a list should match in form. "Hiking, swimming, and biking" are all gerunds.',
     category: "writing",
@@ -624,8 +624,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 52,
     question:
       "A fair coin is tossed twice. What is the probability of getting exactly one head?",
-    options: ["0.25", "0.5", "0.75", "1"],
-    correctAnswer: 1,
+    options: ["0.25", "1", "0.75", "0.5"],
+    correctAnswer: 3,
     explanation:
       "Outcomes: HH, HT, TH, TT. Exactly one head occurs in HT and TH: 2 out of 4 → 0.5.",
     category: "math",
@@ -638,11 +638,11 @@ export const SAMPLE_QUESTIONS: Question[] = [
       'Choose the revision that removes the ambiguity:\n\n"When Mia texted Ava, she was driving."',
     options: [
       "When Mia texted Ava, she was driving.",
-      "When Mia texted Ava, Mia was driving.",
-      "When Mia texted Ava, Ava was driving Mia.",
       "When Mia texted Ava, driving was happening.",
+      "When Mia texted Ava, Ava was driving Mia.",
+      "When Mia texted Ava, Mia was driving.",
     ],
-    correctAnswer: 1,
+    correctAnswer: 3,
     explanation:
       'Replacing the ambiguous pronoun "she" with a specific noun clarifies meaning.',
     category: "writing",
@@ -652,8 +652,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 54,
     question: "If 2x + 1 < 9, which value is the greatest possible integer x?",
-    options: ["2", "3", "4", "5"],
-    correctAnswer: 1,
+    options: ["2", "5", "4", "3"],
+    correctAnswer: 3,
     explanation:
       "Subtract 1: 2x < 8. Divide by 2: x < 4. Greatest integer less than 4 is 3.",
     category: "math",
@@ -663,8 +663,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 55,
     question: 'The word "candid" most nearly means:',
-    options: ["secretive", "honest", "angry", "careless"],
-    correctAnswer: 1,
+    options: ["secretive", "careless", "angry", "honest"],
+    correctAnswer: 3,
     explanation: '"Candid" means truthful and straightforward.',
     category: "reading",
     subcategory: "reading_vocabulary_in_context",
@@ -674,8 +674,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
     id: 56,
     question:
       "An arithmetic sequence starts 3, 5, 7, ... What is the 5th term?",
-    options: ["9", "11", "13", "15"],
-    correctAnswer: 1,
+    options: ["9", "15", "13", "11"],
+    correctAnswer: 3,
     explanation: "The common difference is 2. Terms: 3, 5, 7, 9, 11.",
     category: "math",
     subcategory: "math_sequences",
@@ -684,8 +684,8 @@ export const SAMPLE_QUESTIONS: Question[] = [
   {
     id: 57,
     question: "If log₁₀(1000) = x, what is x?",
-    options: ["2", "3", "4", "5"],
-    correctAnswer: 1,
+    options: ["2", "5", "4", "3"],
+    correctAnswer: 3,
     explanation: "1000 = 10³, so log₁₀(1000) = 3.",
     category: "math",
     subcategory: "math_exponents_logs",

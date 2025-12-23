@@ -9,7 +9,8 @@
     "web": "BROWSER=none expo start --web",
     "create-test-users": "npx tsx scripts/createTestUsers.ts",
     "generate-formula-svg": "npx tsx scripts/generateFormulaSvg.ts",
-    "generate-option-svgs": "npx tsx scripts/generateOptionSvgs.ts"
+    "generate-option-svgs": "npx tsx scripts/generateOptionSvgs.ts",
+    "redistribute-answers": "npx tsx scripts/redistributeCorrectAnswers.ts"
   },
   "dependencies": {
     "@expo-google-fonts/comfortaa": "^0.4.2",
