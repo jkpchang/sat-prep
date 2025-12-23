@@ -595,12 +595,6 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
           </View>
         ) : (
           <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.buttonSecondary}
-              onPress={handleFinish}
-            >
-              <Text style={styles.buttonSecondaryText}>Finish</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.buttonPrimary} onPress={handleNext}>
               <Text style={styles.buttonText}>Next Question</Text>
             </TouchableOpacity>

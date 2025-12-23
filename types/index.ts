@@ -5,6 +5,7 @@ export interface Question {
   correctAnswer: number;
   explanation: string;
   category: "math" | "reading" | "writing";
+  subcategory?: string; // Further classify each question type (e.g. "math_algebra_linear_equations")
   difficultyLevel: number; // 1-10 scale for adaptive difficulty
   imageSvg?: string; // SVG markup as string (for simple diagrams)
   imageDataUri?: string; // Base64/data-uri image (e.g. data:image/svg+xml;base64,...)

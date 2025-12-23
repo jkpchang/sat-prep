@@ -7,7 +7,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "BROWSER=none expo start --web",
-    "create-test-users": "npx tsx scripts/createTestUsers.ts"
+    "create-test-users": "npx tsx scripts/createTestUsers.ts",
+    "generate-formula-svg": "npx tsx scripts/generateFormulaSvg.ts",
+    "generate-option-svgs": "npx tsx scripts/generateOptionSvgs.ts"
   },
   "dependencies": {
     "@expo-google-fonts/comfortaa": "^0.4.2",
