@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { Question } from "../types";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { ReportQuestionModal } from "./ReportQuestionModal";
 
 interface QuestionCardProps {
   question: Question;
@@ -18,6 +19,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   onSelectAnswer,
   showResult,
 }) => {
+  const [showReportModal, setShowReportModal] = useState(false);
+
   const getOptionStyle = (index: number) => {
     if (!showResult) {
       return selectedAnswer === index ? styles.optionSelected : styles.option;
@@ -94,8 +97,20 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         <View style={styles.explanationContainer}>
           <Text style={styles.explanationLabel}>Explanation:</Text>
           <Text style={styles.explanationText}>{question.explanation}</Text>
+          <TouchableOpacity
+            style={styles.reportLink}
+            onPress={() => setShowReportModal(true)}
+          >
+            <Text style={styles.reportLinkText}>Report an issue with this question</Text>
+          </TouchableOpacity>
         </View>
       )}
+
+      <ReportQuestionModal
+        visible={showReportModal}
+        questionId={question.id}
+        onClose={() => setShowReportModal(false)}
+      />
     </View>
   );
 };
@@ -224,5 +239,15 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 200,
+  },
+  reportLink: {
+    marginTop: 12,
+    paddingVertical: 8,
+  },
+  reportLinkText: {
+    fontSize: 13,
+    fontFamily: typography.fontFamily.regular,
+    color: theme.colors.info,
+    textDecorationLine: "underline",
   },
 });

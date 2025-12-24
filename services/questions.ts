@@ -1346,3 +1346,81 @@ export const getQuestionsByDifficultyLevel = (
   );
   return getFilteredQuestions(difficultyQuestions);
 };
+
+// Question reporting functionality
+import { supabase } from "./supabaseClient";
+
+export interface QuestionReportResult {
+  success: boolean;
+  error: string | null;
+}
+
+export async function submitQuestionReport(
+  questionId: number,
+  reason: string,
+  customReason: string | null = null
+): Promise<QuestionReportResult> {
+  try {
+    // Get current session
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    // Ensure we have a session (either authenticated or anonymous)
+    let currentSession = session;
+    if (!currentSession) {
+      const { data: anonData, error: anonError } =
+        await supabase.auth.signInAnonymously();
+      if (anonError || !anonData.session) {
+        return {
+          success: false,
+          error: "Authentication required. Please try again.",
+        };
+      }
+      currentSession = anonData.session;
+    }
+
+    const userId = currentSession.user.id;
+
+    // Prepare the insert data
+    const insertData: {
+      question_id: number;
+      user_id: string;
+      reason: string;
+      custom_reason?: string | null;
+    } = {
+      question_id: questionId,
+      user_id: userId,
+      reason,
+    };
+
+    // Only include custom_reason if it's not null/empty
+    if (customReason && customReason.trim()) {
+      insertData.custom_reason = customReason.trim();
+    }
+
+    const { error } = await supabase
+      .from("question_reports")
+      .insert(insertData)
+      .select();
+
+    if (error) {
+      console.error("Error submitting question report:", error);
+      return {
+        success: false,
+        error: error.message || "Failed to submit report. Please try again.",
+      };
+    }
+
+    return { success: true, error: null };
+  } catch (err) {
+    console.error("Exception submitting question report:", err);
+    return {
+      success: false,
+      error:
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred. Please try again.",
+    };
+  }
+}
