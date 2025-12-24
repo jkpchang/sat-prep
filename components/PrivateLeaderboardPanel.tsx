@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { PrivateLeaderboard, LeaderboardMember } from "../types";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 interface PrivateLeaderboardPanelProps {
   leaderboard: PrivateLeaderboard;
@@ -66,12 +67,12 @@ export const PrivateLeaderboardPanel: React.FC<
         <View style={styles.headerButtons}>
           {onRefresh && (
             <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
-              <Text style={styles.refreshIcon}>🔄</Text>
+              <AppIcon name="ui.refresh" tone="muted" size="sm" />
             </TouchableOpacity>
           )}
           {isOwner && onManage && (
             <TouchableOpacity style={styles.manageButton} onPress={onManage}>
-              <Text style={styles.manageButtonIcon}>⚙️</Text>
+              <AppIcon name="ui.settings" tone="muted" size="sm" />
             </TouchableOpacity>
           )}
         </View>
@@ -83,24 +84,38 @@ export const PrivateLeaderboardPanel: React.FC<
             style={[styles.tab, sortBy === "xp" && styles.activeTab]}
             onPress={() => setSortBy("xp")}
           >
-            <Text
-              style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}
-            >
-              ⭐ XP
-            </Text>
+            <View style={styles.tabContent}>
+              <AppIcon
+                name="stat.xp"
+                tone={sortBy === "xp" ? "xp" : "muted"}
+                size="xs"
+              />
+              <Text
+                style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}
+              >
+                XP
+              </Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, sortBy === "streak" && styles.activeTab]}
             onPress={() => setSortBy("streak")}
           >
-            <Text
-              style={[
-                styles.tabText,
-                sortBy === "streak" && styles.activeTabText,
-              ]}
-            >
-              🔥 Streak
-            </Text>
+            <View style={styles.tabContent}>
+              <AppIcon
+                name="stat.dayStreak"
+                tone={sortBy === "streak" ? "dayStreak" : "muted"}
+                size="xs"
+              />
+              <Text
+                style={[
+                  styles.tabText,
+                  sortBy === "streak" && styles.activeTabText,
+                ]}
+              >
+                Streak
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -129,14 +144,21 @@ export const PrivateLeaderboardPanel: React.FC<
               >
                 {entry.username || "Unknown"}
               </Text>
-              <Text
-                style={[styles.value, isCurrentUser && styles.currentUserText]}
-              >
-                <Text style={styles.valueIcon}>
-                  {sortBy === "xp" ? "⭐" : "🔥"}
+              <View style={styles.valueWrap}>
+                <AppIcon
+                  name={sortBy === "xp" ? "stat.xp" : "stat.dayStreak"}
+                  tone={sortBy === "xp" ? "xp" : "dayStreak"}
+                  size="xs"
+                />
+                <Text
+                  style={[
+                    styles.valueNumber,
+                    isCurrentUser && styles.currentUserText,
+                  ]}
+                >
+                  {sortBy === "xp" ? entry.totalXP : entry.dayStreak}
                 </Text>
-                {sortBy === "xp" ? entry.totalXP : entry.dayStreak}
-              </Text>
+              </View>
             </TouchableOpacity>
           );
         })}
@@ -196,9 +218,6 @@ const styles = StyleSheet.create({
     minWidth: 32,
     minHeight: 32,
   },
-  refreshIcon: {
-    fontSize: 18,
-  },
   manageButton: {
     paddingVertical: 6,
     paddingHorizontal: 8,
@@ -208,9 +227,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minWidth: 32,
     minHeight: 32,
-  },
-  manageButtonIcon: {
-    fontSize: 18,
   },
   tabsContainer: {
     marginBottom: 12,
@@ -245,6 +261,11 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: theme.colors.primary,
   },
+  tabContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
   entriesContainer: {
     gap: 8,
   },
@@ -274,17 +295,18 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginLeft: 12,
   },
-  value: {
+  valueWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    minWidth: 60,
+    justifyContent: "flex-end",
+  },
+  valueNumber: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
-    minWidth: 60,
     textAlign: "right",
-    lineHeight: 20,
-  },
-  valueIcon: {
-    fontSize: 14,
-    marginRight: 3,
     lineHeight: 20,
   },
   currentUserText: {

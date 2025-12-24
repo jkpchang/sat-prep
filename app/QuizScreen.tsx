@@ -20,6 +20,7 @@ import { gamificationService } from "../services/gamification";
 import { Question, Achievement } from "../types";
 import { StreakCelebrationModal } from "../components/StreakCelebrationModal";
 import { AchievementCelebrationModal } from "../components/AchievementCelebrationModal";
+import { AppIcon } from "../components/AppIcon";
 import {
   triggerSuccessFeedback,
   initializeFeedbackSound,
@@ -458,7 +459,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
                   },
                 ]}
               >
-                <Text style={styles.xpIcon}>⭐</Text>
+                <AppIcon name="stat.xp" size={16} tone="xp" />
                 <AnimatedXPText />
               </Animated.View>
             </View>
@@ -471,7 +472,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
             ]}
           >
             <View style={styles.completionCard}>
-              <Text style={styles.completionEmoji}>🎉</Text>
+              <View style={styles.completionIcon}>
+                <AppIcon name="ui.celebrate" tone="xp" size={44} />
+              </View>
               <Text style={styles.completionTitle}>
                 You are a genius! You've answered all our questions correctly!
               </Text>
@@ -529,7 +532,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
               },
             ]}
           >
-            <Text style={styles.xpIcon}>⭐</Text>
+            <AppIcon name="stat.xp" size={16} tone="xp" />
             <AnimatedXPText />
           </Animated.View>
           {xpGained > 0 && (
@@ -558,7 +561,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
-          { 
+          {
             paddingTop: insets.top + 82,
             paddingBottom: 120, // Extra padding to ensure explanation is visible above button panel
           },
@@ -573,10 +576,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       </ScrollView>
 
       <View
-        style={[
-          styles.buttonContainer,
-          { paddingBottom: insets.bottom + 16 },
-        ]}
+        style={[styles.buttonContainer, { paddingBottom: insets.bottom + 16 }]}
       >
         {!showResult ? (
           <View
@@ -638,7 +638,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
               ]}
               pointerEvents="none"
             >
-              <Text style={styles.starEmoji}>⭐</Text>
+              <AppIcon name="stat.xp" tone="xp" size={24} />
             </Animated.View>
           );
         })}
@@ -847,8 +847,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: 16,
   },
-  completionEmoji: {
-    fontSize: 64,
+  completionIcon: {
     marginBottom: 16,
   },
   completionTitle: {

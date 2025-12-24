@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LeaderboardEntry } from "../types";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 interface GlobalLeaderboardPanelProps {
   type: "xp" | "streak";
@@ -26,23 +27,43 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
   if (entries.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>
-          Global Leaderboard - {type === "xp" ? "⭐ XP" : "🔥 Days Streak"}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.titleText}>Global Leaderboard -</Text>
+          <View style={styles.titleMetric}>
+            <AppIcon
+              name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
+              tone={type === "xp" ? "xp" : "dayStreak"}
+              size="sm"
+            />
+            <Text style={styles.titleMetricText}>
+              {type === "xp" ? "XP" : "Days Streak"}
+            </Text>
+          </View>
+        </View>
         <Text style={styles.emptyText}>No entries available</Text>
       </View>
     );
   }
 
-  const title = `Global Leaderboard - ${type === "xp" ? "⭐ XP" : "🔥 Days Streak"}`;
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.titleText}>Global Leaderboard -</Text>
+          <View style={styles.titleMetric}>
+            <AppIcon
+              name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
+              tone={type === "xp" ? "xp" : "dayStreak"}
+              size="sm"
+            />
+            <Text style={styles.titleMetricText}>
+              {type === "xp" ? "XP" : "Days Streak"}
+            </Text>
+          </View>
+        </View>
         {onRefresh && (
           <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
-            <Text style={styles.refreshIcon}>🔄</Text>
+            <AppIcon name="ui.refresh" tone="muted" size="sm" />
           </TouchableOpacity>
         )}
       </View>
@@ -68,12 +89,16 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
               >
                 {entry.username || "Unknown"}
               </Text>
-              <Text style={[styles.value, isCurrentUser && styles.currentUserText]}>
-                <Text style={styles.valueIcon}>
-                  {type === "xp" ? "⭐" : "🔥"}
+              <View style={styles.valueWrap}>
+                <AppIcon
+                  name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
+                  tone={type === "xp" ? "xp" : "dayStreak"}
+                  size="xs"
+                />
+                <Text style={[styles.valueNumber, isCurrentUser && styles.currentUserText]}>
+                  {type === "xp" ? entry.totalXP : entry.dayStreak}
                 </Text>
-                {type === "xp" ? entry.totalXP : entry.dayStreak}
-              </Text>
+              </View>
             </TouchableOpacity>
           );
         })}
@@ -104,11 +129,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
-  title: {
+  titleRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingRight: 8,
+  },
+  titleText: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
-    flex: 1,
+  },
+  titleMetric: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  titleMetricText: {
+    fontSize: 18,
+    fontFamily: typography.fontFamily.bold,
+    color: theme.colors.text,
   },
   refreshButton: {
     paddingVertical: 4,
@@ -119,9 +161,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minWidth: 32,
     minHeight: 32,
-  },
-  refreshIcon: {
-    fontSize: 18,
   },
   entriesContainer: {
     gap: 8,
@@ -152,17 +191,18 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginLeft: 12,
   },
-  value: {
+  valueWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    minWidth: 60,
+    justifyContent: "flex-end",
+  },
+  valueNumber: {
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
-    minWidth: 60,
     textAlign: "right",
-    lineHeight: 20,
-  },
-  valueIcon: {
-    fontSize: 14,
-    marginRight: 3,
     lineHeight: 20,
   },
   currentUserText: {

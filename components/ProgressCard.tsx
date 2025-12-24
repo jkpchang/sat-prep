@@ -2,21 +2,34 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon, AppIconName, AppIconTone, AppIconSize } from "./AppIcon";
 
 interface ProgressCardProps {
   label: string;
   value: string | number;
   icon?: string;
+  iconName?: AppIconName;
+  iconTone?: AppIconTone;
+  iconSize?: AppIconSize;
 }
 
 export const ProgressCard: React.FC<ProgressCardProps> = ({
   label,
   value,
   icon,
+  iconName,
+  iconTone,
+  iconSize = "md",
 }) => {
   return (
     <View style={styles.container}>
-      {icon && <Text style={styles.icon}>{icon}</Text>}
+      {iconName ? (
+        <View style={styles.iconWrap}>
+          <AppIcon name={iconName} tone={iconTone} size={iconSize} />
+        </View>
+      ) : (
+        icon && <Text style={styles.iconText}>{icon}</Text>
+      )}
       <Text style={styles.value}>{value}</Text>
       <Text style={styles.label}>{label}</Text>
     </View>
@@ -34,7 +47,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     minWidth: 100,
   },
-  icon: {
+  iconWrap: {
+    marginBottom: 6,
+  },
+  iconText: {
     fontSize: 24,
     marginBottom: 4,
   },

@@ -13,6 +13,7 @@ import { LeaderboardMember } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 interface DeleteMemberModalProps {
   visible: boolean;
@@ -106,7 +107,7 @@ export const DeleteMemberModal: React.FC<DeleteMemberModalProps> = ({
                   {member.username || "Unknown"}
                 </Text>
                 {selectedUserId === member.userId && (
-                  <Text style={styles.checkmark}>✓</Text>
+                  <AppIcon name="ui.check" size="sm" color={theme.colors.successStrong} />
                 )}
               </TouchableOpacity>
             ))}

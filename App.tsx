@@ -22,6 +22,7 @@ import { PrivateLeaderboardScreen } from "./app/PrivateLeaderboardScreen";
 import { UserProfileScreen } from "./app/UserProfileScreen";
 import { AuthProvider } from "./contexts/AuthContext";
 import { theme } from "./theme";
+import { AppIcon } from "./components/AppIcon";
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -73,14 +74,11 @@ function HomeTabs() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Text
-              style={{
-                fontSize: 32,
-                color: focused ? theme.colors.primary : theme.colors.textMuted,
-              }}
-            >
-              🏠
-            </Text>
+            <AppIcon
+              name="nav.home"
+              size="lg"
+              color={focused ? theme.colors.primaryPressed : theme.colors.textMuted}
+            />
           ),
         }}
       />
@@ -89,14 +87,11 @@ function HomeTabs() {
         component={LeaderboardScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Text
-              style={{
-                fontSize: 32,
-                color: focused ? theme.colors.primary : theme.colors.textMuted,
-              }}
-            >
-              🏆
-            </Text>
+            <AppIcon
+              name="nav.leaderboard"
+              size="lg"
+              color={focused ? theme.colors.warningText : theme.colors.textMuted}
+            />
           ),
         }}
       />
@@ -105,14 +100,11 @@ function HomeTabs() {
         component={ProgressScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Text
-              style={{
-                fontSize: 32,
-                color: focused ? theme.colors.primary : theme.colors.textMuted,
-              }}
-            >
-              📊
-            </Text>
+            <AppIcon
+              name="nav.progress"
+              size="lg"
+              color={focused ? theme.colors.infoStrong : theme.colors.textMuted}
+            />
           ),
         }}
       />
@@ -121,14 +113,11 @@ function HomeTabs() {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Text
-              style={{
-                fontSize: 32,
-                color: focused ? theme.colors.primary : theme.colors.textMuted,
-              }}
-            >
-              👤
-            </Text>
+            <AppIcon
+              name="nav.profile"
+              size="lg"
+              color={focused ? theme.colors.secondaryPressed : theme.colors.textMuted}
+            />
           ),
         }}
       />

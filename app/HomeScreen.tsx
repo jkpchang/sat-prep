@@ -115,13 +115,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <View style={styles.progressSection}>
         <Text style={styles.sectionTitle}>Your Progress</Text>
         <View style={styles.progressGrid}>
-          <ProgressCard label="Total XP" value={progress.totalXP} icon="⭐" />
+          <ProgressCard
+            label="Total XP"
+            value={progress.totalXP}
+            iconName="stat.xp"
+            iconTone="xp"
+          />
           <ProgressCard
             label="Questions"
             value={progress.questionsAnswered}
-            icon="❓"
+            iconName="stat.questions"
+            iconTone="questions"
           />
-          <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
+          <ProgressCard
+            label="Accuracy"
+            value={`${accuracy}%`}
+            iconName="stat.accuracy"
+            iconTone="accuracy"
+          />
         </View>
       </View>
 

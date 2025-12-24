@@ -11,6 +11,7 @@ import {
 import { typography } from "../styles/typography";
 import { Achievement } from "../types";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CONFETTI_COUNT = 25;
@@ -187,7 +188,7 @@ export const AchievementCelebrationModal: React.FC<
               ]}
               pointerEvents="none"
             >
-              <Text style={styles.confettiEmoji}>🎉</Text>
+              <AppIcon name="ui.celebrate" tone="xp" size={32} />
             </Animated.View>
           );
         })}

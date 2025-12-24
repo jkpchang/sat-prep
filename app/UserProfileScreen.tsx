@@ -159,29 +159,43 @@ export const UserProfileScreen: React.FC<UserProfileScreenProps> = ({
         <Text style={styles.sectionTitle}>Statistics</Text>
         <View style={styles.progressGrid}>
           <View style={styles.gridRow}>
-            <ProgressCard label="Total XP" value={stats.totalXP} icon="⭐" />
+            <ProgressCard
+              label="Total XP"
+              value={stats.totalXP}
+              iconName="stat.xp"
+              iconTone="xp"
+            />
             <ProgressCard
               label="Questions"
               value={stats.questionsAnswered}
-              icon="❓"
+              iconName="stat.questions"
+              iconTone="questions"
             />
             <ProgressCard
               label="Correct"
               value={stats.correctAnswers}
-              icon="✅"
+              iconName="stat.correct"
+              iconTone="correct"
             />
           </View>
           <View style={styles.gridRow}>
-            <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
+            <ProgressCard
+              label="Accuracy"
+              value={`${accuracy}%`}
+              iconName="stat.accuracy"
+              iconTone="accuracy"
+            />
             <ProgressCard
               label="Day Streak"
               value={stats.dayStreak}
-              icon="🔥"
+              iconName="stat.dayStreak"
+              iconTone="dayStreak"
             />
             <ProgressCard
               label="Answer Streak"
               value={stats.answerStreak}
-              icon="⚡"
+              iconName="stat.answerStreak"
+              iconTone="answerStreak"
             />
           </View>
         </View>

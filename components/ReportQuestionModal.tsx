@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
 import { submitQuestionReport } from "../services/questions";
+import { AppIcon } from "./AppIcon";
 
 interface ReportQuestionModalProps {
   visible: boolean;
@@ -96,7 +97,7 @@ export const ReportQuestionModal: React.FC<ReportQuestionModalProps> = ({
             onPress={handleClose}
             disabled={loading}
           >
-            <Text style={styles.closeButtonText}>✕</Text>
+            <AppIcon name="ui.close" size="md" tone="muted" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Report Question</Text>
           <View style={styles.headerSpacer} />
@@ -104,7 +105,7 @@ export const ReportQuestionModal: React.FC<ReportQuestionModalProps> = ({
 
         {submitted ? (
           <View style={styles.successContainer}>
-            <Text style={styles.successIcon}>✓</Text>
+            <AppIcon name="ui.check" size={64} color={theme.colors.success} />
             <Text style={styles.successTitle}>Thank you!</Text>
             <Text style={styles.successMessage}>
               We'll look into it... eventually. 😅

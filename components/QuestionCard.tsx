@@ -5,6 +5,7 @@ import { Question } from "../types";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
 import { ReportQuestionModal } from "./ReportQuestionModal";
+import { AppIcon } from "./AppIcon";
 
 interface QuestionCardProps {
   question: Question;
@@ -83,12 +84,12 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               <Text style={styles.optionText}>{option}</Text>
             )}
             {showResult && index === question.correctAnswer && (
-              <Text style={styles.checkmark}>✓</Text>
+              <AppIcon name="ui.check" size="sm" color={theme.colors.successStrong} />
             )}
             {showResult &&
               selectedAnswer === index &&
               index !== question.correctAnswer && (
-                <Text style={styles.crossmark}>✗</Text>
+                <AppIcon name="ui.close" size="sm" color={theme.colors.dangerStrong} />
               )}
           </TouchableOpacity>
         ))}

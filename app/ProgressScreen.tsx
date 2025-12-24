@@ -158,30 +158,40 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({
               <ProgressCard
                 label="Total XP"
                 value={progress.totalXP}
-                icon="⭐"
+                iconName="stat.xp"
+                iconTone="xp"
               />
               <ProgressCard
                 label="Questions"
                 value={progress.questionsAnswered}
-                icon="❓"
+                iconName="stat.questions"
+                iconTone="questions"
               />
               <ProgressCard
                 label="Correct"
                 value={progress.correctAnswers}
-                icon="✅"
+                iconName="stat.correct"
+                iconTone="correct"
               />
             </View>
             <View style={styles.gridRow}>
-              <ProgressCard label="Accuracy" value={`${accuracy}%`} icon="🎯" />
+              <ProgressCard
+                label="Accuracy"
+                value={`${accuracy}%`}
+                iconName="stat.accuracy"
+                iconTone="accuracy"
+              />
               <ProgressCard
                 label="Day Streak"
                 value={progress.dayStreak}
-                icon="🔥"
+                iconName="stat.dayStreak"
+                iconTone="dayStreak"
               />
               <ProgressCard
                 label="Answer Streak"
                 value={progress.answerStreak}
-                icon="⚡"
+                iconName="stat.answerStreak"
+                iconTone="answerStreak"
               />
             </View>
           </View>

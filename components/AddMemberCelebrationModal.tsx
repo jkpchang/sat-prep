@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const STAR_COUNT = 15;
@@ -187,7 +188,7 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
               ]}
               pointerEvents="none"
             >
-              <Text style={styles.starEmoji}>⭐</Text>
+              <AppIcon name="stat.xp" tone="xp" size={32} />
             </Animated.View>
           );
         })}
@@ -202,7 +203,7 @@ export const AddMemberCelebrationModal: React.FC<AddMemberCelebrationModalProps>
           ]}
         >
           <View style={styles.starContainer}>
-            <Text style={styles.bigStar}>⭐</Text>
+            <AppIcon name="stat.xp" tone="xp" size={80} />
           </View>
 
           <Text style={styles.title}>Member Added!</Text>

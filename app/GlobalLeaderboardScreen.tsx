@@ -18,6 +18,7 @@ import { LeaderboardEntry } from "../types";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AppIcon } from "../components/AppIcon";
 
 type RootStackParamList = {
   Main: undefined;
@@ -82,14 +83,24 @@ export const GlobalLeaderboardScreen: React.FC<
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.backButton}>&lt; Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          Global - {type === "xp" ? "⭐ XP" : "🔥 Days Streak"}
-        </Text>
+        <View style={styles.headerTitleRow}>
+          <Text style={styles.headerTitleText}>Global -</Text>
+          <View style={styles.headerMetric}>
+            <AppIcon
+              name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
+              tone={type === "xp" ? "xp" : "dayStreak"}
+              size="sm"
+            />
+            <Text style={styles.headerTitleText}>
+              {type === "xp" ? "XP" : "Days Streak"}
+            </Text>
+          </View>
+        </View>
         <TouchableOpacity
           style={styles.refreshButton}
           onPress={() => refetch()}
         >
-          <Text style={styles.refreshIcon}>🔄</Text>
+          <AppIcon name="ui.refresh" tone="muted" size="sm" />
         </TouchableOpacity>
       </View>
 
@@ -134,17 +145,21 @@ export const GlobalLeaderboardScreen: React.FC<
                     >
                       {entry.username || "Unknown"}
                     </Text>
-                    <Text
-                      style={[
-                        styles.value,
-                        isCurrentUser && styles.currentUserText,
-                      ]}
-                    >
-                      <Text style={styles.valueIcon}>
-                        {type === "xp" ? "⭐" : "🔥"}
+                    <View style={styles.valueWrap}>
+                      <AppIcon
+                        name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
+                        tone={type === "xp" ? "xp" : "dayStreak"}
+                        size="xs"
+                      />
+                      <Text
+                        style={[
+                          styles.valueNumber,
+                          isCurrentUser && styles.currentUserText,
+                        ]}
+                      >
+                        {type === "xp" ? entry.totalXP : entry.dayStreak}
                       </Text>
-                      {type === "xp" ? entry.totalXP : entry.dayStreak}
-                    </Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -184,17 +199,21 @@ export const GlobalLeaderboardScreen: React.FC<
                     >
                       {entry.username || "Unknown"}
                     </Text>
-                    <Text
-                      style={[
-                        styles.value,
-                        isCurrentUser && styles.currentUserText,
-                      ]}
-                    >
-                      <Text style={styles.valueIcon}>
-                        {type === "xp" ? "⭐" : "🔥"}
+                    <View style={styles.valueWrap}>
+                      <AppIcon
+                        name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
+                        tone={type === "xp" ? "xp" : "dayStreak"}
+                        size="xs"
+                      />
+                      <Text
+                        style={[
+                          styles.valueNumber,
+                          isCurrentUser && styles.currentUserText,
+                        ]}
+                      >
+                        {type === "xp" ? entry.totalXP : entry.dayStreak}
                       </Text>
-                      {type === "xp" ? entry.totalXP : entry.dayStreak}
-                    </Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -231,10 +250,23 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.primary,
   },
-  headerTitle: {
+  headerTitleRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+  },
+  headerTitleText: {
     fontSize: 20,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
+  },
+  headerMetric: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   placeholder: {
     width: 60,
@@ -248,9 +280,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     minWidth: 32,
     minHeight: 32,
-  },
-  refreshIcon: {
-    fontSize: 18,
   },
   scrollView: {
     flex: 1,
@@ -289,11 +318,6 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
   },
-  valueIcon: {
-    fontSize: 16,
-    marginRight: 3,
-    lineHeight: 22,
-  },
   sectionTitle: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
@@ -315,11 +339,17 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginLeft: 12,
   },
-  value: {
+  valueWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    minWidth: 80,
+    justifyContent: "flex-end",
+  },
+  valueNumber: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
-    minWidth: 80,
     textAlign: "right",
     lineHeight: 22,
   },

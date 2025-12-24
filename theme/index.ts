@@ -57,6 +57,8 @@ export const baseTheme = {
     // Game / accents
     streak: "#FF6B6B",
     accentOrange: "#E67E22",
+    // XP / star accent (darker yellow for contrast on light pastel tiles)
+    xpGold: "#B8860B",
 
     // Disabled / misc neutrals found in UI
     disabled: "#BDC3C7",
@@ -145,6 +147,7 @@ export const themes = {
 
     streak: "#FF5DA2",
     accentOrange: "#FF9F1C",
+    xpGold: "#B8860B",
 
     disabled: "#C9D4E0",
     disabledBorder: "#AEBAC8",
@@ -154,7 +157,7 @@ export const themes = {
   // Like playfulMint, but softer/pastelier with a pastel yellow app background
   playfulMintPastelYellow: withColors({
     background: "#FFF7DB",
-    backgroundAlt: "#FFEFBE",
+    backgroundAlt: "#FFFBF0",
 
     surface: "#FFFFFF",
     surfaceElevated: "#FFFFFF",
@@ -201,6 +204,7 @@ export const themes = {
 
     streak: "#FF75B5",
     accentOrange: "#FFB457",
+    xpGold: "#f5f505",
 
     disabled: "#D6CFB8",
     disabledBorder: "#BFB79E",
@@ -256,6 +260,7 @@ export const themes = {
 
     streak: "#FF6B6B",
     accentOrange: "#FB8500",
+    xpGold: "#B8860B",
 
     disabled: "#E0D1BB",
     disabledBorder: "#C8B59A",
@@ -311,6 +316,7 @@ export const themes = {
 
     streak: "#FF4D8D",
     accentOrange: "#FF9F1C",
+    xpGold: "#B8860B",
 
     disabled: "#D7D0E8",
     disabledBorder: "#BFB4D6",
@@ -366,6 +372,7 @@ export const themes = {
 
     streak: "#FF3D7F",
     accentOrange: "#FF7A18",
+    xpGold: "#B8860B",
 
     disabled: "#C7D7E6",
     disabledBorder: "#AABFD3",

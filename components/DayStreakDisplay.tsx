@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 interface DayStreakDisplayProps {
   dayStreak: number;
@@ -20,7 +21,9 @@ export const DayStreakDisplay: React.FC<DayStreakDisplayProps> = ({
     <View style={styles.container}>
       {/* Left Zone: Day Streak */}
       <View style={[styles.leftZone, isGoalMet && styles.leftZoneFullWidth]}>
-        <Text style={styles.fireEmoji}>🔥</Text>
+        <View style={styles.iconWrap}>
+          <AppIcon name="stat.dayStreak" tone="onStrong" size="lg" />
+        </View>
         <View style={styles.textContainer}>
           <Text style={styles.streakNumber}>{dayStreak}</Text>
           <Text style={styles.streakLabel}>
@@ -44,7 +47,7 @@ export const DayStreakDisplay: React.FC<DayStreakDisplayProps> = ({
         <View style={styles.rightZone}>
           <View style={styles.completeContainer}>
             <View style={styles.checkmarkContainer}>
-              <Text style={styles.checkmark}>✓</Text>
+              <AppIcon name="ui.check" tone="onStrong" size="lg" />
             </View>
             <Text style={styles.completeText}>Daily goal completed!</Text>
           </View>
@@ -89,19 +92,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     marginBottom: 4,
   },
-  checkmark: {
-    fontSize: 32,
-    fontFamily: typography.fontFamily.bold,
-    color: theme.colors.white,
-  },
   completeText: {
     fontSize: 14,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.white,
     opacity: 0.9,
   },
-  fireEmoji: {
-    fontSize: 32,
+  iconWrap: {
     marginRight: 12,
   },
   textContainer: {

@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
+import { AppIcon } from "./AppIcon";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const FLAME_COUNT = 20;
@@ -187,7 +188,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({
               ]}
               pointerEvents="none"
             >
-              <Text style={styles.flameEmoji}>🔥</Text>
+              <AppIcon name="stat.dayStreak" tone="dayStreak" size={32} />
             </Animated.View>
           );
         })}
@@ -202,7 +203,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({
           ]}
         >
           <View style={styles.fireContainer}>
-            <Text style={styles.bigFire}>🔥</Text>
+            <AppIcon name="stat.dayStreak" tone="dayStreak" size={80} />
           </View>
 
           <Text style={styles.title}>Streak Extended!</Text>

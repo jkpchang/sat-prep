@@ -30,6 +30,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CustomAlert, AlertButton } from "../components/CustomAlert";
 import { gamificationService } from "../services/gamification";
 import { triggerSuccessFeedback } from "../utils/feedbackUtils";
+import { AppIcon } from "../components/AppIcon";
 
 type RootStackParamList = {
   Main: undefined;
@@ -213,7 +214,7 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           {leaderboard?.name || "Leaderboard"}
         </Text>
         <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-          <Text style={styles.refreshIcon}>🔄</Text>
+          <AppIcon name="ui.refresh" tone="muted" size="sm" />
         </TouchableOpacity>
       </View>
 
@@ -222,19 +223,33 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           style={[styles.tab, sortBy === "xp" && styles.activeTab]}
           onPress={() => setSortBy("xp")}
         >
-          <Text style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}>
-            ⭐ XP
-          </Text>
+          <View style={styles.tabContent}>
+            <AppIcon
+              name="stat.xp"
+              tone={sortBy === "xp" ? "xp" : "muted"}
+              size="xs"
+            />
+            <Text style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}>
+              XP
+            </Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, sortBy === "streak" && styles.activeTab]}
           onPress={() => setSortBy("streak")}
         >
-          <Text
-            style={[styles.tabText, sortBy === "streak" && styles.activeTabText]}
-          >
-            🔥 Streak
-          </Text>
+          <View style={styles.tabContent}>
+            <AppIcon
+              name="stat.dayStreak"
+              tone={sortBy === "streak" ? "dayStreak" : "muted"}
+              size="xs"
+            />
+            <Text
+              style={[styles.tabText, sortBy === "streak" && styles.activeTabText]}
+            >
+              Streak
+            </Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -263,14 +278,21 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
                 >
                   {member.username || "Unknown"}
                 </Text>
-                <Text
-                  style={[styles.value, isCurrentUser && styles.currentUserText]}
-                >
-                  <Text style={styles.valueIcon}>
-                    {sortBy === "xp" ? "⭐" : "🔥"}
+                <View style={styles.valueWrap}>
+                  <AppIcon
+                    name={sortBy === "xp" ? "stat.xp" : "stat.dayStreak"}
+                    tone={sortBy === "xp" ? "xp" : "dayStreak"}
+                    size="xs"
+                  />
+                  <Text
+                    style={[
+                      styles.valueNumber,
+                      isCurrentUser && styles.currentUserText,
+                    ]}
+                  >
+                    {sortBy === "xp" ? member.totalXP : member.dayStreak}
                   </Text>
-                  {sortBy === "xp" ? member.totalXP : member.dayStreak}
-                </Text>
+                </View>
               </TouchableOpacity>
             );
           })}
@@ -438,9 +460,6 @@ const styles = StyleSheet.create({
     minWidth: 32,
     minHeight: 32,
   },
-  refreshIcon: {
-    fontSize: 18,
-  },
   tabs: {
     flexDirection: "row",
     paddingHorizontal: 16,
@@ -468,6 +487,11 @@ const styles = StyleSheet.create({
   },
   activeTabText: {
     color: theme.colors.onPrimary,
+  },
+  tabContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   scrollView: {
     flex: 1,
@@ -513,17 +537,18 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginLeft: 12,
   },
-  value: {
+  valueWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    minWidth: 80,
+    justifyContent: "flex-end",
+  },
+  valueNumber: {
     fontSize: 18,
     fontFamily: typography.fontFamily.bold,
     color: theme.colors.text,
-    minWidth: 80,
     textAlign: "right",
-    lineHeight: 22,
-  },
-  valueIcon: {
-    fontSize: 16,
-    marginRight: 3,
     lineHeight: 22,
   },
   currentUserText: {
