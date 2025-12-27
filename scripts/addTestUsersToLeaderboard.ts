@@ -1,8 +1,8 @@
 /**
  * Script to add existing test users (test1-test15) to the "palm ct" leaderboard
- * 
+ *
  * Usage: npx tsx scripts/addTestUsersToLeaderboard.ts
- * 
+ *
  * Note: If you hit rate limits, either:
  * 1. Wait a few minutes and try again, or
  * 2. Set SUPABASE_SERVICE_ROLE_KEY environment variable to use service role key (bypasses RLS)
@@ -10,8 +10,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://mrxuawirygwcmxxexrlk.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_RYjzhGnXjLIkPXw83aY-rA_FNU_3Dt1";
+// Use environment variables, with fallback for local development
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 // Use service role key if available (bypasses RLS and rate limits)
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -25,11 +26,14 @@ async function addUsersToLeaderboard() {
   if (!SUPABASE_SERVICE_ROLE_KEY) {
     // Sign in anonymously to query leaderboards (RLS requires auth)
     await supabase.auth.signOut();
-    const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-    
+    const { data: authData, error: authError } =
+      await supabase.auth.signInAnonymously();
+
     if (authError || !authData.user) {
       console.error("Failed to authenticate:", authError);
-      console.error("\n💡 Tip: Set SUPABASE_SERVICE_ROLE_KEY environment variable to bypass auth and rate limits");
+      console.error(
+        "\n💡 Tip: Set SUPABASE_SERVICE_ROLE_KEY environment variable to bypass auth and rate limits"
+      );
       return;
     }
   } else {
@@ -52,7 +56,7 @@ async function addUsersToLeaderboard() {
       .select("id, owner_id, name")
       .eq("name", "palm ct")
       .limit(1);
-    
+
     if (!exactError && exactMatch && exactMatch.length > 0) {
       leaderboards = exactMatch;
       leaderboardError = null;
@@ -72,7 +76,9 @@ async function addUsersToLeaderboard() {
       .from("private_leaderboards")
       .select("id, name, owner_id");
     if (allLeaderboards) {
-      allLeaderboards.forEach(lb => console.log(`  - "${lb.name}" (ID: ${lb.id})`));
+      allLeaderboards.forEach((lb) =>
+        console.log(`  - "${lb.name}" (ID: ${lb.id})`)
+      );
     } else {
       console.log("  (none found)");
     }
@@ -82,7 +88,9 @@ async function addUsersToLeaderboard() {
 
   const leaderboardId = leaderboards[0].id;
   const leaderboardName = leaderboards[0].name;
-  console.log(`✓ Found leaderboard "${leaderboardName}" (ID: ${leaderboardId})\n`);
+  console.log(
+    `✓ Found leaderboard "${leaderboardName}" (ID: ${leaderboardId})\n`
+  );
 
   // Get user IDs for test1-test15
   const usernames = Array.from({ length: 15 }, (_, i) => `test${i + 1}`);
@@ -106,7 +114,7 @@ async function addUsersToLeaderboard() {
   }
 
   console.log(`✓ Found ${profiles.length} profiles:\n`);
-  profiles.forEach(p => console.log(`  - ${p.username} (${p.user_id})`));
+  profiles.forEach((p) => console.log(`  - ${p.username} (${p.user_id})`));
   console.log();
 
   // Add users to leaderboard one by one
@@ -150,4 +158,3 @@ addUsersToLeaderboard().catch((error) => {
   console.error("Fatal error:", error);
   process.exit(1);
 });
-

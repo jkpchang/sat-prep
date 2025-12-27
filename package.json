@@ -10,7 +10,11 @@
     "create-test-users": "npx tsx scripts/createTestUsers.ts",
     "generate-formula-svg": "npx tsx scripts/generateFormulaSvg.ts",
     "generate-option-svgs": "npx tsx scripts/generateOptionSvgs.ts",
-    "redistribute-answers": "npx tsx scripts/redistributeCorrectAnswers.ts"
+    "redistribute-answers": "npx tsx scripts/redistributeCorrectAnswers.ts",
+    "eas:update:preview": "eas update --branch preview",
+    "eas:update:production": "eas update --branch production",
+    "eas:build:preview": "eas build --profile preview",
+    "eas:build:production": "eas build --profile production"
   },
   "dependencies": {
     "@expo-google-fonts/comfortaa": "^0.4.2",

@@ -140,6 +140,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         title="View Full Progress →"
         onPress={() => navigation.navigate("Progress")}
         variant="ghost"
+        style={styles.viewProgressButton}
+        textStyle={styles.viewProgressButtonText}
       />
     </ScrollView>
   );
@@ -224,5 +226,11 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: 16,
     fontFamily: typography.fontFamily.bold,
+  },
+  viewProgressButton: {
+    marginTop: 24,
+  },
+  viewProgressButtonText: {
+    color: theme.colors.textMuted,
   },
 });

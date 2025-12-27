@@ -1,11 +1,11 @@
 /**
  * Script to create 20 fake test users with random stats
  * and add test1-test15 to the "palm ct" private leaderboard
- * 
+ *
  * Usage:
  *   npm run create-test-users
  *   or: npx tsx scripts/createTestUsers.ts
- * 
+ *
  * Note: If you encounter RLS permission errors when adding users to the leaderboard,
  * you can either:
  * 1. Sign in as the leaderboard owner before running this script, or
@@ -14,8 +14,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://mrxuawirygwcmxxexrlk.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_RYjzhGnXjLIkPXw83aY-rA_FNU_3Dt1";
+// Use environment variables, with fallback for local development
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -42,7 +43,8 @@ async function createTestUser(username: string): Promise<TestUser | null> {
     await supabase.auth.signOut();
 
     // Create anonymous auth user
-    const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+    const { data: authData, error: authError } =
+      await supabase.auth.signInAnonymously();
 
     if (authError || !authData.user) {
       console.error(`Failed to create auth user for ${username}:`, authError);
@@ -81,7 +83,9 @@ async function createTestUser(username: string): Promise<TestUser | null> {
       return { username, userId, totalXP, dayStreak };
     }
 
-    console.log(`✓ Created ${username} (${userId}) - XP: ${totalXP}, Streak: ${dayStreak}`);
+    console.log(
+      `✓ Created ${username} (${userId}) - XP: ${totalXP}, Streak: ${dayStreak}`
+    );
     return { username, userId, totalXP, dayStreak };
   } catch (error) {
     console.error(`Error creating user ${username}:`, error);
@@ -100,8 +104,9 @@ async function addUsersToLeaderboard(usernames: string[]): Promise<void> {
   // First, sign in as an anonymous user so we can query the leaderboard
   // (RLS requires authentication to view leaderboards)
   await supabase.auth.signOut();
-  const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-  
+  const { data: authData, error: authError } =
+    await supabase.auth.signInAnonymously();
+
   if (authError || !authData.user) {
     console.error("Failed to authenticate for leaderboard lookup:", authError);
     return;
@@ -122,7 +127,7 @@ async function addUsersToLeaderboard(usernames: string[]): Promise<void> {
       .select("id, owner_id, name")
       .eq("name", "palm ct")
       .limit(1);
-    
+
     if (!exactError && exactMatch && exactMatch.length > 0) {
       leaderboards = exactMatch;
       leaderboardError = null;
@@ -136,14 +141,18 @@ async function addUsersToLeaderboard(usernames: string[]): Promise<void> {
   }
 
   if (!leaderboards || leaderboards.length === 0) {
-    console.error("❌ Leaderboard 'palm ct' not found. Please create it first.");
+    console.error(
+      "❌ Leaderboard 'palm ct' not found. Please create it first."
+    );
     console.log("Available leaderboards:");
     // List all leaderboards for debugging
     const { data: allLeaderboards } = await supabase
       .from("private_leaderboards")
       .select("id, name, owner_id");
     if (allLeaderboards) {
-      allLeaderboards.forEach(lb => console.log(`  - "${lb.name}" (ID: ${lb.id})`));
+      allLeaderboards.forEach((lb) =>
+        console.log(`  - "${lb.name}" (ID: ${lb.id})`)
+      );
     }
     await supabase.auth.signOut();
     return;
@@ -152,7 +161,9 @@ async function addUsersToLeaderboard(usernames: string[]): Promise<void> {
   const leaderboardId = leaderboards[0].id;
   const ownerId = leaderboards[0].owner_id;
 
-  console.log(`Found leaderboard "palm ct" (ID: ${leaderboardId}, Owner: ${ownerId})`);
+  console.log(
+    `Found leaderboard "palm ct" (ID: ${leaderboardId}, Owner: ${ownerId})`
+  );
 
   // Get user IDs for the test users
   const { data: profiles, error: profilesError } = await supabase
@@ -197,13 +208,19 @@ async function addUsersToLeaderboard(usernames: string[]): Promise<void> {
   }
 
   if (successCount > 0) {
-    console.log(`✓ Added ${successCount} out of ${profiles.length} users to "palm ct" leaderboard`);
+    console.log(
+      `✓ Added ${successCount} out of ${profiles.length} users to "palm ct" leaderboard`
+    );
     if (successCount < profiles.length) {
       console.log("⚠️  Some users could not be added due to RLS policies.");
-      console.log("   Consider using a service role key or signing in as the leaderboard owner.");
+      console.log(
+        "   Consider using a service role key or signing in as the leaderboard owner."
+      );
     }
   } else {
-    console.error("❌ Failed to add any users to leaderboard. Check RLS policies.");
+    console.error(
+      "❌ Failed to add any users to leaderboard. Check RLS policies."
+    );
   }
 
   // Sign out after we're done
@@ -229,7 +246,9 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  console.log(`\n✓ Created ${createdUsers.length} out of ${usernames.length} users\n`);
+  console.log(
+    `\n✓ Created ${createdUsers.length} out of ${usernames.length} users\n`
+  );
 
   // Add test1-test15 to the "palm ct" leaderboard
   console.log("Adding test1-test15 to 'palm ct' leaderboard...\n");
@@ -239,7 +258,9 @@ async function main() {
   console.log("\n✅ Done!");
   console.log("\nCreated users:");
   createdUsers.forEach((user) => {
-    console.log(`  ${user.username}: XP=${user.totalXP}, Streak=${user.dayStreak}`);
+    console.log(
+      `  ${user.username}: XP=${user.totalXP}, Streak=${user.dayStreak}`
+    );
   });
 }
 
@@ -248,4 +269,3 @@ main().catch((error) => {
   console.error("Fatal error:", error);
   process.exit(1);
 });
-
