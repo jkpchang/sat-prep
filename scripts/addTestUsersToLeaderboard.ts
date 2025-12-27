@@ -1,20 +1,35 @@
 /**
  * Script to add existing test users (test1-test15) to the "palm ct" leaderboard
  *
- * Usage: npx tsx scripts/addTestUsersToLeaderboard.ts
+ * Usage:
+ *   npx tsx scripts/addTestUsersToLeaderboard.ts
+ *   or: STAGING=true npx tsx scripts/addTestUsersToLeaderboard.ts (for staging)
  *
  * Note: If you hit rate limits, either:
  * 1. Wait a few minutes and try again, or
- * 2. Set SUPABASE_SERVICE_ROLE_KEY environment variable to use service role key (bypasses RLS)
+ * 2. Set EXPO_SUPABASE_SERVICE_ROLE_KEY environment variable to use service role key (bypasses RLS)
  */
 
 import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
+import { resolve } from "path";
+
+// Load environment variables from .env.staging if STAGING=true, otherwise use default
+if (process.env.STAGING === "true") {
+  const envPath = resolve(process.cwd(), ".env.staging");
+  dotenv.config({ path: envPath });
+  console.log("📦 Loading staging environment from .env.staging\n");
+} else {
+  // Try to load .env.local or default .env
+  dotenv.config({ path: resolve(process.cwd(), ".env.local") });
+  dotenv.config(); // Fallback to .env
+}
 
 // Use environment variables, with fallback for local development
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 // Use service role key if available (bypasses RLS and rate limits)
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.EXPO_SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(
   SUPABASE_URL,
@@ -32,7 +47,7 @@ async function addUsersToLeaderboard() {
     if (authError || !authData.user) {
       console.error("Failed to authenticate:", authError);
       console.error(
-        "\n💡 Tip: Set SUPABASE_SERVICE_ROLE_KEY environment variable to bypass auth and rate limits"
+        "\n💡 Tip: Set EXPO_SUPABASE_SERVICE_ROLE_KEY environment variable to bypass auth and rate limits"
       );
       return;
     }

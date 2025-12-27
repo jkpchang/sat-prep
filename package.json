@@ -12,7 +12,7 @@
     "generate-option-svgs": "npx tsx scripts/generateOptionSvgs.ts",
     "redistribute-answers": "npx tsx scripts/redistributeCorrectAnswers.ts",
     "eas:update:preview": "eas update --branch preview",
-    "eas:update:production": "eas update --branch production",
+    "eas:update:production": "(mv .env.local .env.local.backup 2>/dev/null || true) && eas update --branch production --clear-cache; mv .env.local.backup .env.local 2>/dev/null || true",
     "eas:build:preview": "eas build --profile preview",
     "eas:build:production": "eas build --profile production"
   },
