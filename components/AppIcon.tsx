@@ -23,6 +23,7 @@ export type AppIconSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 export type AppIconTone =
   | "default"
+  | "white"
   | "muted"
   | "brand"
   | "onStrong"
@@ -86,6 +87,8 @@ function toneColor(tone: AppIconTone | undefined) {
       return theme.colors.infoStrong;
     case "dayStreak":
       return theme.colors.streak;
+    case "white":
+      return theme.colors.white;
     case "answerStreak":
       return theme.colors.accentOrange;
 

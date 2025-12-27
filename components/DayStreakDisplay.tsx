@@ -3,13 +3,12 @@ import { View, Text, StyleSheet } from "react-native";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
 import { AppIcon } from "./AppIcon";
+import { MIN_QUESTIONS_FOR_STREAK } from "../services/gamification";
 
 interface DayStreakDisplayProps {
   dayStreak: number;
   questionsAnsweredToday: number;
 }
-
-const MIN_QUESTIONS_FOR_STREAK = 5;
 
 export const DayStreakDisplay: React.FC<DayStreakDisplayProps> = ({
   dayStreak,

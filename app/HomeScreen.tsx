@@ -11,7 +11,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DayStreakDisplay } from "../components/DayStreakDisplay";
 import { ProgressCard } from "../components/ProgressCard";
 import { ThemedButton } from "../components/ThemedButton";
-import { gamificationService } from "../services/gamification";
+import {
+  gamificationService,
+  MIN_QUESTIONS_FOR_STREAK,
+} from "../services/gamification";
 import { UserProgress } from "../types";
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
@@ -101,9 +104,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <View style={styles.dailyChallenge}>
         <Text style={styles.challengeTitle}>📚 Daily Challenge</Text>
         <Text style={styles.challengeDescription}>
-          {progress.questionsAnsweredToday >= 5
+          {progress.questionsAnsweredToday >= MIN_QUESTIONS_FOR_STREAK
             ? "Daily goal completed! 🎉 But you can still keep practicing..."
-            : "Complete 5 questions today to maintain your streak!"}
+            : `Complete ${MIN_QUESTIONS_FOR_STREAK} questions today to maintain your streak!`}
         </Text>
         <ThemedButton
           title="Start Practice"

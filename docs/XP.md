@@ -14,7 +14,7 @@ XP (Experience Points) is the primary gamification currency in SatUP!. Users ear
 
 ### Streak Rewards
 - **Daily Streak Completion Bonus**: +5 🔥 XP
-  - Awarded when user completes their daily goal (5 questions)
+  - Awarded when user completes their daily goal (10 questions)
   - Available via "Collect +5 🔥 XP" button in the streak celebration modal
   - This is a bonus reward for maintaining consistency
 
@@ -72,7 +72,7 @@ When a question is answered correctly:
 2. **Streak Completion Bonus**
    - Amount: +5 XP
    - Triggered: When user clicks "Collect +5 🔥 XP" in streak celebration modal
-   - Condition: User has just completed their daily goal (5 questions)
+   - Condition: User has just completed their daily goal (10 questions)
 
 ### XP Never Decreases
 
@@ -117,7 +117,7 @@ async addBonusXP(amount: number): Promise<{
 
 ### Streak Bonus Flow
 
-1. **User completes 5 questions** → Streak celebration modal appears
+1. **User completes 10 questions** → Streak celebration modal appears
 2. **User clicks "Collect +5 🔥 XP"** → `handleCollectStreakXP()` called
 3. **Bonus XP added** → `gamificationService.addBonusXP(5)`
 4. **Animation triggered** → Same odometer effect as question XP

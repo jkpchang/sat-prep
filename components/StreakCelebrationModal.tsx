@@ -11,6 +11,7 @@ import {
 import { typography } from "../styles/typography";
 import { theme } from "../theme";
 import { AppIcon } from "./AppIcon";
+import { MIN_QUESTIONS_FOR_STREAK } from "../services/gamification";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const FLAME_COUNT = 20;
@@ -219,7 +220,7 @@ export const StreakCelebrationModal: React.FC<StreakCelebrationModalProps> = ({
           </View>
 
           <Text style={styles.message}>
-            Keep the fire burning! Answer 5 questions every day to maintain
+            Keep the fire burning! Answer {MIN_QUESTIONS_FOR_STREAK} questions every day to maintain
             your streak.
           </Text>
 

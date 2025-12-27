@@ -28,7 +28,6 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
     return (
       <View style={styles.container}>
         <View style={styles.titleRow}>
-          <Text style={styles.titleText}>Global Leaderboard -</Text>
           <View style={styles.titleMetric}>
             <AppIcon
               name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
@@ -49,7 +48,6 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <Text style={styles.titleText}>Global Leaderboard -</Text>
           <View style={styles.titleMetric}>
             <AppIcon
               name={type === "xp" ? "stat.xp" : "stat.dayStreak"}
@@ -73,18 +71,20 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
           return (
             <TouchableOpacity
               key={entry.userId}
-              style={[
-                styles.entry,
-                isCurrentUser && styles.currentUserEntry,
-              ]}
+              style={[styles.entry, isCurrentUser && styles.currentUserEntry]}
               onPress={() => onEntryPress?.(entry.userId)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.rank, isCurrentUser && styles.currentUserText]}>
+              <Text
+                style={[styles.rank, isCurrentUser && styles.currentUserText]}
+              >
                 {entry.rank}
               </Text>
               <Text
-                style={[styles.username, isCurrentUser && styles.currentUserText]}
+                style={[
+                  styles.username,
+                  isCurrentUser && styles.currentUserText,
+                ]}
                 numberOfLines={1}
               >
                 {entry.username || "Unknown"}
@@ -95,7 +95,12 @@ export const GlobalLeaderboardPanel: React.FC<GlobalLeaderboardPanelProps> = ({
                   tone={type === "xp" ? "xp" : "dayStreak"}
                   size="xs"
                 />
-                <Text style={[styles.valueNumber, isCurrentUser && styles.currentUserText]}>
+                <Text
+                  style={[
+                    styles.valueNumber,
+                    isCurrentUser && styles.currentUserText,
+                  ]}
+                >
                   {type === "xp" ? entry.totalXP : entry.dayStreak}
                 </Text>
               </View>
@@ -230,4 +235,3 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.bold,
   },
 });
-

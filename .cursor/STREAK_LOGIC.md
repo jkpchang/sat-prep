@@ -1,12 +1,12 @@
 # Day Streak Logic Documentation
 
 ## Overview
-The day streak system tracks consecutive days where the user answers a minimum of 5 questions per day. This ensures meaningful engagement rather than just opening the app.
+The day streak system tracks consecutive days where the user answers a minimum of 10 questions per day. This ensures meaningful engagement rather than just opening the app.
 
 ## Requirements
 
 ### Minimum Threshold
-- **5 questions per day** must be answered to count that day toward the streak
+- **10 questions per day** must be answered to count that day toward the streak
 - Questions can be correct or incorrect (both count)
 - Uses user's local timezone for day boundaries
 
@@ -18,7 +18,7 @@ The day streak system tracks consecutive days where the user answers a minimum o
   streak: number;                    // Current day streak count
   lastQuestionDate: string | null;   // Date (YYYY-MM-DD) of last question answered
   questionsAnsweredToday: number;    // Count of questions answered today
-  lastValidStreakDate: string | null; // Last date that counted toward streak (had 5+ questions)
+  lastValidStreakDate: string | null; // Last date that counted toward streak (had 10+ questions)
 }
 ```
 
@@ -33,7 +33,7 @@ When a user answers a question:
 1. Check if it's a new day - if so, reset `questionsAnsweredToday` to 0
 2. Increment `questionsAnsweredToday`
 3. Update `lastQuestionDate` to today
-4. If `questionsAnsweredToday` reaches 5, call `updateStreakForDay()`
+4. If `questionsAnsweredToday` reaches 10, call `updateStreakForDay()`
 
 ```typescript
 async recordPractice(isCorrect: boolean, questionId?: string) {
@@ -49,8 +49,8 @@ async recordPractice(isCorrect: boolean, questionId?: string) {
   this.progress.questionsAnsweredToday += 1;
   this.progress.lastQuestionDate = today;
   
-  // Check if we've hit the 5-question threshold
-  if (this.progress.questionsAnsweredToday === 5) {
+  // Check if we've hit the 10-question threshold
+  if (this.progress.questionsAnsweredToday === 10) {
     await this.updateStreakForDay(today);
   }
   
@@ -60,7 +60,7 @@ async recordPractice(isCorrect: boolean, questionId?: string) {
 
 ### 2. Streak Update Logic (`updateStreakForDay`)
 
-When the 5th question is answered on a day:
+When the 10th question is answered on a day:
 1. If no previous valid streak date: Start streak at 1
 2. If last valid date was yesterday: Increment streak
 3. If last valid date was today: Do nothing (already counted)
@@ -71,7 +71,7 @@ async updateStreakForDay(date: string) {
   const lastValidDate = this.progress.lastValidStreakDate;
   
   if (!lastValidDate) {
-    // First time hitting 5 questions - start streak
+    // First time hitting 10 questions - start streak
     this.progress.streak = 1;
     this.progress.lastValidStreakDate = date;
   } else if (isYesterday(lastValidDate)) {
@@ -137,24 +137,24 @@ async validateStreakOnStart() {
 ## Edge Cases
 
 ### 1. Partial Day Completion
-**Scenario**: User answers 4 questions, then day changes
-**Solution**: `questionsAnsweredToday` resets to 0 on new day. User must answer 5 questions on the new day to continue streak.
+**Scenario**: User answers 9 questions, then day changes
+**Solution**: `questionsAnsweredToday` resets to 0 on new day. User must answer 10 questions on the new day to continue streak.
 
 ### 2. Timezone Changes
 **Scenario**: User travels across timezones
 **Solution**: Always use user's local timezone via `getTodayString()` which uses local date, not UTC.
 
 ### 3. Multiple Sessions Same Day
-**Scenario**: User answers 3 questions in morning, 2 in evening
-**Solution**: Counter persists across sessions. When 5th question is answered, streak updates.
+**Scenario**: User answers 6 questions in morning, 4 in evening
+**Solution**: Counter persists across sessions. When 10th question is answered, streak updates.
 
 ### 4. App Not Opened for Days
 **Scenario**: User doesn't open app for 3 days
 **Solution**: On app start, `validateStreakOnStart()` detects gap > 1 day and resets streak to 0.
 
-### 5. Answering More Than 5 Questions
-**Scenario**: User answers 10 questions in one day
-**Solution**: Streak updates when 5th question is answered. Additional questions don't affect streak for that day.
+### 5. Answering More Than 10 Questions
+**Scenario**: User answers 15 questions in one day
+**Solution**: Streak updates when 10th question is answered. Additional questions don't affect streak for that day.
 
 ## Display Logic
 
@@ -177,7 +177,7 @@ async validateStreakOnStart() {
 ### Duolingo
 - Requires completing a lesson (not just opening app)
 - Streak freezes available (premium feature)
-- **Our approach**: Similar - requires meaningful activity (5 questions)
+- **Our approach**: Similar - requires meaningful activity (10 questions)
 
 ### Habitica
 - Requires checking off daily tasks
@@ -192,7 +192,7 @@ async validateStreakOnStart() {
 ## Implementation Details
 
 ### Constants
-- `MIN_QUESTIONS_FOR_STREAK = 5` - Minimum questions required per day
+- `MIN_QUESTIONS_FOR_STREAK = 10` - Minimum questions required per day
 
 ### Date Utilities
 All date operations use local timezone via `getTodayString()`:
@@ -202,13 +202,13 @@ All date operations use local timezone via `getTodayString()`:
 
 ## Testing Scenarios
 
-1. **First 5 questions**: Streak should start at 1
-2. **5 questions on consecutive days**: Streak should increment
-3. **4 questions one day, 5 next day**: First day doesn't count, second day starts streak
-4. **5 questions, then 2-day gap**: Streak should reset to 0
+1. **First 10 questions**: Streak should start at 1
+2. **10 questions on consecutive days**: Streak should increment
+3. **9 questions one day, 10 next day**: First day doesn't count, second day starts streak
+4. **10 questions, then 2-day gap**: Streak should reset to 0
 5. **App restart mid-day**: Counter should persist
 6. **App restart after day change**: Counter should reset, streak validated
-7. **10 questions in one day**: Streak updates at 5th question, additional questions don't affect it
+7. **15 questions in one day**: Streak updates at 10th question, additional questions don't affect it
 
 ## Future Enhancements
 

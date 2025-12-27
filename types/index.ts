@@ -22,7 +22,7 @@ export interface UserProgress {
   answerStreak: number; // Number of questions answered correctly in a row
   lastQuestionDate: string | null; // Date (YYYY-MM-DD) of last question answered
   questionsAnsweredToday: number; // Count of questions answered today
-  lastValidStreakDate: string | null; // Last date that counted toward streak (had 5+ questions)
+  lastValidStreakDate: string | null; // Last date that counted toward streak (had 10+ questions)
   achievements: string[];
   answeredQuestionIds: number[]; // Track which questions have been answered CORRECTLY (users can retry incorrect ones)
 }

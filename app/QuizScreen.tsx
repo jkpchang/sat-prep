@@ -16,7 +16,10 @@ import {
   getRandomQuestion,
   getFilteredSampleQuestions,
 } from "../services/questions";
-import { gamificationService } from "../services/gamification";
+import {
+  gamificationService,
+  MIN_QUESTIONS_FOR_STREAK,
+} from "../services/gamification";
 import { Question, Achievement } from "../types";
 import { StreakCelebrationModal } from "../components/StreakCelebrationModal";
 import { AchievementCelebrationModal } from "../components/AchievementCelebrationModal";
@@ -60,6 +63,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
   const [showStars, setShowStars] = useState(false);
   const [showStreakCelebration, setShowStreakCelebration] = useState(false);
   const [dayStreak, setDayStreak] = useState(0);
+  const [questionsAnsweredToday, setQuestionsAnsweredToday] = useState(0);
   const [currentAchievement, setCurrentAchievement] =
     useState<Achievement | null>(null);
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
@@ -105,6 +109,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
     const progress = gamificationService.getProgress();
     setTotalXP(progress.totalXP);
     setDayStreak(progress.dayStreak);
+    setQuestionsAnsweredToday(progress.questionsAnsweredToday);
   };
 
   const loadNewQuestion = async () => {
@@ -298,6 +303,10 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
       setDayStreak(result.newDayStreak);
     }
 
+    // Update questions answered today
+    const updatedProgress = gamificationService.getProgress();
+    setQuestionsAnsweredToday(updatedProgress.questionsAnsweredToday);
+
     // Queue achievements and streak celebration together
     if (result.streakExtended || result.newAchievements.length > 0) {
       setTimeout(() => {
@@ -448,20 +457,30 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
             <View style={styles.headerCenter}>
-              <Text style={styles.headerTitle}>Practice</Text>
+              <Text style={styles.headerTitle}></Text>
             </View>
             <View style={styles.headerRight}>
-              <Animated.View
-                style={[
-                  styles.xpBadge,
-                  {
-                    transform: [{ scale: xpScaleAnim }],
-                  },
-                ]}
-              >
-                <AppIcon name="stat.xp" size={16} tone="xp" />
-                <AnimatedXPText />
-              </Animated.View>
+              <View style={styles.headerBadges}>
+                {questionsAnsweredToday < MIN_QUESTIONS_FOR_STREAK && (
+                  <View style={styles.streakBadge}>
+                    <AppIcon name="stat.dayStreak" size={16} tone="white" />
+                    <Text style={styles.streakBadgeText}>
+                      {questionsAnsweredToday} / {MIN_QUESTIONS_FOR_STREAK}
+                    </Text>
+                  </View>
+                )}
+                <Animated.View
+                  style={[
+                    styles.xpBadge,
+                    {
+                      transform: [{ scale: xpScaleAnim }],
+                    },
+                  ]}
+                >
+                  <AppIcon name="stat.xp" size={16} tone="xp" />
+                  <AnimatedXPText />
+                </Animated.View>
+              </View>
             </View>
           </View>
           <ScrollView
@@ -508,7 +527,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Practice</Text>
+          <Text style={styles.headerTitle}></Text>
         </View>
         <View
           style={styles.headerRight}
@@ -524,17 +543,27 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({ navigation }) => {
             );
           }}
         >
-          <Animated.View
-            style={[
-              styles.xpBadge,
-              {
-                transform: [{ scale: xpScaleAnim }],
-              },
-            ]}
-          >
-            <AppIcon name="stat.xp" size={16} tone="xp" />
-            <AnimatedXPText />
-          </Animated.View>
+          <View style={styles.headerBadges}>
+            {questionsAnsweredToday < MIN_QUESTIONS_FOR_STREAK && (
+              <View style={styles.streakBadge}>
+                <AppIcon name="stat.dayStreak" size={16} tone="white" />
+                <Text style={styles.streakBadgeText}>
+                  {questionsAnsweredToday} / {MIN_QUESTIONS_FOR_STREAK}
+                </Text>
+              </View>
+            )}
+            <Animated.View
+              style={[
+                styles.xpBadge,
+                {
+                  transform: [{ scale: xpScaleAnim }],
+                },
+              ]}
+            >
+              <AppIcon name="stat.xp" size={16} tone="xp" />
+              <AnimatedXPText />
+            </Animated.View>
+          </View>
           {xpGained > 0 && (
             <Animated.View
               style={[
@@ -743,9 +772,27 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
   },
   headerRight: {
-    width: 100,
     flexShrink: 0,
     alignItems: "flex-end",
+  },
+  headerBadges: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  streakBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.streak,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 4,
+  },
+  streakBadgeText: {
+    fontSize: 14,
+    fontFamily: typography.fontFamily.bold,
+    color: theme.colors.white,
   },
   backButton: {
     fontSize: 16,

@@ -51,10 +51,9 @@ interface PrivateLeaderboardScreenProps {
   route: { params: { leaderboardId: string } };
 }
 
-export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> = ({
-  navigation,
-  route,
-}) => {
+export const PrivateLeaderboardScreen: React.FC<
+  PrivateLeaderboardScreenProps
+> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const { authProfile } = useAuth();
   const queryClient = useQueryClient();
@@ -71,7 +70,8 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
   const [showDeleteMemberModal, setShowDeleteMemberModal] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [addedMemberUsername, setAddedMemberUsername] = useState("");
-  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  const [currentAchievement, setCurrentAchievement] =
+    useState<Achievement | null>(null);
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
 
   // Initialize gamification service
@@ -98,7 +98,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
     queryKey: ["privateLeaderboard", leaderboardId, authProfile?.userId],
     queryFn: async () => {
       if (!authProfile?.userId) return null;
-      const userLeaderboards = await getPrivateLeaderboardsForUser(authProfile.userId);
+      const userLeaderboards = await getPrivateLeaderboardsForUser(
+        authProfile.userId
+      );
       return userLeaderboards.find((l) => l.id === leaderboardId) || null;
     },
     enabled: !!authProfile?.userId,
@@ -146,9 +148,11 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
   const handleCollectAchievementXP = async (achievement: Achievement) => {
     // Trigger haptic and sound feedback when collecting XP
     triggerSuccessFeedback();
-    
+
     // Award the XP for this achievement
-    const result = await gamificationService.collectAchievementXP(achievement.id);
+    const result = await gamificationService.collectAchievementXP(
+      achievement.id
+    );
 
     // Check if this XP gain unlocked any new achievements
     if (result.newAchievements.length > 0) {
@@ -159,12 +163,19 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
 
   // Mutation for deleting leaderboard
   const deleteMutation = useMutation({
-    mutationFn: ({ leaderboardId, ownerId }: { leaderboardId: string; ownerId: string }) =>
-      deletePrivateLeaderboard(leaderboardId, ownerId),
+    mutationFn: ({
+      leaderboardId,
+      ownerId,
+    }: {
+      leaderboardId: string;
+      ownerId: string;
+    }) => deletePrivateLeaderboard(leaderboardId, ownerId),
     onSuccess: () => {
       // Invalidate queries to refresh the list
       queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
-      queryClient.invalidateQueries({ queryKey: ["privateLeaderboard", leaderboardId] });
+      queryClient.invalidateQueries({
+        queryKey: ["privateLeaderboard", leaderboardId],
+      });
       navigation.goBack();
     },
     onError: (error: any) => {
@@ -191,7 +202,10 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           style: "destructive",
           onPress: () => {
             hideAlert();
-            deleteMutation.mutate({ leaderboardId, ownerId: authProfile.userId });
+            deleteMutation.mutate({
+              leaderboardId,
+              ownerId: authProfile.userId,
+            });
           },
         },
       ]
@@ -229,7 +243,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
               tone={sortBy === "xp" ? "xp" : "muted"}
               size="xs"
             />
-            <Text style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}>
+            <Text
+              style={[styles.tabText, sortBy === "xp" && styles.activeTabText]}
+            >
               XP
             </Text>
           </View>
@@ -245,7 +261,10 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
               size="xs"
             />
             <Text
-              style={[styles.tabText, sortBy === "streak" && styles.activeTabText]}
+              style={[
+                styles.tabText,
+                sortBy === "streak" && styles.activeTabText,
+              ]}
             >
               Streak
             </Text>
@@ -258,7 +277,10 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       ) : (
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+        >
           {members.map((member) => {
             const isCurrentUser = member.userId === authProfile?.userId;
             return (
@@ -273,7 +295,10 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
                   {member.rank}
                 </Text>
                 <Text
-                  style={[styles.username, isCurrentUser && styles.currentUserText]}
+                  style={[
+                    styles.username,
+                    isCurrentUser && styles.currentUserText,
+                  ]}
                   numberOfLines={1}
                 >
                   {member.username || "Unknown"}
@@ -306,32 +331,32 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
           {isOwner && (
             <View style={styles.ownerActions}>
               <TouchableOpacity
-                style={styles.actionButton}
+                style={styles.actionButtonPrimary}
                 onPress={() => setShowAddMemberModal(true)}
               >
                 <Text style={styles.actionButtonIcon}>+</Text>
                 <Text style={styles.actionButtonText}>Add User</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.actionButton}
+                style={styles.actionButtonSecondary}
                 onPress={() => setShowDeleteMemberModal(true)}
               >
                 <Text style={styles.actionButtonIcon}>−</Text>
                 <Text style={styles.actionButtonText}>Remove User</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.actionButton}
+                style={styles.actionButtonSecondary}
                 onPress={() => setShowTransferModal(true)}
               >
                 <Text style={styles.actionButtonIcon}>⇄</Text>
                 <Text style={styles.actionButtonText}>Transfer</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.deleteButton}
+                style={styles.dangerButton}
                 onPress={handleDeleteLeaderboard}
               >
-                <Text style={styles.deleteButtonIcon}>×</Text>
-                <Text style={styles.deleteButtonText}>Delete</Text>
+                <Text style={styles.dangerButtonIcon}>×</Text>
+                <Text style={styles.dangerButtonText}>Delete</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -343,7 +368,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         leaderboardId={leaderboardId}
         onClose={() => setShowAddMemberModal(false)}
         onSuccess={(username) => {
-          queryClient.invalidateQueries({ queryKey: ["privateLeaderboardMembers", leaderboardId] });
+          queryClient.invalidateQueries({
+            queryKey: ["privateLeaderboardMembers", leaderboardId],
+          });
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
           // Show celebration modal with the added member's username
           setAddedMemberUsername(username);
@@ -358,7 +385,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         ownerId={leaderboard?.ownerId || ""}
         onClose={() => setShowDeleteMemberModal(false)}
         onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ["privateLeaderboardMembers", leaderboardId] });
+          queryClient.invalidateQueries({
+            queryKey: ["privateLeaderboardMembers", leaderboardId],
+          });
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
         }}
       />
@@ -369,7 +398,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         currentOwnerId={leaderboard?.ownerId || ""}
         onClose={() => setShowTransferModal(false)}
         onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ["privateLeaderboard", leaderboardId] });
+          queryClient.invalidateQueries({
+            queryKey: ["privateLeaderboard", leaderboardId],
+          });
           queryClient.invalidateQueries({ queryKey: ["privateLeaderboards"] });
         }}
       />
@@ -384,9 +415,9 @@ export const PrivateLeaderboardScreen: React.FC<PrivateLeaderboardScreenProps> =
         onCollectXP={async () => {
           // Trigger haptic and sound feedback when collecting 10 XP
           triggerSuccessFeedback();
-          
+
           const result = await gamificationService.addBonusXP(10);
-          
+
           if (result.newAchievements.length > 0) {
             // Show achievements one by one
             setTimeout(() => {
@@ -573,10 +604,23 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: "space-between",
   },
-  actionButton: {
+  actionButtonPrimary: {
     flex: 1,
     aspectRatio: 1,
     backgroundColor: theme.colors.primary,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 70,
+    maxHeight: 70,
+    paddingVertical: 8,
+  },
+  actionButtonSecondary: {
+    flex: 1,
+    aspectRatio: 1,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    backgroundColor: "white",
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -595,8 +639,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
+    paddingHorizontal: 4,
   },
-  deleteButton: {
+  dangerButton: {
     flex: 1,
     aspectRatio: 1,
     backgroundColor: theme.colors.danger,
@@ -607,17 +652,16 @@ const styles = StyleSheet.create({
     maxHeight: 70,
     paddingVertical: 8,
   },
-  deleteButtonIcon: {
+  dangerButtonIcon: {
     color: theme.colors.onDanger,
     fontSize: 24,
     fontWeight: "600",
     marginBottom: 4,
   },
-  deleteButtonText: {
+  dangerButtonText: {
     color: theme.colors.onDanger,
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
   },
 });
-

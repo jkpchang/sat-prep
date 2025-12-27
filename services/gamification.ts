@@ -80,7 +80,7 @@ const ACHIEVEMENTS: Achievement[] = [
 
 const XP_PER_CORRECT = 10;
 const XP_PER_QUESTION = 5; // Even for wrong answers
-const MIN_QUESTIONS_FOR_STREAK = 5; // Minimum questions per day to count toward streak
+export const MIN_QUESTIONS_FOR_STREAK = 10; // Minimum questions per day to count toward streak
 
 export class GamificationService {
   private progress: UserProgress;
@@ -189,7 +189,7 @@ export class GamificationService {
     const lastValidDate = this.progress.lastValidStreakDate;
 
     if (!lastValidDate) {
-      // First time hitting 5 questions - start streak
+      // First time hitting 10 questions - start streak
       this.progress.dayStreak = 1;
       this.progress.lastValidStreakDate = date;
     } else if (isYesterday(lastValidDate)) {
@@ -229,7 +229,7 @@ export class GamificationService {
     this.progress.questionsAnsweredToday += 1;
     this.progress.lastQuestionDate = today;
 
-    // Check if we've hit the 5-question threshold
+    // Check if we've hit the 10-question threshold
     let streakExtended = false;
     let newDayStreak = this.progress.dayStreak;
     if (this.progress.questionsAnsweredToday === MIN_QUESTIONS_FOR_STREAK) {

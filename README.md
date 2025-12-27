@@ -4,7 +4,7 @@ A mobile app built with React Native and Expo that gamifies SAT preparation, mak
 
 ## Features
 
-- **Daily Challenges**: Practice questions to maintain your streak
+- **Daily Challenges**: Complete 10 questions daily to maintain your streak
 - **Gamification System**: 
   - Streak tracking (daily practice)
   - XP/Points system
